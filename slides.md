@@ -355,6 +355,8 @@ clicks: 4
 time: '9:10–10:15'
 ---
 
+<div class="proof-method-label">01 / Direct proof</div>
+
 # Odd + odd = even
 
 <p class="small">Let <MathTex tex="a,b" /> be arbitrary odd integers.</p>
@@ -411,6 +413,8 @@ time: '10:15–11:00'
 ---
 
 
+<div class="proof-method-label">02 / Proof by cases</div>
+
 # One of the neighbors is even
 
 <div class="statement"><MathTex tex="n(n+1)\text{ is even for every }n\in\mathbb{Z}." /></div>
@@ -441,6 +445,8 @@ clicks: 4
 time: '11:00–12:10'
 ---
 
+
+<div class="proof-method-label">03 / Contrapositive</div>
 
 # An even square has an even root
 
@@ -479,6 +485,8 @@ time: '12:10–12:45'
 ---
 
 
+<div class="proof-method-label">04 / Contradiction</div>
+
 # Suppose the target is false
 
 <div class="contradiction-chain">
@@ -509,10 +517,12 @@ time: '12:45–13:45'
 ---
 
 
+<div class="proof-method-label">04 / Contradiction</div>
+
 # A fraction in lowest terms
 
 <div class="sqrt-setup">
-  <div><div class="micro">ASSUME THE OPPOSITE</div><div class="giant-root"><MathTex tex="\sqrt{2}=\frac{a}{b}" /></div><p class="small"><MathTex tex="a,b\in\mathbb{Z},\quad b>0" /><br />Choose the fraction in lowest terms.</p></div>
+  <div><div class="micro">ASSUME THE OPPOSITE</div><div class="giant-root"><MathTex tex="\sqrt{2}=\frac{a}{b}" /></div><p class="small"><MathTex tex="a,b" /> are positive integers.<br />Choose the fraction in lowest terms.</p></div>
   <div>
     <div v-click="1" class="aside">Rational means expressible as a ratio of integers.</div>
     <div v-click="2" class="reduced-example"><MathTex tex="\frac{6}{4}=\frac{3}{2}" /><p class="small muted" style="margin-top: 15px">In lowest terms, a and b share no common factor greater than 1.</p></div>
@@ -521,7 +531,7 @@ time: '12:45–13:45'
 
 <!--
 
-Let's prove that the square root of two is irrational. Assume the opposite: it equals a over b, with a and b integers and b positive. We choose that fraction in lowest terms.
+Let's prove that the square root of two is irrational. Assume the opposite: it equals a over b, with a and b both positive integers. We choose that fraction in lowest terms.
 
 [click] Rational means expressible as a ratio of integers. Irrational means no such ratio exists. A long decimal display can't settle this. A rational number can also have an infinite decimal expansion, like one third. So we need an argument about all possible fractions.
 
@@ -539,6 +549,8 @@ time: '13:45–15:00'
 ---
 
 
+<div class="proof-method-label">04 / Contradiction</div>
+
 # The fraction reduces after all
 
 <div class="proof-rows">
@@ -548,7 +560,7 @@ time: '13:45–15:00'
 </div>
 
 <div v-click="4" class="contradiction-callout"><span>Lowest terms</span><span class="conflict">CONTRADICTS</span><span>Both divisible by 2</span></div>
-<p v-click="5" class="takeaway">No such fraction exists. <MathTex tex="\sqrt{2}" /> is irrational.<span class="proof-qed" aria-label="QED"></span></p>
+<p v-click="5" class="takeaway direct-proof-takeaway">No such fraction exists. <MathTex tex="\sqrt{2}" /> is irrational.<span class="proof-qed" aria-label="QED"></span></p>
 
 <!--
 
@@ -575,37 +587,48 @@ Notice how precise the contradiction is. We didn't say the fraction looks unlike
 class: dark
 section: INDUCTION
 transition: wipe
+clicks: 3
 time: '15:00–16:20'
 ---
 
 
-# An infinite chain needs a start
+<div class="proof-method-label">05 / Induction</div>
 
-<p class="small"><MathTex tex="P(1)\quad\text{and}\quad\forall k\geq1,\ P(k)\Rightarrow P(k+1)" /></p>
+# Induction: prove the start and the step
 
-<DominoLab />
+<p class="small"><MathTex tex="P(n)" /> means “the claim is true for n.” Our goal: every positive integer.</p>
+
+<div class="induction-obligations">
+  <div v-click="1" class="induction-obligation">
+    <h2>1. Establish a fact</h2>
+    <div class="induction-core"><MathTex tex="P(1)" /></div>
+    <p>Prove the first case directly.</p>
+    <div class="induction-caption">BASE CASE</div>
+  </div>
+  <div v-click="2" class="induction-obligation">
+    <h2>2. Prove a reusable rule</h2>
+    <div class="induction-core"><MathTex tex="P(k)\Rightarrow P(k+1)" /></div>
+    <p>For any integer k ≥ 1: assume this case.<br />Deduce the next one.</p>
+    <div class="induction-caption">INDUCTIVE STEP</div>
+  </div>
+</div>
+
+<div v-click="3" class="induction-reach">
+  <div class="induction-route"><span class="induction-start"><MathTex tex="P(1)" /></span><span>→</span><MathTex tex="P(2)" /><span>→</span><MathTex tex="P(3)" /><span>→ ⋯ →</span><span class="induction-target"><MathTex tex="P(N)" /></span></div>
+  <p>Choose any N. The same rule reaches it in N − 1 steps.</p>
+</div>
+
 
 <!--
+Induction is a way to prove a claim for every positive integer without checking them one at a time. P of n is just shorthand for the claim at the number n. There are two things we need to prove.
 
-Induction proves a statement for every positive integer using two jobs. First, prove the base case, usually one. Second, prove that for an arbitrary integer k in the domain, if the statement holds at k, it must hold at k plus one.
+[click] First, the base case. Prove P of one directly. That gives us one established fact, but it says nothing yet about two, three, or any other number.
 
-[DO: Leave both switches ON and click Run the chain.]
+[click] Second, the inductive step. Pick an arbitrary integer k at least one. Temporarily assume P of k, and use that assumption to prove P of k plus one. We're proving an if-then statement that works for any k. We're not assuming the whole theorem, and we're not allowed to assume P of k plus one.
 
-The first domino falls, and every link carries the result forward. That's the picture.
+[click] Now combine them. P of one is established. Apply the step with k equal to one, and we get P of two. Apply it with k equal to two, and we get P of three. Pick any positive integer N. Repeating the same justified step N minus one times reaches P of N. N can be a trillion; it is still a finite number of steps. We don't actually have to perform those steps to know the argument reaches it.
 
-[DO: Turn Base case OFF and run again.]
 
-What happens with every link but no starting point? Nothing. An implication doesn't establish its own hypothesis.
-
-[DO: Turn Base case ON, turn Every link OFF, and run again.]
-
-Now the base works, but it can't get us anywhere else. A successful first example is not enough either.
-
-[DO: Restore both ON and run.]
-
-The picture has eight dominoes. The proof needs the step for every integer k at least one. That's what lets the chain reach any positive integer, however large.
-
-And assuming P of k inside the step isn't circular. We're proving a conditional. The independently proved base case is what starts that chain.
 -->
 
 ---
@@ -613,6 +636,8 @@ section: INDUCTION
 time: '16:20–17:05'
 ---
 
+
+<div class="proof-method-label">05 / Induction</div>
 
 # One new layer at a time
 
@@ -641,17 +666,19 @@ time: '17:05–18:15'
 ---
 
 
+<div class="proof-method-label">05 / Induction</div>
+
 # The pattern holds for every n ≥ 1
 
 <div class="induction-equation"><MathTex tex="P(n):\quad 1+3+\cdots+(2n-1)=n^2" /></div>
 
 <div class="proof-rows">
   <div v-click="1" class="proof-row"><span class="line-number">BASE</span><div class="math"><MathTex tex="n=1:\qquad 1=1^2" /></div><div class="reason">The first case holds</div></div>
-  <div v-click="2" class="proof-row"><span class="line-number">ASSUME</span><div class="math"><MathTex tex="1+3+\cdots+(2k-1)=k^2" /></div><div class="reason">For an arbitrary integer k ≥ 1</div></div>
+  <div v-click="2" class="proof-row"><span class="line-number">ASSUME</span><div class="math"><MathTex tex="1+3+\cdots+(2k-1)=k^2" /></div><div class="reason" style="white-space:nowrap;font-size:16px">For an arbitrary integer k ≥ 1</div></div>
   <div v-click="3" class="proof-row final"><span class="line-number">STEP</span><div class="math"><MathTex tex="k^2+(2k+1)=(k+1)^2" /></div><div class="reason">Add the next odd number</div></div>
 </div>
 
-<p v-click="4" class="takeaway">By induction, <MathTex tex="P(n)" /> holds for every positive integer n.<span class="proof-qed" aria-label="QED"></span></p>
+<p v-click="4" class="takeaway direct-proof-takeaway">By induction, <MathTex tex="P(n)" /> holds for every positive integer n.<span class="proof-qed" aria-label="QED"></span></p>
 
 <!--
 
@@ -676,6 +703,8 @@ clicks: 2
 time: '18:15–19:00'
 ---
 
+
+<div class="proof-method-label">06 / Construction</div>
 
 # Sometimes one example is enough
 
@@ -747,15 +776,11 @@ transition: wipe
 time: '19:45–25:45'
 ---
 
-
 # Proof or bluff?
 
 <ActivityLauncher kind="proof" />
 
 <!--
-
-[BEFORE STARTING: Switch your shared screen to the activity host tab. Click Open Proof or Bluff, then Start round 1. The same names, room, and phone pages carry over. Late arrivals can scan the QR again. If phones fail, return to Slidev and select Show-of-hands fallback.]
-
 Same phones, new challenge. Five arguments. Vote A for a valid proof, B for a broken proof. The conclusion alone isn't enough: judge the reasoning. You can change your mind until I lock the vote.
 
 A correct majority earns the class a point. Otherwise, the traps score. A tie goes to the traps; a round with no votes earns neither side a point. After locking, someone has to defend the answer.
@@ -918,24 +943,15 @@ section: REFERENCES
 time: 'Appendix / not timed'
 ---
 
-
 # The proofs behind the presentation
 
 <div class="sources-list"><div><a href="https://arxiv.org/abs/1608.07936" target="_blank">Frenkel & Pelikán · The 52-digit counterexample ↗</a><p>American Mathematical Monthly, 2017 · Example 1(b).</p></div>
-  <div><a href="https://richardhammack.github.io/BookOfProof/" target="_blank">Richard Hammack, Book of Proof</a><p>Logic: Chapter 2. Proof methods: Chapters 4–7.<br />Counterexamples and induction: Chapters 9–10. Free textbook.</p></div>
-  <div><a href="https://sli.dev/" target="_blank">Slidev</a><p>Presentation framework. Mathematical notation rendered with KaTeX.<br />The live demos run locally in the browser.</p></div>
+  <div><a href="https://richardhammack.github.io/BookOfProof/" target="_blank">Richard Hammack, Book of Proof ↗</a><p>Logic: Chapter 2. Proof methods: Chapters 4–7.<br />Counterexamples and induction: Chapters 9–10. Free textbook.</p></div>
+  <div><a href="https://slides.zaydkrunz.com" target="_blank" rel="noopener noreferrer">slides.zaydkrunz.com ↗</a><p>Presentation framework. Mathematical notation rendered with KaTeX.<br />The live demos run locally in the browser.</p></div>
 </div>
 
 <!--
-APPENDIX: Not part of the 30-minute schedule.
-
 If you want more examples, Richard Hammack's Book of Proof is a free textbook that covers these techniques in much more detail. Chapter 2 develops the logic, Chapters 4 through 6 cover our basic proof methods, and Chapters 7, 9, and 10 cover existence, disproof, and induction. The opening counterexample comes from the number-theory paper listed here.
 
-REFERENCES (not spoken):
-- Richard Hammack, Book of Proof, author-hosted third edition: https://richardhammack.github.io/BookOfProof/
-- Slidev documentation: https://sli.dev/guide/animations and https://sli.dev/features/latex
-
-The opening shared-factor example is from Frenkel and Pelikán, "On the greatest common divisor of the value of two polynomials," Example 1(b), American Mathematical Monthly 124 (2017), 446–450: https://arxiv.org/abs/1608.07936. The prime-factor display certifies factors only within its deterministic test range and labels every unresolved remainder.
-
-All numerical examples, game rounds, and demo logic are included in the local source. Phone voting uses the presentation's own server. The show-of-hands version and all other demos also work locally without an internet connection.
+The opening shared-factor example is from Frenkel and Pelikán.
 -->

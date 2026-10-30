@@ -192,7 +192,8 @@ html { font-family: 'Inter Variable', sans-serif; }
 .closing .closing-sub { margin-top: 28px; font-size: 28px; max-width: 820px; }
 .closing .q-and-a { position: absolute; bottom: 68px; left: 66px; color: var(--acid); font: 15px 'IBM Plex Mono', monospace; letter-spacing: .12em; }
 .sources-list { margin-top: 28px; }
-.sources-list > div { padding: 22px 0; border-top: 1px solid var(--line); }
+.sources-list > div { padding: 22px 0; }
+.sources-list > div + div { border-top: 1px solid var(--line); }
 .sources-list a { color: var(--blue); border-bottom: 1px solid var(--blue); font-size: 25px; }
 .sources-list p { margin-top: 9px; font-size: 20px; color: var(--muted); }
 
@@ -374,3 +375,18 @@ button, input { font: inherit; }
 .direct-proof-takeaway{margin-top:40px!important;padding-top:12px;padding-bottom:12px}.direct-proof-takeaway::before{top:calc(12px + .54em)}
 
 .proof-qed{display:inline-block;width:14px;height:14px;background:#18201f;margin-left:16px;vertical-align:middle;flex-shrink:0}
+
+.induction-obligations{display:grid;grid-template-columns:1fr 1.35fr;gap:48px;margin-top:28px}
+.induction-obligation{border-top:1px solid #53604f;padding-top:16px}
+.induction-obligation h2{font-size:27px;margin:0 0 14px}
+.induction-core{font-size:34px;color:var(--acid);margin:10px 0}
+.induction-obligation p{font-size:20px;line-height:1.4;margin:10px 0}
+.induction-caption{font:12px 'IBM Plex Mono',monospace;color:#b3bbae;letter-spacing:.08em;margin-top:14px}
+.induction-reach{margin-top:28px;padding:18px 22px;background:#24312b;border-radius:6px}
+.induction-route{display:flex;align-items:center;justify-content:space-between;gap:18px;font-size:28px}
+.induction-route>span{white-space:nowrap}
+.induction-route .induction-start{color:var(--acid)}
+.induction-target{border:1px solid var(--acid);padding:5px 15px;color:var(--acid)}
+.induction-reach p{font-size:18px;margin:12px 0 0;color:#c5cebf}
+
+.proof-method-label{position:absolute;top:24px;left:66px;font:500 14px 'IBM Plex Mono',monospace;color:var(--blue);letter-spacing:.035em}.slidev-layout.dark .proof-method-label{color:var(--acid)}

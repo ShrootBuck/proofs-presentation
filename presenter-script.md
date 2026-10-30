@@ -261,7 +261,7 @@ Proof by contradiction starts by assuming the exact opposite of what we want to 
 ## Slide 17
 
 
-Let's prove that the square root of two is irrational. Assume the opposite: it equals a over b, with a and b integers and b positive. We choose that fraction in lowest terms.
+Let's prove that the square root of two is irrational. Assume the opposite: it equals a over b, with a and b both positive integers. We choose that fraction in lowest terms.
 
 [click] Rational means expressible as a ratio of integers. Irrational means no such ratio exists. A long decimal display can't settle this. A rational number can also have an infinite decimal expansion, like one third. So we need an argument about all possible fractions.
 
@@ -298,28 +298,15 @@ Notice how precise the contradiction is. We didn't say the fraction looks unlike
 
 ## Slide 19
 
+Induction is a way to prove a claim for every positive integer without checking them one at a time. P of n is just shorthand for the claim at the number n. There are two things we need to prove.
 
-Induction proves a statement for every positive integer using two jobs. First, prove the base case, usually one. Second, prove that for an arbitrary integer k in the domain, if the statement holds at k, it must hold at k plus one.
+[click] First, the base case. Prove P of one directly. That gives us one established fact, but it says nothing yet about two, three, or any other number.
 
-[DO: Leave both switches ON and click Run the chain.]
+[click] Second, the inductive step. Pick an arbitrary integer k at least one. Temporarily assume P of k, and use that assumption to prove P of k plus one. We're proving an if-then statement that works for any k. We're not assuming the whole theorem, and we're not allowed to assume P of k plus one.
 
-The first domino falls, and every link carries the result forward. That's the picture.
+[click] Now combine them. P of one is established. Apply the step with k equal to one, and we get P of two. Apply it with k equal to two, and we get P of three. Pick any positive integer N. Repeating the same justified step N minus one times reaches P of N. N can be a trillion; it is still a finite number of steps. We don't actually have to perform those steps to know the argument reaches it.
 
-[DO: Turn Base case OFF and run again.]
 
-What happens with every link but no starting point? Nothing. An implication doesn't establish its own hypothesis.
-
-[DO: Turn Base case ON, turn Every link OFF, and run again.]
-
-Now the base works, but it can't get us anywhere else. A successful first example is not enough either.
-
-[DO: Restore both ON and run.]
-
-The picture has eight dominoes. The proof needs the step for every integer k at least one. That's what lets the chain reach any positive integer, however large.
-
-And assuming P of k inside the step isn't circular. We're proving a conditional. The independently proved base case is what starts that chain.
-
----
 
 ## Slide 20
 
