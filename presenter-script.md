@@ -84,7 +84,7 @@ A proof starts with assumptions, definitions, and results we've already establis
 
 [click] And the conclusion has to be the exact claim we promised, with the right domain and every required case covered.
 
-We'll write readable mathematical proofs, rather than translate every sentence into a formal symbolic system. But the logic underneath is the same. Someone should be able to challenge any step and get a real answer.
+[click] We'll write readable mathematical proofs, rather than translate every sentence into a formal symbolic system. But the logic underneath is the same. Someone should be able to challenge any step and get a real answer.
 
 You can actually make a computer check this. In a proof assistant like Lean, you formalize the statement and its proof, and the system checks that the conclusion follows from the definitions and assumptions. It's checking the reasoning, not just trying a bunch of inputs.
 
@@ -141,7 +141,7 @@ Here's a true implication over the integers: if a number is divisible by four, i
 
 Both rule out exactly the same bad case: divisible by four but not even. We'll use this equivalence as an actual proof technique in a few minutes.
 
-If a theorem says if and only if, it promises both directions. Both need justification.
+[click] Reversing an implication needs its own proof. If a theorem says if and only if, it promises both directions. Both need justification.
 
 ---
 
@@ -227,7 +227,7 @@ Our next claim is that if an integer's square is even, the integer itself is eve
 
 [click] Square it. We get four k squared plus four k plus one. Rewrite that as two times the integer two k squared plus two k, then plus one. That's odd.
 
-We've proved the contrapositive, so we've proved the original implication. An odd integer can't have an even square. Therefore an integer with an even square must be even.
+[click] We've proved the contrapositive, so we've proved the original implication. An odd integer can't have an even square. Therefore an integer with an even square must be even.
 
 Keep this result. In a moment we'll use it twice inside a different proof. This is how mathematical arguments build on each other instead of starting over every time.
 
@@ -242,7 +242,7 @@ Proof by contradiction starts by assuming the exact opposite of what we want to 
 
 [click] That means the extra assumption cannot hold, so the original target does hold, under our standing assumptions.
 
-This differs from contrapositive. Contrapositive directly proves an equivalent implication. Contradiction assumes a negation and drives it into a wall. The wall has to be a real contradiction. I don't like this result is not a proof technique.
+[click] This differs from contrapositive. Contrapositive directly proves an equivalent implication. Contradiction assumes a negation and drives it into a wall. The wall has to be a real contradiction. I don't like this result is not a proof technique.
 
 ---
 
@@ -278,7 +278,7 @@ Before I reveal the finish, what have we just shown about the fraction?
 
 [click] Both numerator and denominator have a factor of two. But we chose a fraction with no common factor greater than one. Those conditions cannot both hold.
 
-So the assumption that square root of two is rational fails. There is no integer fraction representing it.
+[click] So the assumption that square root of two is rational fails. There is no integer fraction representing it.
 
 Notice how precise the contradiction is. We didn't say the fraction looks unlikely. We found two incompatible facts about the very same fraction.
 
@@ -335,7 +335,7 @@ Let's write the proof carefully. P of n is the statement that the first n positi
 
 [click] The next odd number is two k plus one. Add it to both sides. The new sum is k squared plus two k plus one, which factors as k plus one squared. That's exactly P of k plus one.
 
-We've proved the starting case and the implication for any positive integer k. By induction, the identity holds for every positive integer n.
+[click] We've proved the starting case and the implication for any positive integer k. By induction, the identity holds for every positive integer n.
 
 This is much stronger than checking the first hundred sums. The step contains no upper limit. The same argument that gets us from five to six also gets us from a trillion to a trillion and one.
 
@@ -379,7 +379,9 @@ Third: the sum from one through n equals n times n plus one over two, for positi
 
 [PAUSE.]
 
-[click] Induction fits, because moving from n to n plus one adds one new term. A pairing argument also works. These methods are tools, and many claims admit more than one good proof.
+[click] Induction fits, because moving from n to n plus one adds one new term. A pairing argument also works.
+
+[click] These methods are tools, and many claims admit more than one good proof.
 
 ---
 

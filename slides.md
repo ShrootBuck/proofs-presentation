@@ -157,7 +157,7 @@ So the important wording is: every number we've tested, not every number. That's
 
 ---
 section: WHAT A PROOF DOES
-clicks: 2
+clicks: 3
 time: '3:50–4:30'
 ---
 
@@ -170,11 +170,11 @@ time: '3:50–4:30'
   <div><span class="micro">START WITH</span><h3>Assumptions<br />& definitions</h3></div>
   <span class="flow-arrow">⇒</span>
   <div v-click="1"><span class="micro">JUSTIFY</span><h3>Every<br />inference</h3></div>
-  <span class="flow-arrow" v-after>⇒</span>
+  <span class="flow-arrow" v-click="1">⇒</span>
   <div v-click="2"><span class="micro">REACH</span><h3>The exact<br />claim</h3></div>
 </div>
 
-<p v-after class="aside">The argument must cover every case the claim promises.</p>
+<p v-click="3" class="aside">The argument must cover every case the claim promises.</p>
 
 <!--
 
@@ -184,7 +184,7 @@ A proof starts with assumptions, definitions, and results we've already establis
 
 [click] And the conclusion has to be the exact claim we promised, with the right domain and every required case covered.
 
-We'll write readable mathematical proofs, rather than translate every sentence into a formal symbolic system. But the logic underneath is the same. Someone should be able to challenge any step and get a real answer.
+[click] We'll write readable mathematical proofs, rather than translate every sentence into a formal symbolic system. But the logic underneath is the same. Someone should be able to challenge any step and get a real answer.
 
 You can actually make a computer check this. In a proof assistant like Lean, you formalize the statement and its proof, and the system checks that the conclusion follows from the definitions and assumptions. It's checking the reasoning, not just trying a bunch of inputs.
 
@@ -257,7 +257,7 @@ This is the truth table for material implication. It describes a logical conditi
 
 ---
 section: LOGIC
-clicks: 2
+clicks: 3
 time: '6:25–7:15'
 ---
 
@@ -268,7 +268,7 @@ time: '6:25–7:15'
 <div v-click="1" class="compare-row bad"><div class="label">CONVERSE</div><div class="formula"><MathTex tex="Q\Rightarrow P" /></div><div class="description">Even implies divisible by 4?<br /><strong>6 breaks it.</strong></div></div>
 <div v-click="2" class="compare-row good"><div class="label">CONTRAPOSITIVE</div><div class="formula"><MathTex tex="\neg Q\Rightarrow\neg P" /></div><div class="description">Not even implies not divisible by 4.<br /><strong>Equivalent to the original.</strong></div></div>
 
-<p v-after class="takeaway">Reversing an implication needs its own proof.</p>
+<p v-click="3" class="takeaway">Reversing an implication needs its own proof.</p>
 
 <!--
 
@@ -280,7 +280,7 @@ Here's a true implication over the integers: if a number is divisible by four, i
 
 Both rule out exactly the same bad case: divisible by four but not even. We'll use this equivalence as an actual proof technique in a few minutes.
 
-If a theorem says if and only if, it promises both directions. Both need justification.
+[click] Reversing an implication needs its own proof. If a theorem says if and only if, it promises both directions. Both need justification.
 -->
 
 ---
@@ -441,7 +441,7 @@ Checking only positive and negative integers, for example, would miss zero. Tiny
 
 ---
 section: CONTRAPOSITIVE
-clicks: 3
+clicks: 4
 time: '11:00–12:10'
 ---
 
@@ -457,7 +457,7 @@ time: '11:00–12:10'
   <div v-click="3" class="proof-row final"><span class="line-number">02</span><div class="math"><MathTex tex="n^2=4k^2+4k+1=2(2k^2+2k)+1" /></div><div class="reason">An odd integer</div></div>
 </div>
 
-<p v-after class="takeaway">Therefore, if <MathTex tex="n^2" /> is even, <MathTex tex="n" /> must be even.</p>
+<p v-click="4" class="takeaway">Therefore, if <MathTex tex="n^2" /> is even, <MathTex tex="n" /> must be even.</p>
 
 <!--
 
@@ -469,7 +469,7 @@ Our next claim is that if an integer's square is even, the integer itself is eve
 
 [click] Square it. We get four k squared plus four k plus one. Rewrite that as two times the integer two k squared plus two k, then plus one. That's odd.
 
-We've proved the contrapositive, so we've proved the original implication. An odd integer can't have an even square. Therefore an integer with an even square must be even.
+[click] We've proved the contrapositive, so we've proved the original implication. An odd integer can't have an even square. Therefore an integer with an even square must be even.
 
 Keep this result. In a moment we'll use it twice inside a different proof. This is how mathematical arguments build on each other instead of starting over every time.
 -->
@@ -478,7 +478,7 @@ Keep this result. In a moment we'll use it twice inside a different proof. This 
 class: dark
 section: CONTRADICTION
 transition: wipe
-clicks: 2
+clicks: 3
 time: '12:10–12:45'
 ---
 
@@ -488,12 +488,12 @@ time: '12:10–12:45'
 <div class="contradiction-chain">
   <div class="chunk"><MathTex tex="\neg P" /><p>Assume the negation<br />of the target.</p></div>
   <div v-click="1" class="arrow">⇒</div>
-  <div v-after class="chunk"><MathTex tex="R\land\neg R" /><p>Derive something<br />impossible.</p></div>
+  <div v-click="1" class="chunk"><MathTex tex="R\land\neg R" /><p>Derive something<br />impossible.</p></div>
   <div v-click="2" class="arrow">⇒</div>
-  <div v-after class="chunk"><MathTex tex="P" /><p>Reject the negation.<br />The target holds.</p></div>
+  <div v-click="2" class="chunk"><MathTex tex="P" /><p>Reject the negation.<br />The target holds.</p></div>
 </div>
 
-<p v-after class="aside" style="margin-top: 43px">The contradiction must be a logical impossibility, not just a surprising result.</p>
+<p v-click="3" class="aside" style="margin-top: 43px">The contradiction must be a logical impossibility, not just a surprising result.</p>
 
 <!--
 
@@ -503,7 +503,7 @@ Proof by contradiction starts by assuming the exact opposite of what we want to 
 
 [click] That means the extra assumption cannot hold, so the original target does hold, under our standing assumptions.
 
-This differs from contrapositive. Contrapositive directly proves an equivalent implication. Contradiction assumes a negation and drives it into a wall. The wall has to be a real contradiction. I don't like this result is not a proof technique.
+[click] This differs from contrapositive. Contrapositive directly proves an equivalent implication. Contradiction assumes a negation and drives it into a wall. The wall has to be a real contradiction. I don't like this result is not a proof technique.
 -->
 
 ---
@@ -538,7 +538,7 @@ Remember the result we just proved: an even square has an even integer root.
 
 ---
 section: CONTRADICTION
-clicks: 4
+clicks: 5
 time: '13:45–15:00'
 ---
 
@@ -552,7 +552,7 @@ time: '13:45–15:00'
 </div>
 
 <div v-click="4" class="contradiction-callout"><span>Lowest terms</span><span class="conflict">CONTRADICTS</span><span>Both divisible by 2</span></div>
-<p v-after class="takeaway">No such fraction exists. <MathTex tex="\sqrt{2}" /> is irrational.</p>
+<p v-click="5" class="takeaway">No such fraction exists. <MathTex tex="\sqrt{2}" /> is irrational.</p>
 
 <!--
 
@@ -570,7 +570,7 @@ Before I reveal the finish, what have we just shown about the fraction?
 
 [click] Both numerator and denominator have a factor of two. But we chose a fraction with no common factor greater than one. Those conditions cannot both hold.
 
-So the assumption that square root of two is rational fails. There is no integer fraction representing it.
+[click] So the assumption that square root of two is rational fails. There is no integer fraction representing it.
 
 Notice how precise the contradiction is. We didn't say the fraction looks unlikely. We found two incompatible facts about the very same fraction.
 -->
@@ -640,7 +640,7 @@ The diagram makes the next odd number feel inevitable. But showing a few sizes i
 ---
 section: INDUCTION
 class: induction-proof
-clicks: 3
+clicks: 4
 time: '17:05–18:15'
 ---
 
@@ -655,7 +655,7 @@ time: '17:05–18:15'
   <div v-click="3" class="proof-row final"><span class="line-number">STEP</span><div class="math"><MathTex tex="k^2+(2k+1)=(k+1)^2" /></div><div class="reason">Add the next odd number</div></div>
 </div>
 
-<p v-after class="takeaway">By induction, <MathTex tex="P(n)" /> holds for every positive integer n.</p>
+<p v-click="4" class="takeaway">By induction, <MathTex tex="P(n)" /> holds for every positive integer n.</p>
 
 <!--
 
@@ -667,7 +667,7 @@ Let's write the proof carefully. P of n is the statement that the first n positi
 
 [click] The next odd number is two k plus one. Add it to both sides. The new sum is k squared plus two k plus one, which factors as k plus one squared. That's exactly P of k plus one.
 
-We've proved the starting case and the implication for any positive integer k. By induction, the identity holds for every positive integer n.
+[click] We've proved the starting case and the implication for any positive integer k. By induction, the identity holds for every positive integer n.
 
 This is much stronger than checking the first hundred sums. The step contains no upper limit. The same argument that gets us from five to six also gets us from a trillion to a trillion and one.
 
@@ -704,7 +704,7 @@ This connects back to quantifiers. One example is weak evidence for a universal 
 
 ---
 section: CHOOSING A METHOD
-clicks: 3
+clicks: 4
 time: '19:00–19:45'
 ---
 
@@ -717,7 +717,7 @@ time: '19:00–19:45'
   <div><span class="index">C</span><span><MathTex tex="1+2+\cdots+n=\frac{n(n+1)}{2}" /></span><span v-click="3" class="answer">Induction is one option</span></div>
 </div>
 
-<p v-after class="takeaway">The statement's structure suggests a method. It rarely forces just one.</p>
+<p v-click="4" class="takeaway">The statement's structure suggests a method. It rarely forces just one.</p>
 
 <!--
 
@@ -739,7 +739,9 @@ Third: the sum from one through n equals n times n plus one over two, for positi
 
 [PAUSE.]
 
-[click] Induction fits, because moving from n to n plus one adds one new term. A pairing argument also works. These methods are tools, and many claims admit more than one good proof.
+[click] Induction fits, because moving from n to n plus one adds one new term. A pairing argument also works.
+
+[click] These methods are tools, and many claims admit more than one good proof.
 -->
 
 ---
