@@ -23,6 +23,7 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
   const rooms = new Map()
   const streams = new Map()
   const rates = new Map()
+  const voteRates = new Map()
   let persistTimer = null
   const pendingBroadcasts = new Map()
   if (statePath && fs.existsSync(statePath)) {
@@ -66,6 +67,11 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
       persistTimer = setTimeout(() => { try { persist() } catch (error) { console.error('Room snapshot failed:', error.code) } }, 500)
       persistTimer.unref()
     }
+    scheduleBroadcast(room)
+  }
+  // A classroom can submit together. Persist each acknowledgement, but send
+  // at most ten roster/tally updates per second instead of one per student.
+  function scheduleBroadcast(room) {
     if (!pendingBroadcasts.has(room.code)) {
       const timer = setTimeout(() => { pendingBroadcasts.delete(room.code); broadcast(room) }, 100)
       timer.unref(); pendingBroadcasts.set(room.code, timer)
@@ -80,7 +86,9 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
     const correct = gameRounds[round].valid ? tally.valid : tally.broken
     return { ...tally, correct, winner: !tally.total ? 'none' : correct > tally.total / 2 ? 'class' : 'traps' }
   }
-  function snapshot(room, voterId) {
+  function snapshot(room, voterId, shared) {
+    if (shared) return { ...shared, joinedAsPlayer: Boolean(voterId && room.participants[voterId]),
+      ...(voterId ? { myName: room.participants[voterId]?.name || null, myVote: room.votes[room.round][voterId] ?? null, myHunt: room.hunt.players[voterId] || null } : {}) }
     const { title, claim, lines, prose } = gameRounds[room.round]
     const visible = ['locked', 'revealed', 'finished'].includes(room.phase)
     const revealed = ['revealed', 'finished'].includes(room.phase)
@@ -106,9 +114,14 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
     }
   }
   function broadcast(room) {
-    for (const client of streams.get(room.code) || []) {
-      if (client.writableLength > 256 * 1024) client.destroy()
-      else client.write(`data: ${JSON.stringify(snapshot(room, client.voterId))}\n\n`)
+    clearTimeout(pendingBroadcasts.get(room.code)); pendingBroadcasts.delete(room.code)
+    const clients = streams.get(room.code)
+    if (!clients?.size) return
+    const shared = snapshot(room)
+    for (const client of clients) {
+      if (client.destroyed || client.writableEnded) { clients.delete(client); continue }
+      if (client.writableLength > 64 * 1024) client.destroy()
+      else client.write(`data: ${JSON.stringify(snapshot(room, client.voterId, shared))}\n\n`)
     }
   }
   // Save before broadcasting success. A failed disk write must not leave an
@@ -127,7 +140,8 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
       console.error('Room save failed:', error.code)
       fail(503, 'Could not save this action. Try again; the room has not changed.')
     }
-    broadcast(room)
+    if (control) broadcast(room)
+    else scheduleBroadcast(room)
   }
   function checkControl(room, data) {
     if (data.controlRevision !== undefined && data.controlRevision !== (room.controlRevision || 0)) fail(409, 'The activity changed. Your screen will refresh; try again.')
@@ -139,13 +153,17 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
   function fail(status, message) { throw Object.assign(new Error(message), { status }) }
   async function body(req) {
     if (Number(req.headers['content-length'] || 0) > 4096) fail(413, 'Request too large.')
+    const timeout = setTimeout(() => req.destroy(), 5000)
+    timeout.unref()
     const chunks = []
     let bytes = 0
-    for await (const chunk of req) {
-      bytes += chunk.length
-      if (bytes > 4096) fail(413, 'Request too large.')
-      chunks.push(chunk)
-    }
+    try {
+      for await (const chunk of req) {
+        bytes += chunk.length
+        if (bytes > 4096) fail(413, 'Request too large.')
+        chunks.push(chunk)
+      }
+    } finally { clearTimeout(timeout) }
     try {
       const data = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}')
       if (!data || typeof data !== 'object' || Array.isArray(data)) fail(400, 'Expected a JSON object.')
@@ -173,7 +191,7 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
     res.writeHead(200, { 'Content-Type': mime[path.extname(resolved)] || 'application/octet-stream' })
     fs.createReadStream(resolved).on('error', () => res.destroy()).pipe(res)
   }
-  const server = http.createServer(async (req, res) => {
+  const server = http.createServer({ connectionsCheckingInterval: 1000 }, async (req, res) => {
     // Apply to every response, including assets, errors, QR images, and SSE.
     res.setHeader('Cache-Control', 'no-store, no-cache, max-age=0, must-revalidate, no-transform')
     res.setHeader('CDN-Cache-Control', 'no-store')
@@ -190,9 +208,12 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
       if (route === '/health') return json(res, 200, { status: 'ok' })
       if (req.method !== 'GET' && req.headers.origin && !origins.has(req.headers.origin)) fail(403, 'Unrecognized origin.')
       if (route.startsWith('/api/') && req.method !== 'GET') {
-        const key = `${req.socket.remoteAddress}:${route === '/api/rooms' ? 'create' : 'action'}`
+        const bucket = route === '/api/rooms' ? 'create' : route.endsWith('/host') ? 'host' : route.endsWith('/join') ? 'join' : 'action'
+        const key = `${req.socket.remoteAddress}:${bucket}`
         if (!rates.has(key) && rates.size >= 2000) fail(429, 'The server is busy. Try again shortly.')
-        const limit = route === '/api/rooms' ? 20 : 10000
+        // Classroom Wi-Fi/proxies share an address. Student traffic must never
+        // spend the host's control budget or prevent a reconnecting phone joining.
+        const limit = { create: 20, host: 120, join: 1000, action: 10000 }[bucket]
         const rate = rates.get(key) || { start: clock(), count: 0 }
         if (clock() - rate.start > 60000) { rate.start = clock(); rate.count = 0 }
         if (++rate.count > limit) fail(429, 'Too many requests. Try again shortly.')
@@ -229,10 +250,10 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
           if (clients.size >= 300 || [...streams.values()].reduce((sum, set) => sum + set.size, 0) >= 400) fail(429, 'Room connection limit reached.')
           res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'X-Accel-Buffering': 'no' })
           res.voterId = getVoter(req)
-          res.write(`data: ${JSON.stringify(snapshot(room, res.voterId))}\n\n`)
+          res.write(`retry: ${2000 + Math.floor(Math.random() * 2000)}\ndata: ${JSON.stringify(snapshot(room, res.voterId))}\n\n`)
           clients.add(res)
           const heartbeat = setInterval(() => {
-            if (res.writableLength > 256 * 1024) res.destroy()
+            if (res.writableLength > 64 * 1024) res.destroy()
             else res.write(': heartbeat\n\n')
           }, 15000)
           heartbeat.unref()
@@ -295,7 +316,15 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
           checkControl(room, data)
           if (room.activity !== 'proof' || room.phase !== 'open' || data.round !== room.round) fail(409, 'Voting is closed for this round.')
           if (typeof data.valid !== 'boolean') fail(400, 'Choose valid or broken.')
+          // Duplicate clicks/retries are already saved. Rapid alternating votes
+          // get a per-player budget, so one phone cannot monopolize disk writes.
+          if (room.votes[room.round][id] === data.valid) return json(res, 200, snapshot(room, id))
+          const rateKey = `${code}:${id}`
+          let rate = voteRates.get(rateKey)
+          if (!rate || rate.revision !== room.controlRevision || clock() - rate.start >= 1000) rate = { start: clock(), revision: room.controlRevision, count: 0 }
+          if (rate.count >= 4) fail(429, 'Give your vote a moment to save before changing it again.')
           mutate(room, () => { room.votes[room.round][id] = data.valid })
+          rate.count++; voteRates.set(rateKey, rate)
           return json(res, 200, snapshot(room, id))
         }
         if (action === 'host' && req.method === 'POST') {
@@ -355,12 +384,14 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
       if (route.startsWith('/vendor/')) return serve(res, path.join(root, 'node_modules/katex/dist'), decodeURIComponent(route.slice(8)))
       return serve(res, path.join(root, 'dist'), route === '/' ? 'index.html' : decodeURIComponent(route.slice(1)))
     } catch (error) {
+      if (req.aborted || res.destroyed) return
       if (!res.headersSent) json(res, error.status || 500, { error: error.status ? error.message : 'Server error. Please try again.' })
       else res.end()
       if (!error.status) console.error(error)
     }
   })
   server.maxConnections = 512
+  server.maxHeadersCount = 64
   server.maxRequestsPerSocket = 500
   server.requestTimeout = 10000
   server.headersTimeout = 10000
@@ -375,10 +406,12 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
   const cleanup = setInterval(() => {
     let changed = false
     for (const [code, room] of rooms) if (room.expiresAt < clock()) {
+      clearTimeout(pendingBroadcasts.get(code)); pendingBroadcasts.delete(code)
       for (const client of streams.get(code) || []) client.end()
       streams.delete(code); rooms.delete(code); changed = true
     }
     for (const [key, rate] of rates) if (clock() - rate.start > 60000) rates.delete(key)
+    for (const [key, rate] of voteRates) if (clock() - rate.start > 60000) voteRates.delete(key)
     if (changed) { try { persist() } catch (error) { console.error('Room cleanup save failed:', error.code) } }
   }, 60000)
   cleanup.unref()

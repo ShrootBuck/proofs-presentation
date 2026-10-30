@@ -1,30 +1,43 @@
 import { reactive } from 'vue'
+import { watchRoom, requestJSON, readSaved, isNewerState } from '../voting/connection.mjs'
 
 const live = reactive({ room: null as any, credentials: null as any, connected: false, error: '', busy: false, clockOffset: 0 })
 let initialized = false
-let stream: EventSource | null = null
+let stream: ReturnType<typeof watchRoom> | null = null
+let generation = 0
+
+function receive(data: any) {
+  if (!isNewerState(live.room, data)) return
+  live.room = data
+  live.clockOffset = data.serverTime - Date.now()
+}
 
 function connect() {
   if (typeof window === 'undefined') return
-  let credentials = null
-  try { credentials = JSON.parse(localStorage.getItem('proofs-live-room') || 'null') } catch {}
+  const credentials = readSaved('proofs-live-room')
   const query = new URLSearchParams(location.hash.split('?')[1] || '')
-  const code = query.get('room') || credentials?.code
-  if (live.credentials?.code === code && stream) return
+  const requested = query.get('room') || credentials?.code
+  const code = typeof requested === 'string' && /^[A-Z2-9]{6}$/.test(requested) ? requested : null
+  const hostToken = credentials?.code === code ? credentials.hostToken : null
+  if (live.credentials?.code === code && live.credentials?.hostToken === hostToken && stream) return
+  const current = ++generation
   stream?.close(); stream = null; live.connected = false; live.room = null; live.error = ''
-  live.credentials = code ? { code, hostToken: credentials?.code === code ? credentials.hostToken : null } : null
-  if (!code || !/^[A-Z2-9]{6}$/.test(code)) return
-  fetch(`/api/rooms/${code}`).then(async response => {
-    if (!response.headers.get('content-type')?.includes('application/json')) throw new Error('Voting server unavailable. Open host setup or use show of hands.')
-    const data = await response.json()
-    if (!response.ok) throw new Error(data.error)
-    live.room = data
-    live.clockOffset = data.serverTime - Date.now()
-    stream = new EventSource(`/api/rooms/${code}/events`)
-    stream.onopen = () => { live.connected = true; live.error = '' }
-    stream.onerror = () => { live.connected = false; live.error = 'Reconnecting to the voting server…' }
-    stream.onmessage = event => { live.room = JSON.parse(event.data); live.clockOffset = live.room.serverTime - Date.now(); live.connected = true; live.error = '' }
-  }).catch(error => { live.error = error.message })
+  live.credentials = code ? { code, hostToken } : null
+  if (!code) return
+  stream = watchRoom(code, {
+    onState(data: any) { if (current === generation) receive(data) },
+    onConnection(status: string) {
+      if (current !== generation) return
+      live.connected = status === 'live'
+      if (live.connected) {
+        if (live.error === 'Reconnecting to the voting server…') live.error = ''
+      } else live.error = 'Reconnecting to the voting server…'
+    },
+    onMissing(message: string) {
+      if (current !== generation) return
+      live.connected = false; live.room = null; stream = null; live.error = message
+    },
+  })
 }
 
 export function useLiveRoom() {
@@ -34,14 +47,17 @@ export function useLiveRoom() {
     window.addEventListener('hashchange', connect)
   }
   async function act(action: string) {
-    if (live.busy || !live.room || !live.credentials?.hostToken) return
+    if (live.busy || !live.connected || !live.room || !live.credentials?.hostToken) return
+    const current = generation, room = live.room, credentials = live.credentials
     live.busy = true; live.error = ''
     try {
-      const response = await fetch(`/api/rooms/${live.room.code}/host`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${live.credentials.hostToken}` }, body: JSON.stringify({ action, round: live.room.round, phase: live.room.phase }) })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error)
-      live.room = data
-    } catch (error: any) { live.error = error.message } finally { live.busy = false }
+      const data = await requestJSON(`/api/rooms/${room.code}/host`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${credentials.hostToken}` }, body: JSON.stringify({ action, round: room.round, phase: room.phase, activity: room.activity, huntPhase: room.hunt.phase, controlRevision: room.controlRevision }) })
+      if (current === generation) receive(data)
+    } catch (error: any) {
+      if (current === generation) { live.error = error.message; void stream?.sync() }
+    } finally { live.busy = false }
   }
   return { live, act }
 }
+
+if (import.meta.hot) import.meta.hot.dispose(() => stream?.close())

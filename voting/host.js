@@ -15,6 +15,7 @@ const math = (tex, cls = '') => { const el = make('div', cls); katex.render(tex,
 const short = n => n.length > 30 ? `${n.slice(0, 15)}…${n.slice(-8)}` : n
 function button(text, action, cls = '', payload = {}) {
   const el = make('button', cls, text); el.disabled = busy || !connected
+  if (['hunt-start', 'hunt-restart', 'hunt-resume'].includes(action) && !room.logging.ready) el.disabled = true
   el.addEventListener('click', () => act(action, payload)); return el
 }
 function link(text, href, target = 'proofs-deck') { const el = make('a', 'host-link', text); el.href = href; el.target = target; return el }
@@ -145,6 +146,8 @@ function render() {
   const toolsOpen = dashboard.querySelector('.host-room-tools')?.open
   dashboard.replaceChildren(); setup.hidden = true; dashboard.hidden = false; setupButton.hidden = false; resumeButton.hidden = false
   dashboard.append(activityControls())
+  if (!room.logging.ready) dashboard.append(make('p', 'error', 'Guess logging is unavailable or full. New guesses are paused; Proof or Bluff still works. Archive the guess log before starting another hunt.'))
+  else if (!room.logging.durable) dashboard.append(make('p', 'quiet', 'Rehearsal mode: guesses are not saved to disk.'))
   dashboard.querySelector('.host-room-tools').open = Boolean(toolsOpen)
   if (room.activity === 'hunt') renderHunt(); else renderProof()
 }
@@ -156,7 +159,7 @@ function updateClock() {
 setInterval(updateClock, 100)
 function receive(next) {
   if (!isNewerState(room, next)) return
-  const same = room && room.activity === next.activity && room.phase === next.phase && room.round === next.round && room.hunt.phase === next.hunt.phase && room.controlRevision === next.controlRevision
+  const same = room && room.activity === next.activity && room.phase === next.phase && room.round === next.round && room.hunt.phase === next.hunt.phase && room.controlRevision === next.controlRevision && room.logging.ready === next.logging.ready && room.logging.durable === next.logging.durable
   if (room && room.controlRevision !== next.controlRevision) error.textContent = ''
   room = next; offset = room.serverTime - Date.now()
   if (!setup.hidden) return
@@ -212,7 +215,7 @@ async function connect(saved) {
 }
 async function downloadLog() {
   try {
-    const response = await fetch(`/api/rooms/${room.code}/hunt-log`, { headers: { Authorization: `Bearer ${credentials.hostToken}` } })
+    const response = await fetch(`/api/rooms/${room.code}/hunt-log`, { headers: { Authorization: `Bearer ${credentials.hostToken}` }, signal: AbortSignal.timeout(12000) })
     if (!response.ok) throw new Error('Could not download the guess log.')
     const url = URL.createObjectURL(await response.blob()), a = make('a'); a.href = url; a.download = `guesses-${room.code}.jsonl`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000)
   } catch (e) { error.textContent = e.message }

@@ -13,7 +13,7 @@ onMounted(() => { timer = setInterval(() => { now.value = Date.now(); if (local.
 onUnmounted(() => clearInterval(timer))
 const network = computed(() => !props.forceOffline && Boolean(live.credentials) && !offline.enabled)
 const hunt = computed(() => network.value ? live.room?.hunt : local)
-const seconds = computed(() => hunt.value?.phase === 'lobby' ? 60 : Math.max(0, Math.ceil(((hunt.value?.endsAt || 0) - (now.value + (network.value ? live.clockOffset : 0))) / 1000)))
+const seconds = computed(() => hunt.value?.phase === 'lobby' ? 60 : hunt.value?.phase === 'paused' ? Math.ceil(hunt.value.remainingMs / 1000) : Math.max(0, Math.ceil(((hunt.value?.endsAt || 0) - (now.value + (network.value ? live.clockOffset : 0))) / 1000)))
 const joinHost = computed(() => live.room ? new URL(live.room.joinUrl).host : '')
 const host = computed(() => !network.value || Boolean(live.credentials?.hostToken))
 const short = (v: string) => v.length > 25 ? `${v.slice(0, 12)}…${v.slice(-7)}` : v
@@ -46,7 +46,7 @@ function guess() {
         <div v-else class="hunt-recent"><div class="micro">LATEST CLASS GUESSES</div><div v-for="(g,i) in hunt.recent.slice(0,4)" :key="i" class="hunt-entry"><span>n = {{ short(g.n) }}</span><b :class="{ 'red-text': g.found }">{{ g.found ? 'FOUND A FACTOR' : 'GCD = 1' }}</b></div><p v-if="!hunt.recent.length" class="small muted">Try something. Then try something bigger.</p></div>
       </div>
       <div class="hunt-clock"><div class="micro">{{ hunt.phase === 'closed' ? 'TIME IS UP' : 'SECONDS TO BREAK THE PATTERN' }}</div><div :class="['countdown', { urgent: seconds <= 10 }]">{{ String(seconds).padStart(2,'0') }}</div><div class="countdown-track"><span :style="{ width: `${seconds / 60 * 100}%` }" /></div><div class="hunt-stats"><span><b>{{ hunt.attempts }}</b> guesses</span><span><b>{{ hunt.found }}</b> found it</span></div>
-      <button v-if="host && hunt.phase === 'lobby'" class="primary-button" :disabled="network && !live.connected" @click="start">Start the 60 seconds</button><button v-if="host && hunt.phase === 'closed'" class="primary-button" @click="reveal">Reveal the counterexample</button><p v-if="hunt.phase === 'open'" class="small muted">Any nonnegative whole number.<br />Up to 100 digits.</p></div>
+      <button v-if="host && hunt.phase === 'lobby'" class="primary-button" :disabled="network && (!live.connected || live.busy)" @click="start">Start the 60 seconds</button><button v-if="host && network && hunt.phase === 'paused'" class="primary-button" :disabled="!live.connected || live.busy" @click="act('hunt-resume')">Resume timer</button><button v-if="host && hunt.phase === 'closed'" class="primary-button" :disabled="network && (!live.connected || live.busy)" @click="reveal">Reveal the counterexample</button><p v-if="hunt.phase === 'open'" class="small muted">Any nonnegative whole number.<br />Up to 100 digits.</p></div>
     </div>
     <form v-if="!network && hunt?.phase === 'open'" class="hunt-local" @submit.prevent="guess"><input v-model="input" aria-label="Enter a nonnegative integer" inputmode="numeric" maxlength="100" placeholder="Call out an integer…" /><button class="primary-button">Test input</button></form>
     <p v-if="error || (network && live.error)" class="tiny red-text">{{ error || live.error }}</p>

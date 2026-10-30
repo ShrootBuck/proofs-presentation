@@ -21,7 +21,7 @@ export const isNewerState = (current, next) => !current || current.code !== next
 
 export function watchRoom(code, { onState, onConnection, onMissing }, env = {}) {
   const request = env.request || requestJSON
-  const Source = env.EventSource || EventSource
+  const Source = env.EventSource || globalThis.EventSource
   const page = env.document || document, win = env.window || window
   const interval = env.setInterval || setInterval, clear = env.clearInterval || clearInterval
   let source, stopped = false, pending = null, latest = null
@@ -57,7 +57,8 @@ export function watchRoom(code, { onState, onConnection, onMissing }, env = {}) 
     report('connecting'); openStream(); void sync()
   }
   const offline = () => report('reconnecting')
-  const poll = interval(() => { if (page.visibilityState !== 'hidden') void sync() }, 5000)
+  // Spread classroom polling/reconnection bursts while retaining a short fallback.
+  const poll = interval(() => { if (page.visibilityState !== 'hidden') void sync() }, 5000 + Math.floor(Math.random() * 1000))
   page.addEventListener('visibilitychange', wake)
   win.addEventListener('pageshow', wake); win.addEventListener('online', wake); win.addEventListener('offline', offline)
   function stop() {

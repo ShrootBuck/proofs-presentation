@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
+import net from 'node:net'
 import { createProofServer } from '../server/server.mjs'
 
 const key = 'reliability-test-key'
@@ -127,6 +128,61 @@ test('jumping back then advancing to an already scored proof does not silently r
     await c.act('reveal'); await c.act('select-round', { targetRound: 0 }); await c.act('reveal')
     const s = await c.act('next'); assert.equal(s.phase, 'revealed'); assert.equal(s.round, 1)
   } finally { await c.close() }
+})
+
+test('duplicate votes do not rewrite the room, and a spammy phone cannot block classmates or the host', async () => {
+  const c = await classroom({ disk: true })
+  try {
+    const spammer = await c.join('Fast fingers'), other = await c.join('Classmate')
+    await c.act('proof-setup'); const opened = await c.act('start')
+    const vote = (cookie, valid) => c.request(c.route + '/vote', { cookie, data: { round: 0, valid, controlRevision: opened.controlRevision } })
+    assert.equal((await vote(spammer, false)).status, 200)
+    const revision = (await c.state()).revision
+    const duplicates = await Promise.all(Array.from({ length: 30 }, () => vote(spammer, false)))
+    assert.ok(duplicates.every(r => r.status === 200)); assert.equal((await c.state()).revision, revision)
+    for (const valid of [true, false, true]) assert.equal((await vote(spammer, valid)).status, 200)
+    const rejected = await Promise.all(Array.from({ length: 30 }, () => vote(spammer, false)))
+    assert.ok(rejected.every(r => r.status === 429))
+    assert.equal((await vote(other, false)).status, 200)
+    c.advance(1001); assert.equal((await vote(spammer, false)).status, 200)
+    const locked = await c.act('lock'); assert.equal(locked.counts.total, 2)
+    assert.equal((await c.request('/health')).status, 200)
+  } finally { await c.close() }
+})
+
+test('invalid payloads and oversized inputs are rejected without disrupting valid guesses', async () => {
+  const c = await classroom()
+  try {
+    const cookie = await c.join('Student'); await c.act('hunt-start')
+    for (const n of [null, {}, [], 123, '-1', '1e100', '1.5', '9'.repeat(101)]) {
+      assert.equal((await c.request(c.route + '/guess', { cookie, data: { n } })).status, 400)
+    }
+    const oversized = await c.request(c.route + '/guess', { cookie, data: { n: '9'.repeat(5000) } })
+    assert.equal(oversized.status, 413)
+    for (const body of ['{', '[]', 'null', '42']) {
+      const response = await fetch(c.origin + c.route + '/guess', { method: 'POST', headers: { Cookie: cookie }, body })
+      assert.equal(response.status, 400); await response.arrayBuffer()
+    }
+    assert.equal((await c.request(c.route + '/guess', { cookie, data: { n: '42' } })).status, 200)
+    assert.equal((await c.state()).hunt.attempts, 1)
+  } finally { await c.close() }
+})
+
+test('unfinished requests are evicted while health checks and the host remain responsive', { timeout: 10000 }, async () => {
+  const c = await classroom(), sockets = []
+  try {
+    const url = new URL(c.origin)
+    const closed = Array.from({ length: 12 }, () => new Promise(resolve => {
+      const socket = net.createConnection({ host: url.hostname, port: Number(url.port) }, () => {
+        socket.write(`POST ${c.route}/join HTTP/1.1\r\nHost: localhost\r\nContent-Type: application/json\r\nContent-Length: 4096\r\n\r\n{`)
+      })
+      sockets.push(socket); socket.on('error', () => {}); socket.on('data', () => {}); socket.on('close', resolve)
+    }))
+    assert.equal((await c.request('/health')).status, 200)
+    assert.equal((await c.act('hunt-start')).hunt.phase, 'open')
+    await Promise.all(closed)
+    assert.equal((await c.request('/health')).status, 200)
+  } finally { for (const socket of sockets) socket.destroy(); await c.close() }
 })
 
 test('40 live connections survive 400 durable 100-digit guesses and recover their latest result', { timeout: 30000 }, async () => {

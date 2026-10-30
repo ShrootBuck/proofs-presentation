@@ -11,7 +11,7 @@ document.querySelector('#player-name').after(changeRoom)
 let roomCode = location.pathname.split('/')[2] || readSaved('proofs-player-room') || ''
 let snapshot, myVote = null, stream, busy = false, myHunt = null, clockOffset = 0, myName = ''
 let factorWorker, factorId = 0, factors = null
-let connected = false, joining = false, huntDraft = '', pendingGuess = null
+let connected = false, joining = false, huntDraft = '', pendingGuess = null, session = 0
 const compact = s => s.length > 45 ? `${s.slice(0, 20)}…${s.slice(-12)} (${s.length} digits)` : s
 const make = (tag, className, text) => { const el = document.createElement(tag); if (className) el.className = className; if (text !== undefined) el.textContent = text; return el }
 const math = (tex, className) => { const el = make('div', className); katex.render(tex, el, { throwOnError: false }); return el }
@@ -78,6 +78,7 @@ function receive(next) {
   const activityChanged = previous?.activity !== next.activity
   snapshot = next; clockOffset = next.serverTime - Date.now()
   if (next.joinedAsPlayer === false) {
+    session++; busy = false
     connected = false; stream?.close(); stopFactors()
     snapshot = null; myVote = null; myHunt = null; pendingGuess = null
     game.replaceChildren(); game.hidden = true; join.hidden = false
@@ -111,15 +112,17 @@ function setConnection(status) {
 }
 async function vote(valid) {
   if (busy || !connected || snapshot?.activity !== 'proof' || snapshot.phase !== 'open') return
-  const code = roomCode, votedRound = snapshot.round, controlRevision = snapshot.controlRevision
+  const code = roomCode, current = session, votedRound = snapshot.round, controlRevision = snapshot.controlRevision
   busy = true; error.textContent = ''; render()
   try {
     const state = await requestJSON(`/api/rooms/${code}/vote`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ round: votedRound, valid, controlRevision }) })
-    if (roomCode === code) receive(state)
+    if (current === session && roomCode === code) receive(state)
   } catch (e) {
-    if (roomCode === code && snapshot.activity === 'proof' && snapshot.round === votedRound) error.textContent = e.message
-    void stream?.sync()
-  } finally { busy = false; render() }
+    if (current === session) {
+      if (roomCode === code && snapshot?.activity === 'proof' && snapshot.round === votedRound) error.textContent = e.message
+      void stream?.sync()
+    }
+  } finally { if (current === session) { busy = false; render() } }
 }
 async function connect(code, name) {
   if (joining) return
@@ -128,7 +131,7 @@ async function connect(code, name) {
   joining = true; error.textContent = ''; const submit = document.querySelector('#join-form button'); submit.disabled = true
   try {
     const state = await requestJSON(`/api/rooms/${normalized}/join`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) })
-    stream?.close(); stopFactors(); snapshot = null; myHunt = null; myVote = null
+    session++; busy = false; stream?.close(); stopFactors(); snapshot = null; myHunt = null; myVote = null
     roomCode = normalized; huntDraft = ''; pendingGuess = null
     writeSaved('proofs-player-room', roomCode)
     history.replaceState(null, '', `/join/${roomCode}`)
@@ -136,7 +139,7 @@ async function connect(code, name) {
     stream = watchRoom(roomCode, {
       onState: receive, onConnection: setConnection,
       onMissing(message) {
-        stopFactors(); connected = false; snapshot = null; myHunt = null; myVote = null
+        session++; busy = false; stopFactors(); connected = false; snapshot = null; myHunt = null; myVote = null
         game.hidden = true; join.hidden = false; connection.textContent = 'ROOM EXPIRED'
         changeRoom.hidden = true
         document.querySelector('#player-name').textContent = ''; error.textContent = message
@@ -148,6 +151,7 @@ async function connect(code, name) {
 }
 document.querySelector('#join-form').addEventListener('submit', event => { event.preventDefault(); void connect(document.querySelector('#room-code').value, document.querySelector('#display-name').value) })
 changeRoom.addEventListener('click', () => {
+  session++; busy = false
   stream?.close(); stopFactors(); snapshot = null; connected = false; roomCode = ''
   myVote = null; myHunt = null; pendingGuess = null; huntDraft = ''
   writeSaved('proofs-player-room', null); history.replaceState(null, '', '/join')
@@ -160,11 +164,14 @@ connection.textContent = 'READY TO JOIN'
 async function resume() {
   if (!roomCode || snapshot || joining || document.visibilityState === 'hidden') return
   document.querySelector('#room-code').value = roomCode
+  const code = roomCode, current = session
   try {
-    const me = await requestJSON(`/api/rooms/${roomCode}/me`)
-    if (me.joined) await connect(roomCode)
+    const me = await requestJSON(`/api/rooms/${code}/me`)
+    if (current !== session || roomCode !== code || snapshot || joining) return
+    if (me.joined) await connect(code)
     else connection.textContent = 'READY TO JOIN'
   } catch (e) {
+    if (current !== session || roomCode !== code || snapshot) return
     if (e.status === 404) { writeSaved('proofs-player-room', null); error.textContent = e.message; connection.textContent = 'ROOM EXPIRED' }
     else { connection.textContent = 'RECONNECTING'; error.textContent = 'Waiting for a connection. You can also join using the form.' }
   }
@@ -297,18 +304,20 @@ async function submitGuess(event) {
   let value
   try { value = normalizeInput(document.querySelector('#guess-input').value) }
   catch (e) { error.textContent = e.message; return }
-  const code = roomCode, controlRevision = snapshot.controlRevision
+  const code = roomCode, current = session, controlRevision = snapshot.controlRevision
   if (!pendingGuess || pendingGuess.n !== value || pendingGuess.controlRevision !== controlRevision) pendingGuess = { n: value, controlRevision, requestId: crypto.randomUUID() }
   busy = true; error.textContent = ''; updateHuntStats()
   try {
     const data = await requestJSON(`/api/rooms/${code}/guess`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pendingGuess) })
+    if (current !== session) return
     pendingGuess = null
     if (roomCode === code && data.receipt > (myHunt?.last?.receipt || 0)) {
       myHunt = { attempts: data.attempts, last: data }; startFactors(data)
     }
   } catch (e) {
+    if (current !== session) return
     if (!e.uncertain) pendingGuess = null
     if (roomCode === code && snapshot?.activity === 'hunt') error.textContent = e.message
     void stream?.sync()
-  } finally { busy = false; render() }
+  } finally { if (current === session) { busy = false; render() } }
 }
