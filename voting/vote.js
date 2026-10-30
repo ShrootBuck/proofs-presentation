@@ -141,8 +141,8 @@ function updateFactorStatus() {
   const status = document.querySelector('#factor-progress')
   if (!status || !factors || factors.error) return
   status.textContent = factors.running
-    ? `Factoring on your device · ${Math.floor(factors.elapsed)}s · still searching`
-    : `Both factorizations complete · ${factors.elapsed.toFixed(1)}s`
+    ? `Finding prime factors… ${Math.floor(factors.elapsed)}s`
+    : `Done · ${factors.elapsed.toFixed(1)}s`
 }
 function renderFactorPanels() {
   const panels = document.querySelector('#factor-panels'); if (!panels || !myHunt?.last) return
@@ -151,27 +151,32 @@ function renderFactorPanels() {
   if (!factors) { panels.append(make('p', 'quiet', 'Starting the factor search on your device…')); return }
   if (factors.error) { panels.append(make('p', 'quiet', factors.error)); return }
   const status = make('p', 'factor-progress'); status.id = 'factor-progress'; panels.append(status)
-  panels.append(make('p', 'quiet', 'The search keeps running. A new guess replaces it; closing this tab stops it.'))
   for (const key of ['a', 'b']) {
     const f = factors[key], card = make('section', 'factor-card')
-    card.append(integerDetails(key.toUpperCase(), myHunt.last[key], `${key}.value`))
-    card.append(make('p', 'factor-label', f.complete ? 'Complete prime factorization' : 'Proven prime factors × remaining piece'))
+    const heading = make('div', 'factor-heading')
+    heading.append(make('strong', '', key.toUpperCase()), make('span', 'factor-label', f.complete ? 'Complete' : 'Factoring…'))
+    card.append(heading)
     const short = f.factors.length > 10 ? [...f.factors.slice(0, 4), '…', f.factors.at(-1)] : f.factors
-    card.append(factorProduct(short, !f.complete))
-    if (f.factors.length > 10) {
-      const all = make('details'); all.dataset.factorKey = `${key}.all`
-      all.append(make('summary', '', `Show all ${f.factors.length} prime terms`), factorProduct(f.factors)); card.append(all)
+    if (short.length) {
+      const product = factorProduct(short)
+      if (!f.complete) product.append(document.createTextNode(' × '), make('span', 'factor-unresolved', 'remaining number'))
+      card.append(product)
+    } else {
+      card.append(make('p', 'factor-waiting', f.complete ? '1 has no prime factors.' : 'Looking for the first factor…'))
     }
+    const details = make('details', 'factor-more'); details.dataset.factorKey = `${key}.details`
+    details.append(make('summary', '', 'Details'), integerDetails(key.toUpperCase(), myHunt.last[key], `${key}.value`))
+    if (f.factors.length) details.append(make('p', 'factor-label', 'All proven prime factors'), factorProduct(f.factors))
     if (!f.complete) {
-      card.append(integerDetails('R', f.remainder, `${key}.remainder`))
+      details.append(integerDetails('Remaining number', f.remainder, `${key}.remainder`))
       for (const [i, part] of f.pending.entries()) {
-        const label = part.status === 'probable-prime' ? 'Probable prime — not proven; search continues' : part.status === 'composite' ? 'Composite — looking for a factor' : 'Checking this remaining piece'
-        card.append(make('p', 'factor-label', label))
-        if (f.pending.length > 1) card.append(integerDetails(`Piece ${i + 1}`, part.value, `${key}.piece.${part.value}`))
+        const label = part.status === 'probable-prime' ? 'Probable prime — not yet proven' : part.status === 'composite' ? 'Composite — still factoring' : 'Still checking'
+        details.append(make('p', 'factor-label', label))
+        if (f.pending.length > 1) details.append(integerDetails(`Piece ${i + 1}`, part.value, `${key}.piece.${part.value}`))
       }
-      card.append(make('p', 'quiet', 'The full prime-factor product × R equals the original number exactly.'))
     }
-    panels.append(card)
+    details.append(make('p', 'quiet', 'Runs on your device until complete, you submit a new guess, or you close the tab.'))
+    card.append(details); panels.append(card)
   }
   for (const details of panels.querySelectorAll('details')) details.open = open.has(details.dataset.factorKey)
   updateFactorStatus()

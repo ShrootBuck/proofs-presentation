@@ -66,33 +66,15 @@ time: '0:25–3:00'
 <!--
 On a computer, open the link. On a phone, you can scan the picture instead. Yes, the picture is the QR code. Enter the room code on screen and your name. Keep the activity page open; we'll use it again later.
 
-Here's the challenge. Enter any nonnegative whole number. We calculate two numbers: n to the seventeenth plus nine, and n plus one, all to the seventeenth, plus nine. Find an input where those two results share a factor greater than one.
+Here's the claim we're testing: for every nonnegative integer n, A and B have no common factor greater than one. A is n to the seventeenth plus nine. B is n plus one, all to the seventeenth, plus nine. Your job is to disprove the claim by finding just one input where they do share a factor greater than one.
 
 For example, twelve and twenty-five have no shared factor above one. Twelve and eighteen share six. The app checks that for you. GCD means greatest common divisor: a result of one means no shared factor above one.
 
-[PAUSE for joining. Explain the rule while they scan.]
-
 You have exactly one minute. Try small numbers, big numbers, whatever you like. You can enter up to a hundred digits. Ready?
-
-[DO: Click Back to activity, then Start the 60 seconds on the host tab. Let the full minute run. If phones fail, return to Slidev, choose Call-out fallback, and enter audience suggestions.]
-
-[SAY THIS WHILE THE TIMER RUNS, rather than adding time before or after it:]
 
 This is running on a laptop server under my bed with less than eight gigs of RAM. If one of your inputs crashes the server, I'll buy you a Wingstop chicken sandwich. Your name and input get logged before the calculation, so I can recover the winning guess. Good luck.
 
-[OPTIONAL IF SOMEONE ASKS: The shared-factor answer is exact. The factor list keeps updating on your own device. A piece marked probable prime is not being claimed as proven prime.]
-
-[OPTIONAL IF SOMEONE ASKS ABOUT 2: Any shared factor greater than one counts, prime or composite. Sharing a composite factor also means sharing one of its prime factors. But A and B always have opposite parity: the odd power preserves parity, and adding nine flips it. They can never both be even.]
-
-[WHEN THE TIMER ENDS: If someone found it, acknowledge their result. Otherwise:]
-
 Lots of tests. Still no shared factor. Is that a proof that there's never one?
-
-[DO: Click Reveal the counterexample.]
-
-The first input that breaks the pattern has fifty-two digits. That is not a typo. Let's look at what it means.
-
-[DO: Switch your shared screen back to Slidev and advance to slide 3.]
 -->
 
 ---
@@ -113,37 +95,43 @@ Every smaller nonnegative integer passes this test. The first counterexample is 
 
 [click] At this input, both results share the factor shown here. The app uses exact integer arithmetic, so this is not a rounding error. We can divide both numbers by that factor with zero remainder.
 
-[click] People sometimes call this proof by counterexample. More precisely, it disproves the universal statement and proves its negation.
+[click] Our claim was that A and B never share a factor greater than one, for any nonnegative integer n. This one input proves that claim false. That's disproof by counterexample: one exception is enough to defeat an all-inputs claim.
 -->
 
 ---
 section: COLLATZ
-clicks: 2
+clicks: 5
 ---
 
 # The Collatz conjecture.
 
 <p class="lead">Start with any <strong>positive integer</strong>. Repeat:</p>
 
-<div style="display:flex;gap:80px;margin:28px 0;font-size:30px">
+<div v-click="1" style="display:flex;gap:80px;margin:20px 0;font-size:30px">
   <div>Even? <MathTex tex="n\mapsto n/2" /></div>
   <div>Odd? <MathTex tex="n\mapsto 3n+1" /></div>
 </div>
 
-<div v-click="1" style="font-size:26px;margin:30px 0"><MathTex tex="6\to3\to10\to5\to16\to8\to4\to2\to1" /></div>
+<div v-click="2" style="font-size:26px;margin:20px 0"><MathTex tex="6\to3\to10\to5\to16\to8\to4\to2\to1" /></div>
 
-<p class="lead">The conjecture: every starting value eventually reaches 1.</p>
+<p v-click="3" class="lead">The conjecture: every starting value eventually reaches 1.</p>
 
-<div v-click="2" class="takeaway">Every tested case works. A proof for all cases is still missing.</div>
+<CollatzCounter v-click="4" />
+
+<div v-click="5" class="takeaway" style="margin-top:20px;font-size:22px">More verified cases. Still not a proof for all integers.</div>
 
 <!--
-Here's a famous example: the Collatz conjecture. Pick any positive whole number. If it's even, divide it by two. If it's odd, multiply it by three and add one. Then repeat.
+Here's a famous example: the Collatz conjecture. Pick any positive whole number.
 
-[click] Starting at six, we get three, ten, five, sixteen, eight, four, two, one. The conjecture says every positive starting number eventually reaches one.
+[click] If it's even, divide it by two. If it's odd, multiply it by three and add one. Then repeat.
 
-[click] Every starting value checked so far behaves this way. But nobody has an accepted proof that it always happens. A sequence could, in principle, grow forever or enter a different cycle. Checking more examples doesn't rule that out for every untested number.
+[click] Starting at six, we get three, ten, five, sixteen, eight, four, two, one.
 
-So the important wording is: every number we've tested, not every number. That's the gap a proof has to close.
+[click] The conjecture says every positive starting number eventually reaches one.
+
+[click] This counter is real. Since this presentation loaded, a background worker has been checking starting values in order using exact integer arithmetic. Every positive integer up to that number has been verified. If a sequence reaches a smaller starting value we've already verified, we know the rest of its journey reaches one too. The counter only advances after that check succeeds.
+
+[click] But no matter how high it gets, there are infinitely many numbers left. A later sequence could, in principle, grow forever or enter a different cycle. More examples don't rule that out. That's the gap a proof has to close.
 -->
 
 ---
@@ -159,9 +147,9 @@ time: '3:50–4:30'
 
 <div class="contract-chain">
   <div><span class="micro">START WITH</span><h3>Assumptions<br />& definitions</h3></div>
-  <span class="flow-arrow">⇒</span>
-  <div v-click="1"><span class="micro">JUSTIFY</span><h3>Every<br />inference</h3></div>
   <span class="flow-arrow" v-click="1">⇒</span>
+  <div v-click="1"><span class="micro">JUSTIFY</span><h3>Every<br />inference</h3></div>
+  <span class="flow-arrow" v-click="2">⇒</span>
   <div v-click="2"><span class="micro">REACH</span><h3>The exact<br />claim</h3></div>
 </div>
 
@@ -173,9 +161,11 @@ A proof starts with assumptions, definitions, and results we've already establis
 
 [click] Every step needs a reason. It might use a definition, a valid algebraic operation, or a theorem. Looking plausible is not a reason.
 
-[click] And the conclusion has to be the exact claim we promised, with the right domain and every required case covered.
+[click] And the conclusion has to be the exact claim we promised. Proving something similar, or only part of it, doesn't finish the job.
 
-[click] We'll write readable mathematical proofs, rather than translate every sentence into a formal symbolic system. But the logic underneath is the same. Someone should be able to challenge any step and get a real answer.
+[click] The argument must cover every case the claim promises. If we say every integer, checking only the positive ones leaves a hole.
+
+We'll write readable mathematical proofs, rather than translate every sentence into a formal symbolic system. But the logic underneath is the same. Someone should be able to challenge any step and get a real answer.
 
 You can actually make a computer check this. In a proof assistant like Lean, you formalize the statement and its proof, and the system checks that the conclusion follows from the definitions and assumptions. It's checking the reasoning, not just trying a bunch of inputs.
 
@@ -187,7 +177,6 @@ section: LOGIC
 clicks: 3
 time: '4:30–5:15'
 ---
-
 
 # A tiny logic toolkit
 
@@ -203,14 +192,13 @@ time: '4:30–5:15'
 <p v-click="2" class="logic-note muted">In mathematics, OR includes the possibility that both are true.</p>
 
 <!--
-
-A proposition is a statement that is true or false. Seven is prime is a proposition. Please open the window is a request, so it isn't one. And x is greater than three needs a value for x, or a quantifier, before it gives us a complete claim.
+A proposition is a statement that is true or false. "Seven is prime" is a proposition.
 
 We'll call statements P and Q. Not P reverses the truth value.
 
 [click] P and Q requires both statements to be true.
 
-[click] P or Q requires at least one. Mathematical or is inclusive, so both being true is allowed. Think of the difference between an entry requirement and a restaurant making you choose exactly one side dish.
+[click] P or Q requires at least one. Mathematical or is inclusive, so both being true is allowed.
 
 [click] Finally, if P then Q says P guarantees Q. This is the shape of a huge number of theorems, and it has one slightly weird feature worth unpacking.
 -->
@@ -220,30 +208,28 @@ section: LOGIC
 time: '5:15–6:25'
 ---
 
-
 # When is a promise broken?
 
 <ImplicationLab />
 
 <!--
+[DO: Set both buttons to TRUE before starting. Click a button only if it currently says FALSE.]
 
 Suppose I say, if you guess my magic number, I'll buy you Wingstop. P means you guessed my magic number, and Q means you got Wingstop. Which situation breaks my promise?
 
-[DO: Start with both TRUE. Toggle Got Wingstop to FALSE. Ask the room before explaining.]
+[DO: Click Q, "Got Wingstop", to change it to FALSE. Leave P TRUE. Ask the room whether the promise is broken before explaining.]
 
 You guessed my magic number, but no Wingstop. That's the one forbidden situation: P is true and Q is false.
 
-[DO: Toggle Guessed my magic number to FALSE, leaving Wingstop FALSE.]
+[DO: Click P, "Guessed my magic number", to change it to FALSE. Leave Q FALSE.]
 
 Now you didn't guess it, and there's no Wingstop. Disappointing, maybe, but the promise never said what happens if you don't guess the number.
 
-[DO: Toggle Got Wingstop to TRUE, with P still FALSE.]
+[DO: Click Q, "Got Wingstop", to change it back to TRUE. Leave P FALSE.]
 
 And if you didn't guess it but got Wingstop anyway, the promise still holds. I can buy Wingstop for other reasons. That's why the bottom two rows are true.
 
 This is the truth table for material implication. It describes a logical condition, not necessarily a cause. To disprove an if-then claim, you need a case where the hypothesis holds and the conclusion fails. That's the exact kind of failure we're hunting.
-
-[DO: Return to TRUE / FALSE to emphasize the only failing row.]
 -->
 
 ---
@@ -276,7 +262,7 @@ Both rule out exactly the same bad case: divisible by four but not even. We'll u
 
 ---
 section: LOGIC
-clicks: 1
+clicks: 2
 time: '7:15–8:00'
 ---
 
@@ -288,7 +274,7 @@ time: '7:15–8:00'
   <div v-click="1" class="quantifier"><div class="glyph">∃</div><div><div class="word">There exists</div><div class="math-big"><MathTex tex="\exists n\in\mathbb{Z},\quad n^2=9" /></div><p>Some integer has square 9.</p><p class="muted">One witness, such as 3, proves it.</p></div></div>
 </div>
 
-<p class="aside" style="margin-top: 35px">The domain matters: <MathTex tex="x^2=2" /> has a real solution, but no integer solution.</p>
+<p v-click="2" class="aside" style="margin-top: 35px">The domain matters: <MathTex tex="x^2=2" /> has a real solution, but no integer solution.</p>
 
 <!--
 
@@ -298,7 +284,7 @@ These two symbols tell us how much work a claim requires. The upside-down A mean
 
 Notice how one example has completely different power depending on the quantifier. A successful example proves an existence claim. A failing example disproves a universal claim.
 
-Also, say what the domain is. The equation x squared equals two has a real solution. It has no integer solution. Changing the allowed objects changes the statement, even when the equation looks identical.
+[click] Also, say what the domain is. The equation x squared equals two has a real solution. It has no integer solution. Changing the allowed objects changes the statement, even when the equation looks identical.
 -->
 
 ---
@@ -345,7 +331,7 @@ time: '8:40–9:10'
 
 <div class="method-overview-grid">
   <div><span>01</span><h2>Direct proof</h2><p>Follow the assumptions forward.</p></div>
-  <div><span>02</span><h2>Proof by cases</h2><p>Cover every possibility.</p></div>
+  <div><span>02</span><h2>Proof by cases</h2><p>These suck.</p></div>
   <div><span>03</span><h2>Contrapositive</h2><p>Prove “not Q implies not P.”</p></div>
   <div><span>04</span><h2>Contradiction</h2><p>Assume the claim is false. Find a conflict.</p></div>
   <div><span>05</span><h2>Induction</h2><p>Start the chain. Prove the next link.</p></div>
@@ -369,7 +355,6 @@ clicks: 4
 time: '9:10–10:15'
 ---
 
-
 # Odd + odd = even
 
 <p class="small">Let <MathTex tex="a,b" /> be arbitrary odd integers.</p>
@@ -377,13 +362,12 @@ time: '9:10–10:15'
 <div class="proof-rows">
   <div v-click="1" class="proof-row"><span class="line-number">01</span><div class="math"><MathTex tex="a=2r+1,\qquad b=2s+1" /></div><div class="reason">Definition of odd<br /><MathTex tex="r,s\in\mathbb{Z}" /></div></div>
   <div v-click="2" class="proof-row"><span class="line-number">02</span><div class="math"><MathTex tex="a+b=2r+2s+2" /></div><div class="reason">Substitute and combine</div></div>
-  <div v-click="3" class="proof-row final"><span class="line-number">03</span><div class="math"><MathTex tex="a+b=2(r+s+1)" /></div><div class="reason">Twice an integer is even</div></div>
+  <div v-click="3" class="proof-row final"><span class="line-number">03</span><div class="math"><MathTex tex="a+b=2(r+s+1)" /><span class="proof-qed" aria-label="QED"></span></div><div class="reason">Twice an integer is even</div></div>
 </div>
 
-<p v-click="4" class="takeaway">Arbitrary inputs make the argument general.</p>
+<p v-click="4" class="takeaway direct-proof-takeaway"><span>Arbitrary inputs make the argument general.</span></p>
 
 <!--
-
 Let's prove that the sum of two odd integers is even. We choose arbitrary odd integers a and b. Arbitrary means we're not selecting special values that make the argument easy.
 
 [click] The definition of odd tells us that a equals two r plus one and b equals two s plus one, where r and s are integers.
@@ -397,20 +381,22 @@ Why different letters? Because the two odd numbers don't have to be equal. Writi
 That last sentence is the actual finish. We haven't just simplified an expression. We've connected it to the definition of the thing we promised to prove.
 
 [click] Nothing depended on a particular choice of a or b, so the proof covers every pair of odd integers, including negative ones.
+
+Buh buh but zayd... What's that black square?
 -->
 
 ---
 class: dark qed-slide
-clicks: 1
+clicks: 0
 ---
 
-# The mic drop operator.
+# The mic drop operator
 
 <div class="qed-explainer">
   <div class="qed-symbol">∎</div>
-  <div><h2>Proof complete.</h2><p>The square marks the end of a proof.</p><p><strong>Q.E.D.</strong> means “which was to be demonstrated.”</p></div>
+  <div><h2>Proof complete.</h2><p>The square marks the end of a proof.</p><p><strong>Q.E.D.</strong> — <em>quod erat demonstrandum</em></p><p>“Which was to be demonstrated.”</p></div>
 </div>
-<p v-click="1" class="takeaway">You earn the square by finishing the argument.</p>
+<p class="takeaway">You earn the square by finishing the argument.</p>
 
 <!--
 That proof is finished, so now we get to use the mathematical mic drop: this little square. You'll see it at the end of proofs, sometimes as an outline instead of a filled square.
@@ -434,7 +420,7 @@ time: '10:15–11:00'
   <div v-click="2" class="case"><div class="case-label">CASE 2</div><h3>n is odd</h3><div class="math-big"><MathTex tex="n+1=2(k+1)" /></div><p>Its neighbor is even, so the product is even.</p></div>
 </div>
 
-<p v-click="3" class="takeaway">Every integer is even or odd. The cases cover the domain.</p>
+<p v-click="3" class="takeaway">Every integer is even or odd. The cases cover the domain.<span class="proof-qed" aria-label="QED"></span></p>
 
 <!--
 
@@ -467,7 +453,7 @@ time: '11:00–12:10'
   <div v-click="3" class="proof-row final"><span class="line-number">02</span><div class="math"><MathTex tex="n^2=4k^2+4k+1=2(2k^2+2k)+1" /></div><div class="reason">An odd integer</div></div>
 </div>
 
-<p v-click="4" class="takeaway">Therefore, if <MathTex tex="n^2" /> is even, <MathTex tex="n" /> must be even.</p>
+<p v-click="4" class="takeaway direct-proof-takeaway">Therefore, if <MathTex tex="n^2" /> is even, <MathTex tex="n" /> must be even.<span class="proof-qed" aria-label="QED"></span></p>
 
 <!--
 
@@ -562,7 +548,7 @@ time: '13:45–15:00'
 </div>
 
 <div v-click="4" class="contradiction-callout"><span>Lowest terms</span><span class="conflict">CONTRADICTS</span><span>Both divisible by 2</span></div>
-<p v-click="5" class="takeaway">No such fraction exists. <MathTex tex="\sqrt{2}" /> is irrational.</p>
+<p v-click="5" class="takeaway">No such fraction exists. <MathTex tex="\sqrt{2}" /> is irrational.<span class="proof-qed" aria-label="QED"></span></p>
 
 <!--
 
@@ -665,7 +651,7 @@ time: '17:05–18:15'
   <div v-click="3" class="proof-row final"><span class="line-number">STEP</span><div class="math"><MathTex tex="k^2+(2k+1)=(k+1)^2" /></div><div class="reason">Add the next odd number</div></div>
 </div>
 
-<p v-click="4" class="takeaway">By induction, <MathTex tex="P(n)" /> holds for every positive integer n.</p>
+<p v-click="4" class="takeaway">By induction, <MathTex tex="P(n)" /> holds for every positive integer n.<span class="proof-qed" aria-label="QED"></span></p>
 
 <!--
 
@@ -697,7 +683,7 @@ time: '18:15–19:00'
 
 <div v-click="1" class="witness"><div class="big-witness">5</div><div class="witness-detail"><MathTex tex="5=1^2+2^2" /></div></div>
 
-<div v-click="2" class="aside">5 is prime. Both 1 and 2 are positive integers.<br />The witness satisfies every requirement.</div>
+<div v-click="2" class="aside">5 is prime. Both 1 and 2 are positive integers.<br />The witness satisfies every requirement.<span class="proof-qed" aria-label="QED"></span></div>
 
 <!--
 

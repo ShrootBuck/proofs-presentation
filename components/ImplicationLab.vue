@@ -9,7 +9,6 @@ const rows = [[true, true], [true, false], [false, true], [false, false]]
 <template>
   <section class="implication-lab" @click.stop @keydown.stop>
     <div class="switchboard">
-      <p class="micro">THE PROMISE</p>
       <p class="promise">"If you guess my magic number,<br />I'll buy you Wingstop."</p>
       <div class="logic-toggles">
         <button :aria-pressed="state.p" @click="state.p = !state.p"><span class="variable">P</span><span>Guessed my magic number</span><b>{{ state.p ? 'TRUE' : 'FALSE' }}</b></button>

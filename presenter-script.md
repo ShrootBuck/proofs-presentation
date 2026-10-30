@@ -20,7 +20,7 @@ You need algebra and a willingness to be suspicious. Phones out for the first ch
 
 On a computer, open proofs dot zaydkrunz dot com slash join. On a phone, you can scan the picture instead. Yes, the picture is the QR code. Enter the room code on screen and your name. Keep the activity page open; we'll use it again later.
 
-Here's the challenge. Enter any nonnegative whole number. We calculate two numbers: n to the seventeenth plus nine, and n plus one, all to the seventeenth, plus nine. Find an input where those two results share a factor greater than one.
+Here's the claim we're testing: for every nonnegative integer n, A and B have no common factor greater than one. A is n to the seventeenth plus nine. B is n plus one, all to the seventeenth, plus nine. Your job is to disprove the claim by finding just one input where they do share a factor greater than one.
 
 For example, twelve and twenty-five have no shared factor above one. Twelve and eighteen share six. The app checks that for you. GCD means greatest common divisor: a result of one means no shared factor above one.
 
@@ -59,7 +59,7 @@ Every smaller nonnegative integer passes this test. The first counterexample is 
 
 This is a published number-theory example. We are not going to prove why this is the first failure today. But verifying a counterexample is enough to disprove the claim that there are no failures.
 
-[click] People sometimes call this proof by counterexample. More precisely, it disproves the universal statement and proves its negation. Successful tests can suggest a pattern. One allowed failure destroys it.
+[click] Our claim was that A and B never share a factor greater than one, for any nonnegative integer n. This one input proves that claim false. That's disproof by counterexample: one exception is enough to defeat an all-inputs claim. Successful tests can suggest a pattern. One allowed failure destroys it.
 
 ---
 
@@ -82,9 +82,11 @@ A proof starts with assumptions, definitions, and results we've already establis
 
 [click] Every step needs a reason. It might use a definition, a valid algebraic operation, or a theorem. Looking plausible is not a reason.
 
-[click] And the conclusion has to be the exact claim we promised, with the right domain and every required case covered.
+[click] And the conclusion has to be the exact claim we promised. Proving something similar, or only part of it, doesn't finish the job.
 
-[click] We'll write readable mathematical proofs, rather than translate every sentence into a formal symbolic system. But the logic underneath is the same. Someone should be able to challenge any step and get a real answer.
+[click] The argument must cover every case the claim promises. If we say every integer, checking only the positive ones leaves a hole.
+
+We'll write readable mathematical proofs, rather than translate every sentence into a formal symbolic system. But the logic underneath is the same. Someone should be able to challenge any step and get a real answer.
 
 You can actually make a computer check this. In a proof assistant like Lean, you formalize the statement and its proof, and the system checks that the conclusion follows from the definitions and assumptions. It's checking the reasoning, not just trying a bunch of inputs.
 
@@ -154,7 +156,7 @@ These two symbols tell us how much work a claim requires. The upside-down A mean
 
 Notice how one example has completely different power depending on the quantifier. A successful example proves an existence claim. A failing example disproves a universal claim.
 
-Also, say what the domain is. The equation x squared equals two has a real solution. It has no integer solution. Changing the allowed objects changes the statement, even when the equation looks identical.
+[click] Also, say what the domain is. The equation x squared equals two has a real solution. It has no integer solution. Changing the allowed objects changes the statement, even when the equation looks identical.
 
 ---
 
