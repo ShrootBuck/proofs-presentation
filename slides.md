@@ -209,7 +209,7 @@ time: '4:30–5:15'
   <div v-click="3" class="symbols"><div class="symbol"><MathTex tex="P\Rightarrow Q" /></div><div class="meaning">IF P, THEN Q</div><div class="example">P guarantees Q.</div></div>
 </div>
 
-<p class="logic-note muted">In mathematics, OR includes the possibility that both are true.</p>
+<p v-click="2" class="logic-note muted">In mathematics, OR includes the possibility that both are true.</p>
 
 <!--
 
