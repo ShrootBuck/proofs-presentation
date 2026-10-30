@@ -68,7 +68,6 @@ function renderHunt() {
     const time = make('div', 'host-countdown'); time.id = 'countdown'; clock.append(time)
     if (h.phase === 'lobby') clock.append(button('Start the 60 seconds', 'hunt-start'))
     if (h.phase === 'closed') clock.append(button('Reveal the counterexample', 'hunt-reveal'))
-    if (h.phase === 'open') clock.append(make('p', 'quiet', 'The clock runs on the server. No refresh loopholes.'))
     grid.append(left, clock, joinCard()); dashboard.append(grid, stats())
   }
   const footer = make('div', 'host-controls host-log-controls')

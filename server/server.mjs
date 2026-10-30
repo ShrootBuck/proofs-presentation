@@ -144,8 +144,6 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
     const base = path.resolve(directory)
     const resolved = path.resolve(base, relative)
     if (!resolved.startsWith(base + path.sep) || !fs.existsSync(resolved) || !fs.statSync(resolved).isFile()) return json(res, 404, { error: 'Not found.' })
-    // Clear old HTTP cache entries on this origin without clearing room/login storage.
-    if (path.extname(resolved) === '.html') res.setHeader('Clear-Site-Data', '"cache"')
     res.writeHead(200, { 'Content-Type': mime[path.extname(resolved)] || 'application/octet-stream' })
     fs.createReadStream(resolved).on('error', () => res.destroy()).pipe(res)
   }

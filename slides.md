@@ -7,7 +7,7 @@ author: Zayd Krunz
 info: |
   A 30-minute introduction to mathematical proof, with live logic experiments and a classroom game.
   Capstone Differential Equations · BASIS Tucson North
-colorSchema: light
+colorSchema: dark
 aspectRatio: 16/9
 canvasWidth: 1200
 fonts:
@@ -38,7 +38,6 @@ routerMode: hash
 time: '0:00–0:25'
 ---
 
-
 <div class="title-lockup">
   <h1 v-motion :initial="{ y: 30, opacity: 0 }" :enter="{ y: 0, opacity: 1, transition: { duration: 700 } }">PROVE <span class="title-second">IT.</span></h1>
   <div class="title-subtitle" v-motion :initial="{ y: 15, opacity: 0 }" :enter="{ y: 0, opacity: 1, transition: { delay: 200, duration: 650 } }">The art of being certain</div>
@@ -50,12 +49,9 @@ time: '0:00–0:25'
 </div>
 
 <!--
+Today we're talking about proofs. This is technically happening in our differential equations class, but you can put those away for half an hour.
 
-Today we're talking about proofs. This is technically happening in differential equations, but you can put the differential equations away for half an hour.
-
-The question is simple: when does a mathematical claim actually deserve our trust? We'll try to break a pattern, learn a few proof techniques, and play a game about catching bad arguments.
-
-You need algebra and a willingness to be suspicious. Phones out for the first challenge.
+The question is simple: when does a mathematical claim actually deserve our trust? We'll try to break a pattern, learn a few proof techniques, and play some games about catching bad arguments.
 -->
 
 ---
@@ -63,14 +59,12 @@ section: BREAK THE PATTERN
 time: '0:25–3:00'
 ---
 
-
 # Break the pattern.
 
 <ActivityLauncher kind="hunt" />
 
 <!--
-
-On a computer, open proofs dot zaydkrunz dot com slash join. On a phone, you can scan the picture instead. Yes, the picture is the QR code. Enter the room code on screen and your name. Keep the activity page open; we'll use it again later.
+On a computer, open the link. On a phone, you can scan the picture instead. Yes, the picture is the QR code. Enter the room code on screen and your name. Keep the activity page open; we'll use it again later.
 
 Here's the challenge. Enter any nonnegative whole number. We calculate two numbers: n to the seventeenth plus nine, and n plus one, all to the seventeenth, plus nine. Find an input where those two results share a factor greater than one.
 
@@ -107,7 +101,6 @@ clicks: 2
 time: '3:00–3:50'
 ---
 
-
 # Fifty-two digits later.
 
 <div class="micro">THE FIRST NONNEGATIVE COUNTEREXAMPLE</div>
@@ -116,14 +109,11 @@ time: '3:00–3:50'
 <div v-click="2" class="takeaway">A long streak of successes is not a universal proof.</div>
 
 <!--
-
 Every smaller nonnegative integer passes this test. The first counterexample is this fifty-two-digit number.
 
 [click] At this input, both results share the factor shown here. The app uses exact integer arithmetic, so this is not a rounding error. We can divide both numbers by that factor with zero remainder.
 
-This is a published number-theory example. We are not going to prove why this is the first failure today. But verifying a counterexample is enough to disprove the claim that there are no failures.
-
-[click] People sometimes call this proof by counterexample. More precisely, it disproves the universal statement and proves its negation. Successful tests can suggest a pattern. One allowed failure destroys it.
+[click] People sometimes call this proof by counterexample. More precisely, it disproves the universal statement and proves its negation.
 -->
 
 ---
@@ -426,8 +416,6 @@ clicks: 1
 That proof is finished, so now we get to use the mathematical mic drop: this little square. You'll see it at the end of proofs, sometimes as an outline instead of a filled square.
 
 You might also see Q.E.D. That's short for the Latin quod erat demonstrandum, meaning which was to be demonstrated. Basically: we proved what we said we would.
-
-[click] I'm calling it an operator as a joke. It doesn't calculate anything, and it doesn't magically fix a bad proof. You have to earn the square by actually finishing the argument.
 -->
 
 ---

@@ -38,7 +38,7 @@ function joinDetails(room) {
   const details = make('div', 'host-join-details')
   const address = make('a', 'host-join-address', `${new URL(room.joinUrl).host}/join`)
   address.href = '/join'; address.target = 'proofs-student'
-  details.append(make('p', 'eyebrow', 'ROOM CODE'), make('div', 'host-room-code', room.code), address, make('p', 'quiet', 'Enter this code and your name. Keep the page open for both activities.'))
+  details.append(make('p', 'eyebrow', 'ROOM CODE'), make('div', 'host-room-code', room.code), address)
   return details
 }
 
