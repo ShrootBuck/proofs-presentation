@@ -17,7 +17,7 @@ const mime = { '.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/jav
 const TTL = 4 * 60 * 60 * 1000
 
 export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040', statePath, allowedOrigins = [], clock = Date.now, journalLimit } = {}) {
-  if (!hostKey || hostKey.length < 24) throw new Error('HOST_KEY must contain at least 24 characters.')
+  if (!hostKey || hostKey.length < 10) throw new Error('HOST_KEY must contain at least 10 characters.')
   const origin = new URL(publicUrl).origin
   const origins = new Set([origin, ...allowedOrigins])
   const rooms = new Map()

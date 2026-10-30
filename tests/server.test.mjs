@@ -5,7 +5,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { createProofServer } from '../server/server.mjs'
 
-const hostKey = 'local-test-key-for-proof-voting-only-2026'
+const hostKey = 'test-key-11'
 async function start(options = {}) {
   const server = createProofServer({ hostKey, publicUrl: 'http://localhost:3040', ...options })
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))

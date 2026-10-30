@@ -98,7 +98,7 @@ Deploy the GitHub repository using its `Dockerfile`, port `3040`, and health che
 Set runtime variables:
 
 ```text
-HOST_KEY=<long random private secret, at least 24 characters>
+HOST_KEY=<private host password, at least 10 characters; a long unique secret is recommended>
 PUBLIC_URL=https://proofs.zaydkrunz.com
 PORT=3040
 STATE_PATH=/data/rooms.json
