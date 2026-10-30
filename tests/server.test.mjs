@@ -10,10 +10,12 @@ async function start(options = {}) {
   const server = createProofServer({ hostKey, publicUrl: 'http://localhost:3040', ...options })
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve))
   const origin = `http://127.0.0.1:${server.address().port}`
+  let playerNumber = 0
   const request = async (route, { method = 'GET', data, cookie, auth, headers = {} } = {}) => {
+    if (method === 'POST' && route.endsWith('/join') && data === undefined && !cookie) data = { name: `Player ${++playerNumber}` }
     const response = await fetch(origin + route, { method, headers: { ...headers, ...(data ? { 'Content-Type': 'application/json' } : {}), ...(cookie ? { Cookie: cookie } : {}), ...(auth ? { Authorization: `Bearer ${auth}` } : {}) }, body: data ? JSON.stringify(data) : undefined })
     const type = response.headers.get('content-type') || ''
-    return { status: response.status, cookie: response.headers.get('set-cookie')?.split(';')[0], data: type.includes('json') ? await response.json() : await response.text() }
+    return { status: response.status, cookie: response.headers.get('set-cookie')?.split(';')[0], data: type.includes('application/json') ? await response.json() : await response.text() }
   }
   return { server, request, close: () => new Promise(resolve => server.close(resolve)) }
 }
@@ -103,7 +105,7 @@ test('40 phones share an exact, timed hunt, then keep the same room for five pro
     const attempts=await Promise.all(voters.map((v,i)=>guess(String(i+1),v.cookie)))
     assert.ok(attempts.every(r=>r.status===200 && r.data.gcd==='1'))
     assert.equal((await guess('2')).status,429)
-    now+=300
+    now+=600
     assert.equal((await guess('1e52')).status,400)
     const secret='8424432925592889329288197322308900672459420460792433'
     const answer=await guess(secret)
@@ -155,5 +157,74 @@ test('restarting the server preserves guesses and the original hunt deadline', a
     const reveal = await app.request(route + '/host', { method: 'POST', auth: room.hostToken, data: { action: 'hunt-reveal', round: 0, phase: 'lobby' } })
     assert.equal(reveal.status, 200)
     assert.equal(reveal.data.hunt.phase, 'revealed')
+  } finally { await app.close(); await fs.rm(directory, { recursive: true, force: true }) }
+})
+
+test('display names are required, unique in a room, and do not grant host powers', async () => {
+  const app = await start()
+  try {
+    const room = (await app.request('/api/rooms', { method: 'POST', auth: hostKey })).data
+    const route = `/api/rooms/${room.code}`
+    assert.equal((await app.request(route + '/join', { method: 'POST', data: {} })).status, 400)
+    assert.equal((await app.request(route + '/join', { method: 'POST', data: { name: '<script>' } })).status, 400)
+    const joined = await app.request(route + '/join', { method: 'POST', data: { name: '  Quentin  ' } })
+    assert.equal(joined.data.myName, 'Quentin')
+    assert.equal((await app.request(route + '/join', { method: 'POST', data: { name: 'quentin' } })).status, 409)
+    const resumed = await app.request(route + '/join', { method: 'POST', cookie: joined.cookie })
+    assert.equal(resumed.data.myName, 'Quentin'); assert.equal(resumed.data.joined, 1)
+    assert.equal((await app.request(route + '/host', { method: 'POST', cookie: joined.cookie, data: { action: 'hunt-start', round: 0, phase: 'lobby' } })).status, 401)
+    assert.equal((await app.request(route + '/hunt-log', { cookie: joined.cookie })).status, 401)
+    assert.equal((await app.request(route + '/join', { method: 'POST', data: { name: 'x'.repeat(5000) } })).status, 413)
+    assert.equal((await app.request('/health')).status, 200)
+  } finally { await app.close() }
+})
+
+test('ordered named guesses survive a missing snapshot and incomplete trailing journal record', async () => {
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'proof-journal-'))
+  const statePath = path.join(directory, 'rooms.json'), logPath = path.join(directory, 'guesses.jsonl')
+  let now = Date.now(), app = await start({ statePath, clock: () => now })
+  try {
+    const room = (await app.request('/api/rooms', { method: 'POST', auth: hostKey })).data
+    const route = `/api/rooms/${room.code}`
+    const player = await app.request(route + '/join', { method: 'POST', data: { name: 'Zayd' } })
+    await app.request(route + '/host', { method: 'POST', auth: room.hostToken, data: { action: 'hunt-start', round: 0, phase: 'lobby' } })
+    const beforeGuesses = await fs.readFile(statePath)
+    const results = []
+    for (const n of ['42', '9'.repeat(100)]) {
+      results.push(await app.request(route + '/guess', { method: 'POST', cookie: player.cookie, data: { n } })); now += 600
+    }
+    assert.ok(results.every(r => r.status === 200))
+    assert.ok(results[1].data.receipt > results[0].data.receipt)
+    const records = (await fs.readFile(logPath, 'utf8')).trim().split('\n').map(JSON.parse)
+    assert.deepEqual(records.map(r => r.kind), ['input', 'result', 'input', 'result'])
+    assert.equal(records[0].name, 'Zayd'); assert.equal(records[2].n.length, 100)
+    await app.close()
+    await fs.writeFile(statePath, beforeGuesses)
+    await fs.appendFile(logPath, JSON.stringify({ kind: 'input', sequence: 3, room: room.code, player: records[0].player, name: 'Zayd', n: '8'.repeat(100), receivedAt: now }) + '\n')
+    await fs.appendFile(logPath, '{"kind":"input","sequence":')
+    app = await start({ statePath, clock: () => now })
+    const recovered = await app.request(route + '/join', { method: 'POST', cookie: player.cookie })
+    assert.equal(recovered.data.myHunt.attempts, 2)
+    assert.equal(recovered.data.myHunt.last.n, '9'.repeat(100))
+    assert.equal(recovered.data.hunt.recent[0].name, 'Zayd')
+    assert.equal(recovered.data.hunt.attempts, 2, 'an input without a completion is kept for diagnosis, not automatically retried')
+    const downloaded = await app.request(route + '/hunt-log', { auth: room.hostToken })
+    assert.equal(downloaded.status, 200); assert.ok(downloaded.data.includes('Zayd'))
+  } finally { await app.close(); await fs.rm(directory, { recursive: true, force: true }) }
+})
+
+test('a full journal rejects new calculations while the service stays healthy', async () => {
+  const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'proof-log-limit-'))
+  let now = Date.now()
+  const app = await start({ statePath: path.join(directory, 'rooms.json'), journalLimit: 2200, clock: () => now })
+  try {
+    const room = (await app.request('/api/rooms', { method: 'POST', auth: hostKey })).data
+    const route = `/api/rooms/${room.code}`, player = await app.request(route + '/join', { method: 'POST' })
+    await app.request(route + '/host', { method: 'POST', auth: room.hostToken, data: { action: 'hunt-start', round: 0, phase: 'lobby' } })
+    assert.equal((await app.request(route + '/guess', { method: 'POST', cookie: player.cookie, data: { n: '9'.repeat(100) } })).status, 200)
+    now += 600
+    assert.equal((await app.request(route + '/guess', { method: 'POST', cookie: player.cookie, data: { n: '42' } })).status, 503)
+    assert.equal((await app.request(route)).data.hunt.attempts, 1)
+    assert.equal((await app.request('/health')).status, 200)
   } finally { await app.close(); await fs.rm(directory, { recursive: true, force: true }) }
 })

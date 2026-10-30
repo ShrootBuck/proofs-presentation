@@ -3,6 +3,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useLiveRoom } from '../composables/useLiveRoom'
 import { useSharedState } from '../composables/useSharedState'
 import { evaluateGuess, COUNTEREXAMPLE, SHARED_FACTOR } from '../lib/hunt.mjs'
+const props = defineProps<{ forceOffline?: boolean }>()
 const { live, act } = useLiveRoom()
 const offline = useSharedState('hunt-mode', { enabled: false })
 const local = useSharedState('hunt', { phase: 'lobby', endsAt: 0, attempts: 0, found: 0, recent: [] as any[] })
@@ -10,7 +11,7 @@ const now = ref(Date.now()), input = ref(''), error = ref('')
 let timer: ReturnType<typeof setInterval>
 onMounted(() => { timer = setInterval(() => { now.value = Date.now(); if (local.phase === 'open' && now.value >= local.endsAt) local.phase = 'closed' }, 100) })
 onUnmounted(() => clearInterval(timer))
-const network = computed(() => Boolean(live.credentials) && !offline.enabled)
+const network = computed(() => !props.forceOffline && Boolean(live.credentials) && !offline.enabled)
 const hunt = computed(() => network.value ? live.room?.hunt : local)
 const seconds = computed(() => hunt.value?.phase === 'lobby' ? 60 : Math.max(0, Math.ceil(((hunt.value?.endsAt || 0) - (now.value + (network.value ? live.clockOffset : 0))) / 1000)))
 const joinHost = computed(() => live.room ? new URL(live.room.joinUrl).host : '')
@@ -29,7 +30,7 @@ function guess() {
 <template>
   <section class="hunt" @click.stop @keydown.stop>
     <div class="hunt-equation"><MathTex tex="A=n^{17}+9" /><span>&</span><MathTex tex="B=(n+1)^{17}+9" /></div>
-    <div class="hunt-mode"><a v-if="!live.credentials" href="/host" target="_blank">Set up phone participation ↗</a><button v-else class="text-button" @click="offline.enabled = !offline.enabled">{{ offline.enabled ? 'Use phones' : 'Use call-out guesses' }}</button></div>
+    <div v-if="!forceOffline" class="hunt-mode"><a v-if="!live.credentials" href="/host" target="_blank">Set up phone participation ↗</a><button v-else class="text-button" @click="offline.enabled = !offline.enabled">{{ offline.enabled ? 'Use phones' : 'Use call-out guesses' }}</button></div>
     <p v-if="!hunt">{{ live.error || 'Connecting to the room…' }}</p>
     <div v-else-if="hunt.phase === 'revealed'" class="hunt-reveal">
       <div class="micro">THE FIRST NONNEGATIVE INPUT THAT BREAKS IT</div>

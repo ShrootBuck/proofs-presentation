@@ -1,3 +1,14 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#18201f"><title>Prove It — Host</title><link rel="stylesheet" href="/voting/style.css"><script type="module" src="/voting/host.js"></script></head>
-<body><main><header><a href="/" class="brand">PROVE IT<span>∎</span></a><span class="connection">HOST SETUP</span></header><p class="eyebrow">BEFORE YOU PRESENT</p><h1>Start a live room</h1><p>Open this page privately on your laptop. Create a room, then open the deck in this same browser. Your game controls will connect automatically.</p><form id="host-form"><label for="host-key">Private host key</label><input id="host-key" type="password" autocomplete="off" required><button type="submit">Create a new room</button></form><p id="error" class="error" role="alert"></p><section id="room-result" hidden></section><footer>Rooms last four hours. No names are collected.<br />A new room starts a fresh game.</footer></main></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#18201f">
+  <title>Prove It — Activity Host</title>
+  <link rel="stylesheet" href="/vendor/katex.min.css"><link rel="stylesheet" href="/voting/style.css"><link rel="stylesheet" href="/voting/host.css">
+  <script type="module" src="/voting/host.js"></script>
+</head>
+<body><main class="host-main">
+  <header class="host-nav"><a href="/" class="brand">PROVE IT<span>∎</span></a><div class="host-nav-actions"><a href="/#/1" target="proofs-deck">Slidev deck ↗</a><a href="/#/presenter/1" target="proofs-presenter">Presenter notes ↗</a><button id="show-setup" class="host-text-button" hidden>Room setup</button><span id="connection" class="connection">HOST SETUP</span></div></header>
+  <section id="setup-panel" class="host-setup"><p class="eyebrow">BEFORE YOU SHARE YOUR SCREEN</p><h1>One room.<br>Two challenges.</h1><p>Create your room here. The activity screen holds the QR code, timer, names, and host controls. Keep Slidev in another tab.</p><form id="host-form"><label for="host-key">Private host key</label><input id="host-key" type="password" autocomplete="off" required><button type="submit">Create a new room</button></form><button id="resume-room" class="secondary" hidden>Return to current room</button><p class="quiet">Rooms last four hours. Students join with a display name and room code.</p></section>
+  <p id="error" class="error" role="alert"></p>
+  <section id="dashboard" hidden></section>
+</main></body></html>

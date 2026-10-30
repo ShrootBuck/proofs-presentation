@@ -20,9 +20,11 @@ You need algebra and a willingness to be suspicious. Phones out for the first ch
 
 TIME: 0:25–3:00 (155 seconds; audience cues included)
 
-[BEFORE CLASS: Open /host privately, create a new room, and open both deck and presenter view from it. Both activities use this one room. Start the hunt only when the class is ready.]
+[BEFORE CLASS: Open /host privately and create a new room. Keep its activity screen in a separate tab. Open the Slidev deck and presenter view in this same browser. Both activities use the same room.]
 
-Scan the QR code. Keep that phone page open; we'll use it again later. No account or name needed.
+[DO: Open the activity screen and switch your shared screen to that tab.]
+
+Scan the QR code and enter your name. Keep that phone page open; we'll use it again later.
 
 Here's the challenge. Enter any nonnegative whole number. We calculate two numbers: n to the seventeenth plus nine, and n plus one, all to the seventeenth, plus nine. Find an input where those two results share a factor greater than one.
 
@@ -32,9 +34,13 @@ For example, twelve and twenty-five have no shared factor above one. Twelve and 
 
 You have exactly one minute. Try small numbers, big numbers, whatever you like. You can enter up to a hundred digits. Ready?
 
-[DO: Click Start the 60 seconds. Let the full minute run. If phones fail, choose Use call-out guesses and enter audience suggestions on the projector.]
+[DO: Click Start the 60 seconds on the host tab. Let the full minute run. If phones fail, return to Slidev, choose Call-out fallback, and enter audience suggestions.]
 
-[OPTIONAL DURING THE TIMER: The factor lists show prime factors the app has verified. A huge remaining piece might be labeled unfactored. That does not affect the exact shared-factor calculation. Keep going.]
+[SAY THIS WHILE THE TIMER RUNS, rather than adding time before or after it:]
+
+This is running on a laptop server under my bed with less than eight gigs of RAM. If one of your inputs crashes the server, I'll buy you a Wingstop chicken sandwich. Your name and input get logged before the calculation, so I can recover the winning guess. Good luck.
+
+[OPTIONAL IF SOMEONE ASKS: The shared-factor answer is exact. The factor list keeps updating on your own device. A piece marked probable prime is not being claimed as proven prime.]
 
 [WHEN THE TIMER ENDS: If someone found it, acknowledge their result. Otherwise:]
 
@@ -43,6 +49,8 @@ Lots of tests. Still no shared factor. Is that a proof that there's never one?
 [DO: Click Reveal the counterexample.]
 
 The first input that breaks the pattern has fifty-two digits. That is not a typo. Let's look at what it means.
+
+[DO: Switch your shared screen back to Slidev and advance to slide 3.]
 
 ---
 
@@ -388,7 +396,7 @@ Third: the sum from one through n equals n times n plus one over two, for positi
 
 TIME: 19:45–25:45 (360 seconds; audience cues included)
 
-[BEFORE STARTING: On this slide click Open Proof or Bluff, then Start round 1. The same room and phone page carry over from the opening hunt. Late arrivals can scan the QR again. If using the offline version, click Restart.]
+[BEFORE STARTING: Switch your shared screen to the activity host tab. Click Open Proof or Bluff, then Start round 1. The same names, room, and phone pages carry over. Late arrivals can scan the QR again. If phones fail, return to Slidev and select Show-of-hands fallback.]
 
 Same phones, new challenge. Five arguments. Vote A for a valid proof, B for a broken proof. The conclusion alone isn't enough: judge the reasoning. You can change your mind until I lock the vote.
 
@@ -447,6 +455,8 @@ It isn't. Either x is rational or it isn't. In each case, we have positive irrat
 [DO: Final score. Allow about 10 seconds for the result.]
 
 The question behind every round was: what exactly permits the next step?
+
+[DO: Switch your shared screen back to Slidev and advance to slide 23.]
 
 ---
 
