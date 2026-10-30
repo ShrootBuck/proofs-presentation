@@ -1,6 +1,6 @@
 # Prove It
 
-A 30-minute Slidev presentation by Zayd Krunz about mathematical proof: 25 timed slides, a reference appendix, a verbatim presenter script, and two live classroom activities.
+A 30-minute Slidev presentation by Zayd Krunz about mathematical proof: 26 content slides, a reference appendix, a verbatim presenter script, and two live classroom activities.
 
 ## Presenting
 
@@ -16,12 +16,12 @@ A 30-minute Slidev presentation by Zayd Krunz about mathematical proof: 25 timed
 2. Open the deck and presenter view using the links on that page, in the same browser. Keep the host dashboard in its own tab; the master key disappears after room creation.
 3. On slide 2, click **Open the activity screen**, then switch the shared screen to that tab. Click **Enlarge** for a large view of the artistic QR image. If it is hard to scan, click **Show normal QR**. Both images open the same join page: students enter the displayed room code and a first name or nickname. Names appear on the projector; no account is required. Click **Back to activity** when everyone has joined.
 4. Click **Start the 60 seconds**. Students enter a nonnegative integer n, trying to make `A = n^17 + 9` and `B = (n+1)^17 + 9` share a factor greater than 1. The server enforces the deadline. When it ends, click **Reveal the counterexample**.
-5. Switch back to slide 3 after the reveal. Students keep the same phone page open. On slide 22, return to the host tab, click **Open Proof or Bluff**, then **Start round 1**.
+5. Switch back to slide 3 after the reveal. Students keep the same phone page open. On slide 23, return to the host tab, click **Open Proof or Bluff**, then **Start round 1**.
 6. For each of the five rounds, students can change their vote until **Lock voting**. Ask someone to defend a step, then **Reveal the answer**. Continue with **Next round** and **Final score**.
 
 The five arguments cover division by zero, consecutive integers, a missing induction base case, a true conclusion with an invalid converse argument, and an existence proof by cases. A correct majority earns the class a point; a tie earns the traps a point. An empty round awards no point. Individual scores appear in the final leaderboard. One vote is stored per browser. Names identify players on screen but do not authenticate their real identity; the room code does not grant host privileges.
 
-Rooms expire after four hours. The deadline, guesses, votes, and host authorization survive a server restart when `/data` is persistent and `HOST_KEY` stays the same. Dropped connections reconnect automatically. For the offline fallback, select **Call-out fallback** on slide 2 or **Show-of-hands fallback** on slide 22. Presenter and audience windows share local demo state when opened in the same browser.
+Rooms expire after four hours. The deadline, guesses, votes, and host authorization survive a server restart when `/data` is persistent and `HOST_KEY` stays the same. Dropped connections reconnect automatically. For the offline fallback, select **Call-out fallback** on slide 2 or **Show-of-hands fallback** on slide 23. Presenter and audience windows share local demo state when opened in the same browser.
 
 The original QR images live in `public/qr/artwork.png` and `public/qr/normal.png`. They are copied into the built presentation unchanged, at their original resolution; nothing loads from Downloads. Replace either file with the original replacement PNG, then rebuild and deploy. Both images must encode `https://proofs.zaydkrunz.com/join`. The host remembers the artwork/normal choice for the browser tab, including across refreshes and activity changes. Clicking either image also opens its large view; Escape closes that view.
 
@@ -57,7 +57,7 @@ The journal has a 32 MiB cap and rejects new calculations if it cannot safely re
 | Toolkit and exit challenge | 25:45–27:50 |
 | Closing and questions | 27:50–30:00 |
 
-The notes contain about 3,600 spoken words. Rehearse near 150 words per minute and honor the activity pauses. Timing depends on the class. If discussion runs long, shorten slide 21 and the recap on slide 23; keep the complete worked proofs intact.
+The notes contain about 3,600 spoken words. Rehearse near 150 words per minute and honor the activity pauses. Timing depends on the class. If discussion runs long, shorten slide 22 and the recap on slide 24; keep the complete worked proofs intact.
 
 ## Local development
 

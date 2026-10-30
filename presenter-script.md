@@ -1,12 +1,11 @@
 # Prove It: presenter script
 
-Zayd Krunz · 30-minute capstone presentation
+Zayd Krunz · Capstone Differential Equations
 
-The script below is also embedded in Slidev's presenter notes. Read the prose aloud. Bracketed directions, timing labels, and reference lists are not spoken. [click] means advance one animation step with Right Arrow or Space. On interactive slides, use the visible buttons. The schedule includes audience pauses and 90 seconds for the closing and questions.
+The script below is also embedded in Slidev's presenter notes. Read the prose aloud. Bracketed directions and reference lists are not spoken. [click] means advance one animation step with Right Arrow or Space. On interactive slides, use the visible buttons.
 
 ## Slide 1
 
-TIME: 0:00–0:25 (25 seconds; audience cues included)
 
 Today we're talking about proofs. This is technically happening in differential equations, but you can put the differential equations away for half an hour.
 
@@ -18,11 +17,6 @@ You need algebra and a willingness to be suspicious. Phones out for the first ch
 
 ## Slide 2
 
-TIME: 0:25–3:00 (155 seconds; audience cues included)
-
-[BEFORE CLASS: Open /host privately and create a new room. Keep its activity screen in a separate tab. Open the Slidev deck and presenter view in this same browser. Both activities use the same room.]
-
-[DO: Open the activity screen and switch your shared screen to that tab. Click Enlarge to show the join image at projector size. If the artwork is hard to scan, click Show normal QR.]
 
 Point your phone camera at this picture. Yes, the picture is the QR code. Enter the room code on screen and your name. Keep that phone page open; we'll use it again later.
 
@@ -30,7 +24,7 @@ Here's the challenge. Enter any nonnegative whole number. We calculate two numbe
 
 For example, twelve and twenty-five have no shared factor above one. Twelve and eighteen share six. The app checks that for you. GCD means greatest common divisor: a result of one means no shared factor above one.
 
-[PAUSE up to 25 seconds for joining. Explain the rule while they scan.]
+[PAUSE for joining. Explain the rule while they scan.]
 
 You have exactly one minute. Try small numbers, big numbers, whatever you like. You can enter up to a hundred digits. Ready?
 
@@ -58,7 +52,6 @@ The first input that breaks the pattern has fifty-two digits. That is not a typo
 
 ## Slide 3
 
-TIME: 3:00–3:50 (50 seconds; audience cues included)
 
 Every smaller nonnegative integer passes this test. The first counterexample is this fifty-two-digit number.
 
@@ -72,7 +65,18 @@ This is a published number-theory example. We are not going to prove why this is
 
 ## Slide 4
 
-TIME: 3:50–4:30 (40 seconds; audience cues included)
+Here's a famous example: the Collatz conjecture. Pick any positive whole number. If it's even, divide it by two. If it's odd, multiply it by three and add one. Then repeat.
+
+[click] Starting at six, we get three, ten, five, sixteen, eight, four, two, one. The conjecture says every positive starting number eventually reaches one.
+
+[click] Every starting value checked so far behaves this way. But nobody has an accepted proof that it always happens. A sequence could, in principle, grow forever or enter a different cycle. Checking more examples doesn't rule that out for every untested number.
+
+So the important wording is: every number we've tested, not every number. That's the gap a proof has to close.
+
+---
+
+## Slide 5
+
 
 A proof starts with assumptions, definitions, and results we've already established. It then gives a chain of reasoning that forces the conclusion.
 
@@ -86,9 +90,8 @@ Before we build those arguments, let's get a little more precise about what stat
 
 ---
 
-## Slide 5
+## Slide 6
 
-TIME: 4:30–5:15 (45 seconds; audience cues included)
 
 A proposition is a statement that is true or false. Seven is prime is a proposition. Please open the window is a request, so it isn't one. And x is greater than three needs a value for x, or a quantifier, before it gives us a complete claim.
 
@@ -102,9 +105,8 @@ We'll call statements P and Q. Not P reverses the truth value.
 
 ---
 
-## Slide 6
+## Slide 7
 
-TIME: 5:15–6:25 (70 seconds; audience cues included)
 
 Suppose I say, if you ace the test, I'll buy you pizza. P means you aced the test, and Q means you got pizza. Which situation breaks my promise?
 
@@ -126,9 +128,8 @@ This is the truth table for material implication. It describes a logical conditi
 
 ---
 
-## Slide 7
+## Slide 8
 
-TIME: 6:25–7:15 (50 seconds; audience cues included)
 
 Here's a true implication over the integers: if a number is divisible by four, it's even.
 
@@ -142,9 +143,8 @@ If a theorem says if and only if, it promises both directions. Both need justifi
 
 ---
 
-## Slide 8
+## Slide 9
 
-TIME: 7:15–8:00 (45 seconds; audience cues included)
 
 These two symbols tell us how much work a claim requires. The upside-down A means for every. For every integer n, n squared is nonnegative. A universal statement ranges over its entire domain.
 
@@ -156,9 +156,8 @@ Also, say what the domain is. The equation x squared equals two has a real solut
 
 ---
 
-## Slide 9
+## Slide 10
 
-TIME: 8:00–8:40 (40 seconds; audience cues included)
 
 Quick vote. The statement is: every student solved the puzzle. Is its negation A, no student solved it, or B, at least one student did not solve it?
 
@@ -170,9 +169,8 @@ Negating for every gives us there exists, with the inside statement negated. Neg
 
 ---
 
-## Slide 10
+## Slide 11
 
-TIME: 8:40–9:10 (30 seconds; audience cues included)
 
 Now we have enough language to build proofs. These are six useful approaches, and we'll actually use each one.
 
@@ -182,9 +180,8 @@ Direct proof follows the assumptions forward. Cases split the possibilities. Con
 
 ---
 
-## Slide 11
+## Slide 12
 
-TIME: 9:10–10:15 (65 seconds; audience cues included)
 
 Let's prove that the sum of two odd integers is even. We choose arbitrary odd integers a and b. Arbitrary means we're not selecting special values that make the argument easy.
 
@@ -202,9 +199,8 @@ Nothing depended on a particular choice of a or b, so the proof covers every pai
 
 ---
 
-## Slide 12
+## Slide 13
 
-TIME: 10:15–11:00 (45 seconds; audience cues included)
 
 Now let's prove that n times n plus one is even for every integer n. These are two consecutive integers.
 
@@ -218,9 +214,8 @@ Checking only positive and negative integers, for example, would miss zero. Tiny
 
 ---
 
-## Slide 13
+## Slide 14
 
-TIME: 11:00–12:10 (70 seconds; audience cues included)
 
 Our next claim is that if an integer's square is even, the integer itself is even. We need a justification. Saying it's obvious because even times even is even would run the implication in the wrong direction.
 
@@ -236,9 +231,8 @@ Keep this result. In a moment we'll use it twice inside a different proof. This 
 
 ---
 
-## Slide 14
+## Slide 15
 
-TIME: 12:10–12:45 (35 seconds; audience cues included)
 
 Proof by contradiction starts by assuming the exact opposite of what we want to prove.
 
@@ -250,9 +244,8 @@ This differs from contrapositive. Contrapositive directly proves an equivalent i
 
 ---
 
-## Slide 15
+## Slide 16
 
-TIME: 12:45–13:45 (60 seconds; audience cues included)
 
 Let's prove that the square root of two is irrational. Assume the opposite: it equals a over b, with a and b integers and b positive. We choose that fraction in lowest terms.
 
@@ -266,9 +259,8 @@ Remember the result we just proved: an even square has an even integer root.
 
 ---
 
-## Slide 16
+## Slide 17
 
-TIME: 13:45–15:00 (75 seconds; audience cues included)
 
 Start with square root of two equals a over b.
 
@@ -280,7 +272,7 @@ Start with square root of two equals a over b.
 
 Before I reveal the finish, what have we just shown about the fraction?
 
-[PAUSE for a response, about 5 seconds.]
+[PAUSE for a response.]
 
 [click] Both numerator and denominator have a factor of two. But we chose a fraction with no common factor greater than one. Those conditions cannot both hold.
 
@@ -290,9 +282,8 @@ Notice how precise the contradiction is. We didn't say the fraction looks unlike
 
 ---
 
-## Slide 17
+## Slide 18
 
-TIME: 15:00–16:20 (80 seconds; audience cues included)
 
 Induction proves a statement for every positive integer using two jobs. First, prove the base case, usually one. Second, prove that for an arbitrary integer k in the domain, if the statement holds at k, it must hold at k plus one.
 
@@ -316,9 +307,8 @@ And assuming P of k inside the step isn't circular. We're proving a conditional.
 
 ---
 
-## Slide 18
+## Slide 19
 
-TIME: 16:20–17:05 (45 seconds; audience cues included)
 
 Here's the claim we'll prove by induction: the first n positive odd integers add up to n squared.
 
@@ -332,9 +322,8 @@ The diagram makes the next odd number feel inevitable. But showing a few sizes i
 
 ---
 
-## Slide 19
+## Slide 20
 
-TIME: 17:05–18:15 (70 seconds; audience cues included)
 
 Let's write the proof carefully. P of n is the statement that the first n positive odd numbers sum to n squared.
 
@@ -352,9 +341,8 @@ The visual border and the algebra express the same mechanism.
 
 ---
 
-## Slide 20
+## Slide 21
 
-TIME: 18:15–19:00 (45 seconds; audience cues included)
 
 After all those universal claims, here's an existence statement: there exists a prime integer that is the sum of two squares of positive integers.
 
@@ -368,35 +356,33 @@ This connects back to quantifiers. One example is weak evidence for a universal 
 
 ---
 
-## Slide 21
+## Slide 22
 
-TIME: 19:00–19:45 (45 seconds; audience cues included)
 
 Three claims. Don't prove them completely. Just tell me a sensible first move.
 
 First: every odd integer is prime. What would you try?
 
-[PAUSE about 5 seconds.]
+[PAUSE.]
 
 [click] A counterexample. Nine is odd and composite. One is also an allowed counterexample, because one isn't prime. Nine avoids that definitional distraction.
 
 Second: the sum of two even integers is even.
 
-[PAUSE about 5 seconds.]
+[PAUSE.]
 
 [click] Direct proof is natural. Write the numbers as two r and two s, add, then factor out two.
 
 Third: the sum from one through n equals n times n plus one over two, for positive integers n.
 
-[PAUSE about 5 seconds.]
+[PAUSE.]
 
 [click] Induction fits, because moving from n to n plus one adds one new term. A pairing argument also works. These methods are tools, and many claims admit more than one good proof.
 
 ---
 
-## Slide 22
+## Slide 23
 
-TIME: 19:45–25:45 (360 seconds; audience cues included)
 
 [BEFORE STARTING: Switch your shared screen to the activity host tab. Click Open Proof or Bluff, then Start round 1. The same names, room, and phone pages carry over. Late arrivals can scan the QR again. If phones fail, return to Slidev and select Show-of-hands fallback.]
 
@@ -408,7 +394,7 @@ ROUND 1 — ABOUT 60 SECONDS
 
 Apparently we're proving one equals two. Start with a equals b equals one. Find the first illegal step.
 
-[PAUSE 15 seconds. Lock voting, ask for a reason, and reveal. Offline: enter the majority's vote and reveal.]
+[PAUSE. Lock voting, ask for a reason, and reveal. Offline: enter the majority's vote and reveal.]
 
 The last line canceled a minus b. But that factor is zero. The preceding equation was just zero equals zero. Dividing by zero cannot turn it into a plus b equals b.
 
@@ -418,7 +404,7 @@ ROUND 2 — ABOUT 60 SECONDS
 
 Now, n cubed minus n is divisible by three for every integer n. The vertical bar means divides. Does this argument cover every integer?
 
-[PAUSE 15 seconds. Lock, ask for justification, and reveal.]
+[PAUSE. Lock, ask for justification, and reveal.]
 
 Yes. The factorization gives three consecutive integers. One must be divisible by three, so their product is too. This covers negative integers and zero as well.
 
@@ -428,7 +414,7 @@ ROUND 3 — ABOUT 60 SECONDS
 
 This argument claims every positive integer equals the next one. It assumes the claim at k, adds one, and obtains the next case. What's your verdict?
 
-[PAUSE 15 seconds. Lock, ask what's missing, and reveal.]
+[PAUSE. Lock, ask what's missing, and reveal.]
 
 The conditional step is valid, but there is no true base case. At one, the statement is one equals two. An implication doesn't establish its own hypothesis. The chain never starts.
 
@@ -438,7 +424,7 @@ ROUND 4 — ABOUT 60 SECONDS
 
 We already proved this claim: if an integer's square is even, the integer is even. But does this argument prove it?
 
-[PAUSE 15 seconds. Lock, ask which direction was proved, and reveal.]
+[PAUSE. Lock, ask which direction was proved, and reveal.]
 
 No. This starts by assuming the integer is even, then shows its square is even. That's the converse. The conclusion is true, but this argument has not established it. That's why the game asks about proofs, not just answers.
 
@@ -450,21 +436,20 @@ Can an irrational number raised to an irrational power be rational? Here's an ex
 
 The argument never decides which case we're in. Is that a problem?
 
-[PAUSE 20 seconds. Lock, take one explanation, and reveal.]
+[PAUSE. Lock, take one explanation, and reveal.]
 
 It isn't. Either x is rational or it isn't. In each case, we have positive irrational numbers a and b whose power is rational. The two cases cover every possibility. We proved existence without determining which of these constructions supplies the witness.
 
-[DO: Final score. Allow about 10 seconds for the result.]
+[DO: Final score. Let the class react.]
 
 The question behind every round was: what exactly permits the next step?
 
-[DO: Switch your shared screen back to Slidev and advance to slide 23.]
+[DO: Switch your shared screen back to Slidev and advance to slide 24.]
 
 ---
 
-## Slide 23
+## Slide 24
 
-TIME: 25:45–26:35 (50 seconds; audience cues included)
 
 Here's the toolkit in one place. Start by reading the exact statement. Identify the domain, the quantifiers, and the assumptions. Then ask what the definitions give you.
 
@@ -478,15 +463,14 @@ These are useful starting points, not rigid rules. A good proof often combines s
 
 ---
 
-## Slide 24
+## Slide 25
 
-TIME: 26:35–27:50 (75 seconds; audience cues included)
 
 Last challenge. For an integer n, if n squared is odd, then n is odd. Which first move actually helps prove this: testing twenty odd numbers, using the contrapositive, or assuming n is odd?
 
-Take fifteen seconds. If you choose the contrapositive, try to write it in your head.
+Take a moment. If you choose the contrapositive, try to write it in your head.
 
-[PAUSE 15 seconds. Ask someone for the contrapositive.]
+[PAUSE. Ask someone for the contrapositive.]
 
 [click] The contrapositive is: if n is even, then n squared is even. That reverses the implication and negates both parts.
 
@@ -498,9 +482,8 @@ The direction of the argument matters just as much as the algebra.
 
 ---
 
-## Slide 25
+## Slide 26
 
-TIME: 27:50–30:00 (130 seconds; audience cues included)
 
 If you keep one habit from this, make it asking what makes the next step unavoidable.
 
@@ -510,7 +493,7 @@ That's the difference between recognizing a pattern and knowing what you can act
 
 What part would you challenge, or want to see another example of?
 
-[PAUSE for questions. Allow about 90 seconds, or use this as the timing buffer if earlier discussion ran long.]
+[PAUSE for questions.]
 
 [IF THE ROOM IS QUIET: Ask, "Could we prove the odd-number sum without induction?" Let someone describe the general square-border argument. Or ask, "Can a true statement have an invalid proof?" Refer to slide 13: proving that an even integer has an even square does not, by itself, prove the reverse implication. The reverse is true, but that argument does not establish it.]
 
@@ -518,7 +501,7 @@ What part would you challenge, or want to see another example of?
 
 ---
 
-## Slide 26
+## Slide 27
 
 APPENDIX: Not part of the 30-minute schedule.
 
