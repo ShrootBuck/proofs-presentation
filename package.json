@@ -1,0 +1,28 @@
+{
+  "name": "prove-it",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "CHOKIDAR_USEPOLLING=true slidev --bind 127.0.0.1 --port 3030",
+    "build": "slidev build",
+    "preview": "vite preview --host 127.0.0.1 --port 4173",
+    "export": "slidev export --output prove-it.pdf --wait 600",
+    "notes": "node scripts/extract-notes.mjs",
+    "check": "node --test tests/*.test.mjs",
+    "start": "node server/server.mjs",
+    "voting": "node --env-file=.env.local server/server.mjs"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "5.3.0",
+    "@fontsource-variable/space-grotesk": "5.3.0",
+    "@fontsource/ibm-plex-mono": "5.3.0",
+    "@slidev/cli": "53.0.0",
+    "@slidev/theme-default": "0.25.0",
+    "katex": "^0.16.22",
+    "qrcode": "1.5.4",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "playwright-chromium": "1.64.1"
+  }
+}

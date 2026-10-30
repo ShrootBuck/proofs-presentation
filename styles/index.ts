@@ -1,0 +1,5 @@
+import '@fontsource-variable/space-grotesk'
+import '@fontsource-variable/inter'
+import '@fontsource/ibm-plex-mono/400.css'
+import 'katex/dist/katex.min.css'
+import './style.css'

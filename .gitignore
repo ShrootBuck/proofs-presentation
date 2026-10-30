@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.slidev/
+.qa/
+*.log
+.DS_Store
+.env*
+!.env.example
+data/
+.agents/
+skills-lock.json
+prove-it.pdf

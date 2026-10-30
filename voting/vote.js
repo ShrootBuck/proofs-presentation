@@ -1,0 +1,158 @@
+import katex from '/vendor/katex.mjs'
+const game = document.querySelector('#game')
+const join = document.querySelector('#join-panel')
+const error = document.querySelector('#error')
+const connection = document.querySelector('#connection')
+let roomCode = location.pathname.split('/')[2] || ''
+let snapshot, myVote = null, stream, busy = false, myHunt = null, clockOffset = 0
+let factorWorker, factorId = 0, factors = null
+const compact = s => s.length > 45 ? `${s.slice(0, 20)}…${s.slice(-12)} (${s.length} digits)` : s
+const make = (tag, className, text) => { const el = document.createElement(tag); if (className) el.className = className; if (text !== undefined) el.textContent = text; return el }
+const math = (tex, className) => { const el = make('div', className); katex.render(tex, el, { throwOnError: false }); return el }
+function render() {
+  if (!snapshot) return
+  const state = snapshot
+  if (state.activity === 'hunt') { renderHunt(); return }
+  game.replaceChildren(); game.hidden = false; join.hidden = true
+  game.append(make('p', 'eyebrow', `ROOM ${state.code} / ${state.phase === 'lobby' ? 'LOBBY' : `ROUND ${state.round + 1} OF ${state.totalRounds}`}`))
+  if (state.phase === 'lobby') {
+    game.append(make('h1', '', "You're in."), make('div', 'waiting-symbol', '∎'), make('p', '', 'Watch the presentation. Your first proof will appear here when the host starts the game.'), make('p', 'quiet', `${state.joined} ${state.joined === 1 ? 'person has' : 'people have'} joined.`))
+    return
+  }
+  if (state.phase === 'finished') {
+    game.append(make('h1', '', 'Final verdict'), make('div', 'score', `${state.score.class} / ${state.totalRounds}`), make('h2', '', 'Points for the class'), make('p', '', `${state.score.traps} for the traps. A class point requires a majority of votes to be correct.`), make('p', '', 'Thanks for playing. Put the phone away and challenge the next step.'))
+    return
+  }
+  game.append(make('h2', '', state.question.title), math(state.question.claim, 'claim'))
+  for (const [index, line] of state.question.lines.entries()) {
+    const row = make('div', `proof-line${state.answer?.badLine === index ? ' bad' : ''}`)
+    row.append(make('span', 'num', String(index + 1)), math(line)); game.append(row)
+  }
+  if (state.question.prose) game.append(make('p', 'proof-prose', state.question.prose))
+  if (state.phase === 'open') {
+    const buttons = make('div', 'vote-buttons')
+    for (const [valid, letter, label] of [[true, 'A', 'Valid proof'], [false, 'B', 'Broken proof']]) {
+      const button = make('button', myVote === valid ? 'selected' : '')
+      button.append(make('span', '', letter), make('strong', '', label)); button.setAttribute('aria-pressed', String(myVote === valid)); button.disabled = busy
+      button.addEventListener('click', () => vote(valid)); buttons.append(button)
+    }
+    game.append(buttons, make('p', 'vote-status', myVote === null ? 'Choose your verdict. Results stay hidden.' : 'Vote saved. You can change it until voting locks.'))
+  } else {
+    game.append(make('p', 'vote-status', myVote === null ? 'Voting is locked.' : `Your vote: ${myVote ? 'Valid proof' : 'Broken proof'}. Locked.`))
+    for (const [label, value] of [['Valid proof', state.counts.valid], ['Broken proof', state.counts.broken]]) {
+      const row = make('div', 'tally-row'); row.append(make('span', '', label), make('strong', '', String(value)))
+      const bar = make('div', 'tally-bar'); const fill = make('span'); fill.style.width = `${state.counts.total ? value / state.counts.total * 100 : 0}%`; bar.append(fill); game.append(row, bar)
+    }
+    if (!state.answer) game.append(make('p', 'quiet', 'The class has committed. Which step makes or breaks this proof?'))
+  }
+  if (state.answer) {
+    const verdict = make('div', 'verdict'); verdict.append(make('h2', '', state.answer.verdict), make('p', '', state.answer.explanation))
+    if (myVote !== null) verdict.append(make('p', 'vote-status', myVote === state.answer.valid ? 'You caught it.' : 'A good trap. Now you know why.'))
+    game.append(verdict)
+  }
+}
+async function vote(valid) {
+  if (busy) return; busy = true; error.textContent = ''; render()
+  try {
+    const response = await fetch(`/api/rooms/${roomCode}/vote`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ round: snapshot.round, valid }) })
+    const data = await response.json(); if (!response.ok) throw new Error(data.error)
+    myVote = data.myVote
+  } catch (e) { error.textContent = e.message } finally { busy = false; render() }
+}
+async function connect(code) {
+  error.textContent = ''; roomCode = code.toUpperCase().trim()
+  if (!/^[A-Z2-9]{6}$/.test(roomCode)) { error.textContent = 'Use the six-character room code.'; return }
+  try {
+    const response = await fetch(`/api/rooms/${roomCode}/join`, { method: 'POST' }); const state = await response.json()
+    if (!response.ok) throw new Error(state.error)
+    snapshot = state; myVote = state.myVote; myHunt = state.myHunt; clockOffset = state.serverTime - Date.now(); if (myHunt?.last) startFactors(myHunt.last); render(); history.replaceState(null, '', `/join/${roomCode}`)
+    stream?.close(); stream = new EventSource(`/api/rooms/${roomCode}/events`)
+    stream.onopen = () => { connection.textContent = 'LIVE'; error.textContent = '' }
+    stream.onerror = () => { connection.textContent = 'RECONNECTING'; error.textContent = 'Connection interrupted. Reconnecting automatically.' }
+    stream.onmessage = async event => {
+      const next = JSON.parse(event.data)
+      if (snapshot?.round !== next.round) myVote = null
+      const previous = snapshot; snapshot = next; clockOffset = next.serverTime - Date.now();
+      if (next.activity === 'hunt' && previous?.activity === 'hunt' && next.hunt.phase === previous.hunt.phase) updateHuntStats()
+      else render()
+    }
+  } catch (e) { error.textContent = e.message; connection.textContent = 'NOT CONNECTED'; join.hidden = false }
+}
+document.querySelector('#join-form').addEventListener('submit', event => { event.preventDefault(); connect(document.querySelector('#room-code').value) })
+if (roomCode) connect(roomCode)
+else connection.textContent = 'READY TO JOIN'
+
+function updateHuntStats() {
+  const clock = document.querySelector('#hunt-clock')
+  if (clock) clock.textContent = snapshot.hunt.phase === 'lobby' ? '60' : String(Math.max(0, Math.ceil((snapshot.hunt.endsAt - Date.now() - clockOffset) / 1000))).padStart(2, '0')
+  const stats = document.querySelector('#hunt-stats')
+  if (stats) stats.textContent = `${snapshot.hunt.attempts} class guesses · ${snapshot.hunt.found} found a shared factor`
+  const submit = document.querySelector('#guess-form button')
+  if (submit) submit.disabled = busy || Date.now() + clockOffset >= snapshot.hunt.endsAt
+}
+setInterval(updateHuntStats, 100)
+function startFactors(result) {
+  factorWorker?.terminate(); factors = null; const id = ++factorId
+  factorWorker = new Worker('/voting/factor-worker.js', { type: 'module' })
+  factorWorker.onmessage = ({ data }) => { if (data.id !== factorId) return; factors = data; renderFactorPanels() }
+  factorWorker.onerror = () => { factors = { error: 'Factorization unavailable. The shared-factor test is still exact.' }; renderFactorPanels() }
+  factorWorker.postMessage({ id, a: result.a, b: result.b })
+}
+function integerDetails(label, value) {
+  const details = make('details', 'integer-details'), summary = make('summary', '', `${label} = ${compact(value)}`)
+  details.append(summary, make('p', 'full-integer', value)); return details
+}
+function renderFactorPanels() {
+  const panels = document.querySelector('#factor-panels'); if (!panels || !myHunt?.last) return
+  panels.replaceChildren()
+  if (!factors) { panels.append(make('p', 'quiet', 'Finding prime factors…')); return }
+  if (factors.error) { panels.append(make('p', 'quiet', factors.error)); return }
+  for (const key of ['a', 'b']) {
+    const f = factors[key], card = make('section', 'factor-card')
+    card.append(integerDetails(key.toUpperCase(), myHunt.last[key]))
+    card.append(make('p', 'factor-label', f.complete ? 'Prime factorization' : 'Verified prime factors found'))
+    const short = f.factors.length > 10 ? [...f.factors.slice(0,4), '…', f.factors.at(-1)] : f.factors
+    card.append(make('p', 'factor-list', short.length ? short.join(' × ') : 'No prime factors found within the time limit.'))
+    if (f.factors.length > 10) { const d = make('details'); d.append(make('summary', '', `Show all ${f.factors.length} prime factors`), make('p','full-integer',f.factors.join(' × '))); card.append(d) }
+    if (!f.complete) { card.append(make('p','factor-label','Unfactored remainder (not claimed prime)'), integerDetails('R',f.remainder), make('p','quiet','The factors shown × R equal the original number exactly.')) }
+    panels.append(card)
+  }
+}
+function renderHunt() {
+  const h = snapshot.hunt
+  const draft = document.querySelector('#guess-input')?.value || ''
+  game.replaceChildren(); game.hidden = false; join.hidden = true
+  game.append(make('p','eyebrow',`ROOM ${snapshot.code} / BREAK THE PATTERN`),make('h1','','One shared factor.'))
+  game.append(math('A=n^{17}+9', 'hunt-formula'), math('B=(n+1)^{17}+9', 'hunt-formula'),make('p','','Find an input where A and B share a factor greater than 1.'))
+  if (h.phase === 'revealed') {
+    game.append(make('h2','','The first counterexample'),make('div','full-integer reveal-number',h.reveal.n),make('p','','Both numbers are divisible by:'),make('div','full-integer',h.reveal.gcd),make('p','quiet','One counterexample defeats the universal claim. Keep this page open for Proof or Bluff later.'))
+    return
+  }
+  const clock = make('div','phone-clock'); clock.id='hunt-clock'; game.append(clock)
+  const stats = make('p','quiet'); stats.id='hunt-stats'; game.append(stats)
+  if (h.phase === 'lobby') game.append(make('p','','You are in. The host will start a 60-second countdown. Any nonnegative whole number up to 100 digits is allowed.'))
+  if (h.phase === 'open') {
+    const form = make('form'); form.id='guess-form'
+    const label = make('label','','Your input n'); label.htmlFor='guess-input'
+    const input = make('input'); input.id='guess-input'; input.type='text'; input.inputMode='numeric'; input.maxLength=100; input.autocomplete='off'; input.value=draft; input.required=true
+    const submit = make('button','','Test my input'); submit.type='submit'
+    form.append(label,input,submit); form.addEventListener('submit',submitGuess); game.append(form,make('p','quiet','Enter digits only. Your input is kept exact, even beyond 64 bits.'))
+  }
+  if (h.phase === 'closed') game.append(make('h2',"","Time's up."),make('p','','Watch the screen for the reveal.'))
+  if (myHunt?.last) {
+    const r = myHunt.last
+    game.append(make('p','eyebrow',`YOUR GUESS ${myHunt.attempts}`),integerDetails('n',r.n),make('h2','',r.found?'You found a shared factor!':'No shared factor above 1.'),integerDetails('GCD',r.gcd))
+    const panels=make('div'); panels.id='factor-panels'; game.append(panels); renderFactorPanels()
+  }
+  updateHuntStats()
+}
+async function submitGuess(event) {
+  event.preventDefault(); if (busy) return
+  const value=document.querySelector('#guess-input').value
+  busy=true; error.textContent=''; updateHuntStats()
+  try {
+    const response=await fetch(`/api/rooms/${roomCode}/guess`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({n:value})})
+    const data=await response.json(); if(!response.ok) throw new Error(data.error)
+    myHunt={attempts:data.attempts,last:data}; startFactors(data)
+  } catch(e) { error.textContent=e.message } finally { busy=false; render() }
+}
