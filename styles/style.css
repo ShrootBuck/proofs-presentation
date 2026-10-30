@@ -85,12 +85,14 @@ html { font-family: 'Inter Variable', sans-serif; }
 .round-change-enter-from { opacity: 0; transform: translateX(20px); }
 .round-change-leave-to { opacity: 0; transform: translateX(-20px); }
 .title-slide { padding-top: 52px; }
-.title-slide h1 { font-size: 158px; letter-spacing: -.075em; line-height: .89; margin: 62px 0 23px; }
-.title-slide .title-second { display: inline-block; color: var(--acid); }
-.title-subtitle { font-size: 30px; letter-spacing: -.025em; max-width: 680px; }
-.title-meta { position: absolute; left: 66px; bottom: 64px; font-size: 17px; display: flex; gap: 35px; color: #bcc4b9; }
-.title-symbol { position: absolute; right: 88px; bottom: 74px; font-size: 140px; font-weight: 300; color: var(--acid); line-height: 1; }
-.opening-question { position: absolute; right: 70px; top: 62px; font: 14px 'IBM Plex Mono', monospace; color: #b3bbae; }
+.title-lockup { position: absolute; left: 66px; right: 66px; top: 155px; }
+.title-slide h1 { font-size: 132px; letter-spacing: -.065em; line-height: 1; margin: 0; white-space: nowrap; }
+.title-slide .title-second { color: var(--acid); }
+.title-subtitle { font-size: 30px; letter-spacing: -.025em; margin-top: 20px; color: #c9d0c2; }
+.title-credits { position: absolute; left: 66px; bottom: 62px; }
+.title-author { font-size: 23px; font-weight: 500; }
+.title-course { font-size: 17px; color: #bcc4b9; margin-top: 7px; }
+
 .lead { font-size: 29px; line-height: 1.4; max-width: 950px; }
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; }
 .split.wide-left { grid-template-columns: 1.3fr 1fr; gap: 50px; }

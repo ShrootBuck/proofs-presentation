@@ -39,10 +39,14 @@ time: '0:00–0:25'
 ---
 
 
-<h1 v-motion :initial="{ y: 40, opacity: 0 }" :enter="{ y: 0, opacity: 1, transition: { duration: 700 } }">PROVE<br /><span class="title-second">IT.</span></h1>
-
-<div class="title-subtitle" v-motion :initial="{ y: 20, opacity: 0 }" :enter="{ y: 0, opacity: 1, transition: { delay: 250, duration: 650 } }">The art of being certain</div>
-<div class="title-symbol" v-motion :initial="{ rotate: -30, opacity: 0, scale: 0.5 }" :enter="{ rotate: 0, opacity: 1, scale: 1, transition: { delay: 400, duration: 800 } }">∎</div>
+<div class="title-lockup">
+  <h1 v-motion :initial="{ y: 30, opacity: 0 }" :enter="{ y: 0, opacity: 1, transition: { duration: 700 } }">PROVE <span class="title-second">IT.</span></h1>
+  <div class="title-subtitle" v-motion :initial="{ y: 15, opacity: 0 }" :enter="{ y: 0, opacity: 1, transition: { delay: 200, duration: 650 } }">The art of being certain</div>
+</div>
+<div class="title-credits">
+  <div class="title-author">Zayd Krunz</div>
+  <div class="title-course">Capstone: Differential Equations</div>
+</div>
 
 <!--
 
