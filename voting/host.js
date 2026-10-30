@@ -7,9 +7,9 @@ let credentials, room, stream, connected = false, busy = false, offset = 0
 const make = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el }
 const math = (tex, cls = '') => { const el = make('div', cls); katex.render(tex, el, { throwOnError: false }); return el }
 const short = n => n.length > 30 ? `${n.slice(0, 15)}…${n.slice(-8)}` : n
-function button(text, action, cls = '') {
+function button(text, action, cls = '', payload = {}) {
   const el = make('button', cls, text); el.disabled = busy || !connected
-  el.addEventListener('click', () => act(action)); return el
+  el.addEventListener('click', () => act(action, payload)); return el
 }
 function link(text, href, target = 'proofs-deck') { const el = make('a', 'host-link', text); el.href = href; el.target = target; return el }
 function joinCard() {
@@ -67,6 +67,7 @@ function renderHunt() {
     clock.append(make('p', 'eyebrow', h.phase === 'closed' ? 'TIME IS UP' : 'SECONDS TO BREAK IT'))
     const time = make('div', 'host-countdown'); time.id = 'countdown'; clock.append(time)
     if (h.phase === 'lobby') clock.append(button('Start the 60 seconds', 'hunt-start'))
+    if (h.phase === 'paused') clock.append(make('p', 'quiet', 'Timer paused'), button('Resume timer', 'hunt-resume'))
     if (h.phase === 'closed') clock.append(button('Reveal the counterexample', 'hunt-reveal'))
     grid.append(left, clock, joinCard()); dashboard.append(grid, stats())
   }
@@ -93,6 +94,9 @@ function renderProof() {
     const line = make('div', `host-proof-line${room.answer?.badLine === i ? ' bad' : ''}`); line.append(make('span', 'host-line-number', i + 1), math(tex)); argument.append(line)
   }
   if (room.question.prose) argument.append(make('p', '', room.question.prose))
+  const qed = make('span', 'game-qed'); qed.setAttribute('aria-label', 'QED')
+  const conclusion = argument.lastElementChild
+  ;(room.question.prose ? conclusion : conclusion.lastElementChild).append(qed)
   if (room.phase === 'open') votes.append(make('p', 'eyebrow', 'VOTES RECEIVED'), Object.assign(make('div', 'host-vote-count', `${room.voted} / ${room.joined}`), { id: 'vote-count' }), make('p', '', 'A · Valid proof\nB · Broken proof'), button('Lock voting', 'lock'))
   else {
     for (const [label, count] of [['A · Valid', room.counts.valid], ['B · Broken', room.counts.broken]]) {
@@ -106,22 +110,47 @@ function renderProof() {
     const verdict = make('section', 'host-verdict'); verdict.append(make('h2', '', room.answer.verdict), make('p', '', room.answer.explanation)); dashboard.append(verdict)
   }
 }
+function activityControls() {
+  const bar = make('nav', 'host-activity-controls'); bar.setAttribute('aria-label', 'Room activities')
+  for (const [target, label] of [['hunt', 'Number hunt'], ['proof', 'Proof or Bluff']]) {
+    const tab = button(label, 'switch-activity', room.activity === target ? '' : 'secondary', { target })
+    tab.disabled ||= room.activity === target; tab.setAttribute('aria-current', String(room.activity === target)); bar.append(tab)
+  }
+  const controls = make('details', 'host-room-tools'), summary = make('summary', '', 'Activity controls')
+  controls.append(summary)
+  const items = make('div', 'host-tool-items')
+  if (room.activity === 'hunt') {
+    if (room.hunt.phase === 'open') items.append(button('Pause timer', 'hunt-pause', 'secondary'))
+    if (room.hunt.phase === 'paused') items.append(button('Resume timer', 'hunt-resume', 'secondary'))
+    items.append(button('Restart 60 seconds', 'hunt-restart', 'secondary'))
+    if (room.hunt.phase !== 'revealed') items.append(button('Reveal answer now', 'hunt-reveal', 'secondary'))
+    items.append(make('p', 'quiet', 'Restarting the timer keeps all guesses. Switching activities pauses it.'))
+  } else {
+    const rounds = make('div', 'host-round-picker')
+    for (let i = 0; i < room.totalRounds; i++) rounds.append(button(`Round ${i + 1}`, 'select-round', room.round === i && room.phase !== 'lobby' ? '' : 'secondary', { targetRound: i }))
+    items.append(rounds)
+    if (room.phase !== 'lobby' && room.phase !== 'open') items.append(button('Reopen voting', 'reopen', 'secondary'))
+    items.append(make('p', 'quiet', 'Round selection keeps votes. Reopening lets players revise them; that round is scored again when revealed.'))
+  }
+  controls.append(items); bar.append(controls); return bar
+}
 function render() {
   if (!room) return
   dashboard.replaceChildren(); setup.hidden = true; dashboard.hidden = false; setupButton.hidden = false; resumeButton.hidden = false
+  dashboard.append(activityControls())
   if (room.activity === 'hunt') renderHunt(); else renderProof()
 }
 function updateClock() {
   const el = document.querySelector('#countdown'); if (!el || !room) return
-  const seconds = room.hunt.phase === 'lobby' ? 60 : Math.max(0, Math.ceil((room.hunt.endsAt - Date.now() - offset) / 1000))
+  const seconds = room.hunt.phase === 'lobby' ? 60 : room.hunt.phase === 'paused' ? Math.ceil(room.hunt.remainingMs / 1000) : Math.max(0, Math.ceil((room.hunt.endsAt - Date.now() - offset) / 1000))
   el.textContent = String(seconds).padStart(2, '0'); el.classList.toggle('urgent', seconds <= 10)
 }
 setInterval(updateClock, 100)
-async function act(action) {
+async function act(action, payload = {}) {
   if (busy || !connected) return
   busy = true; error.textContent = ''; render()
   try {
-    const response = await fetch(`/api/rooms/${room.code}/host`, { method: 'POST', headers: { Authorization: `Bearer ${credentials.hostToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ action, phase: room.phase, round: room.round }) })
+    const response = await fetch(`/api/rooms/${room.code}/host`, { method: 'POST', headers: { Authorization: `Bearer ${credentials.hostToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ ...payload, action, phase: room.phase, round: room.round, activity: room.activity, huntPhase: room.hunt.phase }) })
     const next = await response.json(); if (!response.ok) throw new Error(next.error); room = next; offset = next.serverTime - Date.now()
   } catch (e) { error.textContent = e.message } finally { busy = false; render() }
 }

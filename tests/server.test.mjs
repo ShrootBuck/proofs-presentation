@@ -100,7 +100,6 @@ test('40 phones share an exact, timed hunt, then keep the same room for five pro
     const voters=await Promise.all(Array.from({length:40},()=>app.request(route+'/join',{method:'POST'})))
     const guess=(n, cookie=voters[0].cookie)=>app.request(route+'/guess',{method:'POST',cookie,data:{n}})
     assert.equal((await guess('1')).status,409)
-    assert.equal((await host('hunt-reveal')).status,409)
     assert.equal((await host('hunt-start')).status,200)
     const attempts=await Promise.all(voters.map((v,i)=>guess(String(i+1),v.cookie)))
     assert.ok(attempts.every(r=>r.status===200 && r.data.gcd==='1'))
@@ -112,7 +111,6 @@ test('40 phones share an exact, timed hunt, then keep the same room for five pro
     assert.equal(answer.data.found,true)
     let state=(await app.request(route)).data
     assert.equal(state.hunt.attempts,41); assert.equal(state.hunt.found,1); assert.equal(state.hunt.reveal,null)
-    assert.equal((await host('proof-setup')).status,409)
     now+=60000
     assert.equal((await guess('42')).status,409)
     assert.equal((await host('hunt-reveal')).status,200)
@@ -227,4 +225,69 @@ test('a full journal rejects new calculations while the service stays healthy', 
     assert.equal((await app.request(route)).data.hunt.attempts, 1)
     assert.equal((await app.request('/health')).status, 200)
   } finally { await app.close(); await fs.rm(directory, { recursive: true, force: true }) }
+})
+
+test('host switches independent activities, preserves a paused hunt, and revisits and rescores proof rounds', async () => {
+  let now = Date.now()
+  const app = await start({ clock: () => now })
+  try {
+    const room = (await app.request('/api/rooms', { method: 'POST', auth: hostKey })).data
+    const route = `/api/rooms/${room.code}`
+    const player = await app.request(route + '/join', { method: 'POST' })
+    const host = async (action, extra = {}) => {
+      const current = (await app.request(route)).data
+      const response = await app.request(route + '/host', { method: 'POST', auth: room.hostToken, data: {
+        action, phase: current.phase, round: current.round, activity: current.activity, huntPhase: current.hunt.phase, ...extra,
+      } })
+      assert.equal(response.status, 200, JSON.stringify(response.data))
+      return response.data
+    }
+    const guess = n => app.request(route + '/guess', { method: 'POST', cookie: player.cookie, data: { n } })
+    const vote = (round, valid) => app.request(route + '/vote', { method: 'POST', cookie: player.cookie, data: { round, valid } })
+    await host('hunt-start')
+    assert.equal((await guess('42')).status, 200)
+    now += 10000
+    let state = await host('switch-activity', { target: 'proof' })
+    assert.equal(state.hunt.phase, 'paused')
+    assert.equal(state.hunt.remainingMs, 50000)
+    assert.equal((await guess('43')).status, 409)
+    await host('start')
+    assert.equal((await vote(0, false)).status, 200)
+    await host('lock'); state = await host('reveal')
+    assert.deepEqual(state.score, { class: 1, traps: 0 })
+    state = await host('switch-activity', { target: 'hunt' })
+    assert.equal(state.hunt.attempts, 1)
+    assert.equal(state.joined, 1)
+    assert.equal((await vote(0, true)).status, 409)
+    now += 90000
+    state = await host('hunt-resume')
+    assert.equal(state.hunt.endsAt, now + 50000)
+    assert.equal((await guess('43')).status, 200)
+    await host('hunt-pause')
+    state = await host('hunt-restart')
+    assert.equal(state.hunt.endsAt, now + 60000)
+    assert.equal(state.hunt.attempts, 2)
+    await host('hunt-reveal')
+    state = await host('switch-activity', { target: 'proof' })
+    assert.equal(state.phase, 'revealed')
+    assert.deepEqual(state.score, { class: 1, traps: 0 })
+    state = await host('select-round', { targetRound: 4 })
+    assert.equal(state.round, 4)
+    assert.equal(state.phase, 'locked')
+    await host('reopen')
+    assert.equal((await vote(4, true)).status, 200)
+    await host('lock'); state = await host('reveal')
+    assert.deepEqual(state.score, { class: 2, traps: 0 })
+    state = await host('select-round', { targetRound: 0 })
+    assert.equal(state.phase, 'revealed')
+    const me = (await app.request(route + '/me', { cookie: player.cookie })).data
+    assert.equal(me.round, 0); assert.equal(me.myVote, false)
+    state = await host('reopen')
+    assert.equal(state.answer, null)
+    assert.deepEqual(state.score, { class: 1, traps: 0 })
+    assert.equal((await vote(0, true)).status, 200)
+    await host('lock'); state = await host('reveal')
+    assert.deepEqual(state.score, { class: 1, traps: 1 }, 'reopening replaces a round score instead of double-counting it')
+    assert.equal(state.hunt.attempts, 2)
+  } finally { await app.close() }
 })

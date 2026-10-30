@@ -6,3 +6,7 @@
 
 .factor-card{margin:12px 0;padding:18px 20px;background:#202b28;border:1px solid #394640;border-radius:10px}
 .factor-heading{display:flex;align-items:center;justify-content:space-between;gap:16px}.factor-heading strong{font-size:25px;color:#f3f1e9}.factor-heading .factor-label{margin:0;color:#aebbad}.factor-card .factor-list{font-size:20px;color:#d8fa57;margin:12px 0;line-height:1.7}.factor-unresolved{font:14px Inter,system-ui,sans-serif;color:#aebbad}.factor-waiting{font-size:16px;color:#aebbad}.factor-more{margin-top:12px}.factor-more>summary{font-size:13px;color:#aebbad;cursor:pointer}.factor-more[open]>summary{margin-bottom:16px}.factor-more .factor-list{font-size:15px}.factor-more .integer-details{margin:10px 0}.factor-progress{margin:22px 0 10px;font-size:14px;color:#aebbad}
+
+.factor-simple-row{display:flex;align-items:baseline;gap:14px;padding:13px 0;border-bottom:1px solid #34413b}.factor-name{font:500 17px ui-monospace,monospace;white-space:nowrap;color:#b9c4b5}.factor-simple-row .factor-list{margin:0;font-size:18px;line-height:1.7;min-width:0;color:#f3f1e9}.factor-simple-row .factor-unresolved{color:#9cab91;font-size:15px}.factor-detail-section{padding:12px 0;border-bottom:1px solid #34413b}#factor-panels>.factor-more{margin-top:14px}#factor-panels>.factor-progress{font-size:12px;color:#b6c7a4;letter-spacing:.02em}
+
+.game-qed{display:inline-block;width:.65em;height:.65em;margin-left:.65em;background:#d8fa57;vertical-align:baseline;flex-shrink:0}

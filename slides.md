@@ -66,15 +66,13 @@ time: '0:25–3:00'
 <!--
 On a computer, open the link. On a phone, you can scan the QR code instead. Enter the room code on screen and your name. Keep the activity page open; we'll use it again later.
 
-Here's the claim we're testing: for every nonnegative integer n, A and B have no common factor greater than 1. A is n to the 17th plus 9. B is n plus 1, all to the 17th, plus 9. Your job is to disprove the claim by finding just 1 input where they do share a factor greater than 1.
+Here's the claim we're testing: for every nonnegative integer n, A and B have no common factor greater than 1. A is n to the 17th plus 9. B is n plus 1, all to the 17th, plus 9. Your job is to disprove the claim by finding just one input where they do share a factor greater than 1.
 
-For example, 12 and 25 have no shared factor above 1. 12 and 18 share the number 6. The app checks that for you. GCD means greatest common divisor: a result of 1 means no shared factor above 1.
+For example, 12 and 25 have no shared factor above 1. 12 and 18 share the number 6. The app checks that for you.
+
+This is running on a 2010 dell laptop server under my bed with less than 8 gigs of RAM. If one of your inputs crashes the server, I'll give you a Celsius. Your name and input get logged before the calculation, so I can recover the winning guess if it does crash.
 
 You have exactly 1 minute. Try small numbers, big numbers, whatever you like. You can enter up to 100 digits. Ready?
-
-This is running on a laptop server under my bed with less than 8 gigs of RAM. If 1 of your inputs crashes the server, I'll buy you a Wingstop chicken sandwich. Your name and input get logged before the calculation, so I can recover the winning guess. Good luck.
-
-Lots of tests. Still no shared factor. Is that a proof that there's never one?
 -->
 
 ---
@@ -83,7 +81,7 @@ clicks: 2
 time: '3:00–3:50'
 ---
 
-# Fifty-two digits later.
+# Fifty-two digits later...
 
 <div class="micro">THE FIRST NONNEGATIVE COUNTEREXAMPLE</div>
 <div class="reveal-big">8424432925592889329288197322308900672459420460792433</div>
@@ -95,7 +93,7 @@ Every smaller nonnegative integer passes this test. The first counterexample is 
 
 [click] At this input, both results share the factor shown here. The app uses exact integer arithmetic, so this is not a rounding error. We can divide both numbers by that factor with 0 remainder.
 
-[click] Our claim was that A and B never share a factor greater than 1, for any nonnegative integer n. This 1 input proves that claim false. That's disproof by counterexample: 1 exception is enough to defeat an all-inputs claim.
+[click] Our claim was that A and B never share a factor greater than 1, for any nonnegative integer n. This one input proves that claim false. That's disproof by counterexample: one exception is enough to defeat an all-inputs claim.
 -->
 
 ---
@@ -198,9 +196,9 @@ We'll call statements P and Q. Not P reverses the truth value.
 
 [click] P and Q requires both statements to be true.
 
-[click] P or Q requires at least 1. Mathematical or is inclusive, so both being true is allowed.
+[click] P or Q requires at least one. Mathematical or is inclusive, so both being true is allowed.
 
-[click] Finally, if P then Q says P guarantees Q. This is the shape of a huge number of theorems, and it has 1 slightly weird feature worth unpacking.
+[click] Finally, if P then Q says P guarantees Q. This is the shape of a huge number of theorems, and it has one slightly weird feature worth unpacking.
 -->
 
 ---
@@ -219,7 +217,7 @@ Suppose I say, if you guess my magic number, I'll buy you Wingstop. P means you 
 
 [DO: Click Q, "Got Wingstop", to change it to FALSE. Leave P TRUE. Ask the room whether the promise is broken before explaining.]
 
-You guessed my magic number, but no Wingstop. That's the 1 forbidden situation: P is true and Q is false.
+You guessed my magic number, but no Wingstop. That's the one forbidden situation: P is true and Q is false.
 
 [DO: Click P, "Guessed my magic number", to change it to FALSE. Leave Q FALSE.]
 
@@ -282,7 +280,7 @@ These 2 symbols tell us how much work a claim requires. The upside-down A means 
 
 [click] The backward E means there exists. There exists an integer whose square is 9. Here I can give you 3, check that 3 squared is 9, and I'm done. That example is called a witness.
 
-Notice how 1 example has completely different power depending on the quantifier. A successful example proves an existence claim. A failing example disproves a universal claim.
+Notice how one example has completely different power depending on the quantifier. A successful example proves an existence claim. A failing example disproves a universal claim.
 
 [click] Also, say what the domain is. The equation x squared equals 2 has a real solution. It has no integer solution. Changing the allowed objects changes the statement, even when the equation looks identical.
 -->
@@ -309,13 +307,13 @@ time: '8:00–8:40'
 
 <!--
 
-Quick vote. The statement is: every student solved the puzzle. Is its negation A, no student solved it, or B, at least 1 student did not solve it?
+Quick vote. The statement is: every student solved the puzzle. Is its negation A, no student solved it, or B, at least one student did not solve it?
 
 [PAUSE: Ask for hands for A and B.]
 
-[click] It's B. To make every student solved it false, we only need 1 student who didn't. A is much stronger than necessary. Imagine 20 people solved it and 1 didn't. The original claim is false, but A is also false.
+[click] It's B. To make every student solved it false, we only need one student who didn't. A is much stronger than necessary. Imagine 20 people solved it and one didn't. The original claim is false, but A is also false.
 
-So "not every" means "at least 1 didn't." It doesn't mean "none." In symbols, negating "for every" gives "there exists," and we negate the statement inside. We'll use this when a proof by contradiction starts by assuming our claim is false.
+So "not every" means "at least one didn't." It doesn't mean "none." In symbols, negating "for every" gives "there exists," and we negate the statement inside. We'll use this when a proof by contradiction starts by assuming our claim is false.
 -->
 
 ---
@@ -420,8 +418,19 @@ time: '10:15–11:00'
 <div class="statement"><MathTex tex="n(n+1)\text{ is even for every }n\in\mathbb{Z}." /></div>
 
 <div class="cases">
-  <div v-click="1" class="case"><div class="case-label">CASE 1</div><h3>n is even</h3><div class="math-big"><MathTex tex="n(n+1)=2k(n+1)" /></div><p>A factor of 2 makes the product even.</p></div>
-  <div v-click="2" class="case"><div class="case-label">CASE 2</div><h3>n is odd</h3><div class="math-big"><MathTex tex="n+1=2(k+1)" /></div><p>Its neighbor is even, so the product is even.</p></div>
+  <div v-click="1" class="case">
+    <div class="case-label">CASE 1</div><h3>n is even</h3>
+    <p>Write <MathTex tex="n=2k,\quad k\in\mathbb{Z}." /></p>
+    <div style="font-size: 27px; margin: 18px 0"><MathTex tex="n(n+1)=2\underbrace{k(n+1)}_{\text{an integer}}" /></div>
+    <p>Twice an integer, so the product is even.</p>
+  </div>
+  <div v-click="2" class="case">
+    <div class="case-label">CASE 2</div><h3>n is odd</h3>
+    <p>Write <MathTex tex="n=2k+1,\quad k\in\mathbb{Z}." /></p>
+    <div style="font-size: 27px; margin: 12px 0"><MathTex tex="n+1=2k+2=2(k+1)" /></div>
+    <div style="font-size: 27px; margin: 12px 0"><MathTex tex="n(n+1)=2\underbrace{n(k+1)}_{\text{an integer}}" /></div>
+    <p>Twice an integer, so the product is even.</p>
+  </div>
 </div>
 
 <p v-click="3" class="takeaway">Every integer is even or odd. The cases cover the domain.<span class="proof-qed" aria-label="QED"></span></p>
@@ -430,9 +439,9 @@ time: '10:15–11:00'
 
 Now let's prove that n times n plus 1 is even for every integer n. These are 2 consecutive integers.
 
-[click] Case 1: n is even. Then n is 2 k for some integer k. Our product is 2 times an integer, so it's even.
+[click] Case 1: n is even, so write n as 2 times an integer k. Substitute that into n times n plus 1. We get 2 times k times n plus 1. Since k and n plus 1 are integers, their product is an integer. So the whole expression is twice an integer, which means it is even.
 
-[click] Case 2: n is odd. Then n is 2 k plus 1, which makes n plus 1 equal to 2 k plus 2. This time the second factor is even, and the product is still even.
+[click] Case 2: n is odd, so write n as 2 k plus 1, where k is an integer. Add 1: n plus 1 is 2 k plus 2, or 2 times k plus 1. Substitute that into our product and pull the 2 out front. We get 2 times n times k plus 1. Again, that is twice an integer. In case 1, the factor of 2 came from n. In case 2, it comes from n plus 1.
 
 [click] The essential sentence is that every integer is either even or odd. We've covered the whole domain. A proof by cases needs every possible case to be covered. They can overlap, but they can't leave a gap.
 
@@ -548,39 +557,35 @@ clicks: 5
 time: '13:45–15:00'
 ---
 
-
 <div class="proof-method-label">04 / Contradiction</div>
 
 # The fraction reduces after all
 
 <div class="proof-rows">
-  <div v-click="1" class="proof-row"><span class="line-number">01</span><div class="math"><MathTex tex="2=\frac{a^2}{b^2}\quad\Rightarrow\quad a^2=2b^2" /></div><div class="reason">Square both sides<br />a² is even, so a is even</div></div>
+  <div v-click="1" class="proof-row"><span class="line-number">01</span><div class="math"><MathTex tex="2=\frac{a^2}{b^2}\quad\Rightarrow\quad a^2=2b^2" /></div><div class="reason">a² is even ⇒ a is even<br />Already proved by contrapositive</div></div>
   <div v-click="2" class="proof-row"><span class="line-number">02</span><div class="math"><MathTex tex="a=2k\quad\Rightarrow\quad 4k^2=2b^2" /></div><div class="reason">Substitute a = 2k</div></div>
-  <div v-click="3" class="proof-row"><span class="line-number">03</span><div class="math"><MathTex tex="b^2=2k^2\quad\Rightarrow\quad b\text{ is even}" /></div><div class="reason">Use the same lemma again</div></div>
+  <div v-click="3" class="proof-row"><span class="line-number">03</span><div class="math"><MathTex tex="b^2=2k^2\quad\Rightarrow\quad b\text{ is even}" /></div><div class="reason">b² is even ⇒ b is even<br />Apply our earlier result again</div></div>
 </div>
 
 <div v-click="4" class="contradiction-callout"><span>Lowest terms</span><span class="conflict">CONTRADICTS</span><span>Both divisible by 2</span></div>
 <p v-click="5" class="takeaway direct-proof-takeaway">No such fraction exists. <MathTex tex="\sqrt{2}" /> is irrational.<span class="proof-qed" aria-label="QED"></span></p>
 
 <!--
+Start with square root of 2 equals a over b. Remember our contrapositive proof from earlier: if n squared is even, then n is even. We already proved that for every integer n. Now we get to use it twice: first for a, then for b.
 
-Start with square root of 2 equals a over b.
-
-[click] Square both sides and multiply by b squared. We get a squared equals 2 b squared. So a squared is even. Our earlier lemma tells us a itself is even.
+[click] Square both sides and multiply by b squared. We get a squared equals 2 b squared. So a squared is even. Apply the result we already proved, with a in place of n: since a squared is even, a must be even.
 
 [click] Write a as 2 k. Substitution gives 4 k squared equals 2 b squared.
 
-[click] Divide by 2, and b squared equals 2 k squared. That makes b squared even, so the same lemma tells us b is even too.
+[click] Divide by 2, and b squared equals 2 k squared. That makes b squared even. Apply our earlier result again, this time with b in place of n: b must be even too.
 
-Before I reveal the finish, what have we just shown about the fraction?
+What does this tell us about the fraction?
 
 [PAUSE for a response.]
 
 [click] Both numerator and denominator have a factor of 2. But we chose a fraction with no common factor greater than 1. Those conditions cannot both hold.
 
 [click] So the assumption that square root of 2 is rational fails. There is no integer fraction representing it.
-
-Notice how precise the contradiction is. We didn't say the fraction looks unlikely. We found 2 incompatible facts about the very same fraction.
 -->
 
 ---
@@ -622,7 +627,7 @@ time: '15:00–16:20'
 <!--
 Induction is a way to prove a claim for every positive integer without checking them one at a time. P of n is just shorthand for the claim at the number n. There are 2 things we need to prove.
 
-[click] First, the base case. Prove P of 1 directly. That gives us 1 established fact, but it says nothing yet about 2, 3, or any other number.
+[click] First, the base case. Prove P of 1 directly. That gives us one established fact, but it says nothing yet about 2, 3, or any other number.
 
 [click] Second, the inductive step. Pick an arbitrary integer k at least 1. Temporarily assume P of k, and use that assumption to prove P of k plus 1. We're proving an if-then statement that works for any k. We're not assuming the whole theorem, and we're not allowed to assume P of k plus 1.
 
@@ -653,7 +658,7 @@ Here's the claim we'll prove by induction: the first n positive odd integers add
 
 [DO: Start at n = 3. Click Add a layer twice.]
 
-Each new L-shaped border turns a square into the next larger square. To grow a k-by-k square to a k-plus-1-by-k-plus-1 square, the border contains k squares along 1 side, k along the other, plus the corner. That's 2 k plus 1.
+Each new L-shaped border turns a square into the next larger square. To grow a k-by-k square to a k-plus-1-by-k-plus-1 square, the border contains k squares along one side, k along the other, plus the corner. That's 2 k plus 1.
 
 The diagram makes the next odd number feel inevitable. But showing a few sizes is still only showing a few sizes. We can turn the general border argument into a proof, or write the same idea algebraically using induction. Let's do that.
 -->
@@ -724,7 +729,7 @@ After all those universal claims, here's an existence statement: there exists a 
 
 This is proof by construction. Produce the object and verify the requirements. We're not claiming every prime has this property, and we don't need to find every example.
 
-This connects back to quantifiers. 1 example is weak evidence for a universal statement, but it can completely settle an existence statement. The amount of evidence you need depends on the exact thing you're claiming.
+This connects back to quantifiers. One example is weak evidence for a universal statement, but it can completely settle an existence statement. The amount of evidence you need depends on the exact thing you're claiming.
 -->
 
 ---
@@ -739,7 +744,7 @@ time: '19:00–19:45'
 <div class="choice-list">
   <div><span class="index">A</span><span>Every odd integer is prime.</span><span v-click="1" class="answer">Counterexample: 9</span></div>
   <div><span class="index">B</span><span>The sum of two even integers is even.</span><span v-click="2" class="answer">Direct proof</span></div>
-  <div><span class="index">C</span><span><MathTex tex="1+2+\cdots+n=\frac{n(n+1)}{2}" /></span><span v-click="3" class="answer">Induction is one option</span></div>
+  <div><span class="index">C</span><span><MathTex tex="1+2+\cdots+n=\frac{n(n+1)}{2}" /></span><span v-click="3" class="answer">Induction is a solid option</span></div>
 </div>
 
 <p v-click="4" class="takeaway">The statement's structure suggests a method. It rarely forces just one.</p>
@@ -764,9 +769,9 @@ Third: the sum from 1 through n equals n times n plus 1 over 2, for positive int
 
 [PAUSE.]
 
-[click] Induction fits, because moving from n to n plus 1 adds 1 new term. A pairing argument also works.
+[click] Induction fits, because moving from n to n plus 1 adds one new term. A pairing argument also works.
 
-[click] These methods are tools, and many claims admit more than 1 good proof.
+[click] These methods are tools, and many claims admit more than one good proof.
 -->
 
 ---
@@ -784,62 +789,6 @@ time: '19:45–25:45'
 Same phones, new challenge. 5 arguments. Vote A for a valid proof, B for a broken proof. The conclusion alone isn't enough: judge the reasoning. You can change your mind until I lock the vote.
 
 A correct majority earns the class a point. Otherwise, the traps score. A tie goes to the traps; a round with no votes earns neither side a point. After locking, someone has to defend the answer.
-
-ROUND 1 — ABOUT 60 SECONDS
-
-Apparently we're proving 1 equals 2. Start with a equals b equals 1. Find the first illegal step.
-
-[PAUSE. Lock voting, ask for a reason, and reveal. Offline: enter the majority's vote and reveal.]
-
-The last line canceled a minus b. But that factor is 0. The preceding equation was just 0 equals 0. Dividing by 0 cannot turn it into a plus b equals b.
-
-[DO: Next round.]
-
-ROUND 2 — ABOUT 60 SECONDS
-
-Now, n cubed minus n is divisible by 3 for every integer n. The vertical bar means divides. Does this argument cover every integer?
-
-[PAUSE. Lock, ask for justification, and reveal.]
-
-Yes. The factorization gives 3 consecutive integers. 1 must be divisible by 3, so their product is too. This covers negative integers and 0 as well.
-
-[DO: Next round.]
-
-ROUND 3 — ABOUT 60 SECONDS
-
-This argument claims every positive integer equals the next one. It assumes the claim at k, adds 1, and obtains the next case. What's your verdict?
-
-[PAUSE. Lock, ask what's missing, and reveal.]
-
-The conditional step is valid, but there is no true base case. At 1, the statement is 1 equals 2. An implication doesn't establish its own hypothesis. The chain never starts.
-
-[DO: Next round.]
-
-ROUND 4 — ABOUT 60 SECONDS
-
-We already proved this claim: if an integer's square is even, the integer is even. But does this argument prove it?
-
-[PAUSE. Lock, ask which direction was proved, and reveal.]
-
-No. This starts by assuming the integer is even, then shows its square is even. That's the converse. The conclusion is true, but this argument has not established it. That's why the game asks about proofs, not just answers.
-
-[DO: Next round.]
-
-ROUND 5 — ABOUT 90 SECONDS
-
-Can an irrational number raised to an irrational power be rational? Here's an existence proof. Let x be square root of 2 raised to square root of 2. If x is rational, that expression already gives us the required example. If x is irrational, raise x to square root of 2. The result is 2.
-
-The argument never decides which case we're in. Is that a problem?
-
-[PAUSE. Lock, take 1 explanation, and reveal.]
-
-It isn't. Either x is rational or it isn't. In each case, we have positive irrational numbers a and b whose power is rational. The 2 cases cover every possibility. We proved existence without determining which of these constructions supplies the witness.
-
-[DO: Final score. Let the class react.]
-
-The question behind every round was: what exactly permits the next step?
-
-[DO: Switch your shared screen back to Slidev and advance to slide 25.]
 -->
 
 ---
@@ -922,7 +871,7 @@ time: '27:50–30:00'
 
 <!--
 
-If you keep 1 habit from this, make it asking what makes the next step unavoidable.
+If you keep one habit from this, make it asking what makes the next step unavoidable.
 
 An example can suggest a pattern. A definition can make it precise. A proof tells us why every required case has to work, or a counterexample tells us why the claim can't survive.
 

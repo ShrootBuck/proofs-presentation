@@ -29,6 +29,9 @@ function renderActivity() {
     row.append(make('span', 'num', String(index + 1)), math(line)); game.append(row)
   }
   if (state.question.prose) game.append(make('p', 'proof-prose', state.question.prose))
+  const qed = make('span', 'game-qed'); qed.setAttribute('aria-label', 'QED')
+  const conclusion = game.lastElementChild
+  ;(state.question.prose ? conclusion : conclusion.lastElementChild).append(qed)
   if (state.phase === 'open') {
     const buttons = make('div', 'vote-buttons')
     for (const [valid, letter, label] of [[true, 'A', 'Valid proof'], [false, 'B', 'Broken proof']]) {
@@ -54,7 +57,7 @@ function renderActivity() {
 function render() {
   const wasOpen = document.querySelector('#previous-factors')?.open
   renderActivity()
-  if (snapshot && myHunt?.last && (snapshot.activity === 'proof' || snapshot.hunt.phase === 'revealed')) {
+  if (snapshot && myHunt?.last && snapshot.activity === 'hunt' && snapshot.hunt.phase === 'revealed') {
     const history = make('details'); history.id = 'previous-factors'; history.open = Boolean(wasOpen)
     history.append(make('summary', '', 'Your previous factorization'))
     const panels = make('div'); panels.id = 'factor-panels'; history.append(panels); game.append(history); renderFactorPanels()
@@ -62,10 +65,11 @@ function render() {
 }
 async function vote(valid) {
   if (busy) return; busy = true; error.textContent = ''; render()
+  const votedRound = snapshot.round
   try {
-    const response = await fetch(`/api/rooms/${roomCode}/vote`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ round: snapshot.round, valid }) })
+    const response = await fetch(`/api/rooms/${roomCode}/vote`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ round: votedRound, valid }) })
     const data = await response.json(); if (!response.ok) throw new Error(data.error)
-    myVote = data.myVote
+    if (snapshot.round === votedRound) myVote = data.myVote
   } catch (e) { error.textContent = e.message } finally { busy = false; render() }
 }
 async function connect(code, name) {
@@ -74,14 +78,25 @@ async function connect(code, name) {
   try {
     const response = await fetch(`/api/rooms/${roomCode}/join`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) }); const state = await response.json()
     if (!response.ok) throw new Error(state.error)
-    snapshot = state; myName = state.myName; document.querySelector('#player-name').textContent = `Playing as ${myName}`; myVote = state.myVote; myHunt = state.myHunt; clockOffset = state.serverTime - Date.now(); if (myHunt?.last) startFactors(myHunt.last); render(); history.replaceState(null, '', `/join/${roomCode}`)
+    snapshot = state; myName = state.myName; document.querySelector('#player-name').textContent = `Playing as ${myName}`; myVote = state.myVote; myHunt = state.myHunt; clockOffset = state.serverTime - Date.now(); if (state.activity === 'hunt' && myHunt?.last) startFactors(myHunt.last); render(); history.replaceState(null, '', `/join/${roomCode}`)
     stream?.close(); stream = new EventSource(`/api/rooms/${roomCode}/events`)
     stream.onopen = () => { connection.textContent = 'LIVE'; error.textContent = '' }
     stream.onerror = () => { connection.textContent = 'RECONNECTING'; error.textContent = 'Connection interrupted. Reconnecting automatically.' }
     stream.onmessage = async event => {
       const next = JSON.parse(event.data)
-      if (snapshot?.round !== next.round) myVote = null
+      const roundChanged = snapshot?.round !== next.round
+      if (roundChanged) myVote = null
       const previous = snapshot; snapshot = next; clockOffset = next.serverTime - Date.now();
+      if (previous?.activity !== next.activity) {
+        error.textContent = ''
+        if (next.activity === 'proof') { factorWorker?.terminate(); factorId++; factors = null }
+        else if (myHunt?.last) startFactors(myHunt.last)
+      }
+      if (roundChanged) {
+        fetch(`/api/rooms/${roomCode}/me`).then(r => r.json()).then(me => {
+          if (snapshot.round === me.round) { myVote = me.myVote; render() }
+        }).catch(() => {})
+      }
       if (next.activity === 'hunt' && previous?.activity === 'hunt' && next.hunt.phase === previous.hunt.phase) updateHuntStats()
       else render()
     }
@@ -96,7 +111,7 @@ if (roomCode) {
 
 function updateHuntStats() {
   const clock = document.querySelector('#hunt-clock')
-  if (clock) clock.textContent = snapshot.hunt.phase === 'lobby' ? '60' : String(Math.max(0, Math.ceil((snapshot.hunt.endsAt - Date.now() - clockOffset) / 1000))).padStart(2, '0')
+  if (clock) clock.textContent = snapshot.hunt.phase === 'lobby' ? '60' : snapshot.hunt.phase === 'paused' ? String(Math.ceil(snapshot.hunt.remainingMs / 1000)).padStart(2, '0') : String(Math.max(0, Math.ceil((snapshot.hunt.endsAt - Date.now() - clockOffset) / 1000))).padStart(2, '0')
   const stats = document.querySelector('#hunt-stats')
   if (stats) stats.textContent = `${snapshot.hunt.attempts} class guesses · ${snapshot.hunt.found} found a shared factor`
   const submit = document.querySelector('#guess-form button')
@@ -105,6 +120,7 @@ function updateHuntStats() {
 setInterval(updateHuntStats, 100)
 function startFactors(result) {
   factorWorker?.terminate(); factors = null; const id = ++factorId
+  if (snapshot?.activity !== 'hunt') return
   const unavailable = () => { if (id !== factorId) return; factors = { error: 'Factorization unavailable. The shared-factor test is still exact.' }; renderFactorPanels() }
   try {
     factorWorker = new Worker('/voting/factor-worker.js', { type: 'module' })
@@ -125,12 +141,13 @@ function integerDetails(label, value, key = label) {
   details.dataset.factorKey = key
   details.append(summary, make('p', 'full-integer', value)); return details
 }
-function factorProduct(terms, remainder = false) {
+function factorProduct(terms, remainder = false, abbreviated = false) {
   const line = make('p', 'factor-list')
   for (const [i, term] of terms.entries()) {
     if (i) line.append(document.createTextNode(' × '))
     if (term === '…') { line.append(document.createTextNode('…')); continue }
-    const value = make('span', '', term.prime)
+    const label = abbreviated && term.prime.length > 14 ? `${term.prime.slice(0, 6)}…${term.prime.slice(-4)}` : term.prime
+    const value = make('span', '', label)
     if (term.exponent > 1) value.append(make('sup', '', term.exponent))
     line.append(value)
   }
@@ -141,8 +158,8 @@ function updateFactorStatus() {
   const status = document.querySelector('#factor-progress')
   if (!status || !factors || factors.error) return
   status.textContent = factors.running
-    ? `Finding prime factors… ${Math.floor(factors.elapsed)}s`
-    : `Done · ${factors.elapsed.toFixed(1)}s`
+    ? '● Live factorization'
+    : '✓ Factorization complete'
 }
 function renderFactorPanels() {
   const panels = document.querySelector('#factor-panels'); if (!panels || !myHunt?.last) return
@@ -151,33 +168,29 @@ function renderFactorPanels() {
   if (!factors) { panels.append(make('p', 'quiet', 'Starting the factor search on your device…')); return }
   if (factors.error) { panels.append(make('p', 'quiet', factors.error)); return }
   const status = make('p', 'factor-progress'); status.id = 'factor-progress'; panels.append(status)
+  const details = make('details', 'factor-more'); details.dataset.factorKey = 'all-details'
+  details.append(make('summary', '', 'Full numbers & details'))
   for (const key of ['a', 'b']) {
-    const f = factors[key], card = make('section', 'factor-card')
-    const heading = make('div', 'factor-heading')
-    heading.append(make('strong', '', key.toUpperCase()), make('span', 'factor-label', f.complete ? 'Complete' : 'Factoring…'))
-    card.append(heading)
-    const short = f.factors.length > 10 ? [...f.factors.slice(0, 4), '…', f.factors.at(-1)] : f.factors
-    if (short.length) {
-      const product = factorProduct(short)
-      if (!f.complete) product.append(document.createTextNode(' × '), make('span', 'factor-unresolved', 'remaining number'))
-      card.append(product)
-    } else {
-      card.append(make('p', 'factor-waiting', f.complete ? '1 has no prime factors.' : 'Looking for the first factor…'))
-    }
-    const details = make('details', 'factor-more'); details.dataset.factorKey = `${key}.details`
-    details.append(make('summary', '', 'Details'), integerDetails(key.toUpperCase(), myHunt.last[key], `${key}.value`))
-    if (f.factors.length) details.append(make('p', 'factor-label', 'All proven prime factors'), factorProduct(f.factors))
+    const f = factors[key], row = make('div', 'factor-simple-row')
+    row.append(make('strong', 'factor-name', `${key.toUpperCase()} =`))
+    const short = f.factors.length > 5 ? [...f.factors.slice(0, 3), '…', f.factors.at(-1)] : f.factors
+    const product = factorProduct(short, false, true)
     if (!f.complete) {
-      details.append(integerDetails('Remaining number', f.remainder, `${key}.remainder`))
-      for (const [i, part] of f.pending.entries()) {
-        const label = part.status === 'probable-prime' ? 'Probable prime — not yet proven' : part.status === 'composite' ? 'Composite — still factoring' : 'Still checking'
-        details.append(make('p', 'factor-label', label))
-        if (f.pending.length > 1) details.append(integerDetails(`Piece ${i + 1}`, part.value, `${key}.piece.${part.value}`))
-      }
+      if (short.length) product.append(document.createTextNode(' × '))
+      product.append(make('span', 'factor-unresolved', 'remaining piece'))
+    } else if (!short.length) product.append(document.createTextNode('1'))
+    row.append(product); panels.append(row)
+    const full = make('section', 'factor-detail-section')
+    full.append(integerDetails(key.toUpperCase(), myHunt.last[key], `${key}.value`))
+    if (f.factors.length) full.append(factorProduct(f.factors, !f.complete))
+    if (!f.complete) {
+      full.append(integerDetails('R (remaining piece)', f.remainder, `${key}.remainder`))
+      if (f.pending.some(part => part.status === 'probable-prime')) full.append(make('p', 'quiet', 'The remaining piece includes a probable prime, not yet proven.'))
     }
-    details.append(make('p', 'quiet', 'Runs on your device until complete, you submit a new guess, or you close the tab.'))
-    card.append(details); panels.append(card)
+    details.append(full)
   }
+  details.append(make('p', 'quiet', 'Shown factors are proven prime. R is everything still unresolved. Runs on your device while you are in the number hunt.'))
+  panels.append(details)
   for (const details of panels.querySelectorAll('details')) details.open = open.has(details.dataset.factorKey)
   updateFactorStatus()
 }
@@ -201,6 +214,7 @@ function renderHunt() {
     const submit = make('button','','Test my input'); submit.type='submit'
     form.append(label,input,submit); form.addEventListener('submit',submitGuess); game.append(form,make('p','quiet','Enter digits only. Up to 100 digits, with no rounding.'))
   }
+  if (h.phase === 'paused') game.append(make('h2', '', 'Paused'), make('p', '', 'The host will resume the hunt.'))
   if (h.phase === 'closed') game.append(make('h2',"","Time's up."),make('p','','Watch the screen for the reveal.'))
   if (myHunt?.last) {
     const r = myHunt.last
@@ -217,5 +231,5 @@ async function submitGuess(event) {
     const response=await fetch(`/api/rooms/${roomCode}/guess`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({n:value})})
     const data=await response.json(); if(!response.ok) throw new Error(data.error)
     myHunt={attempts:data.attempts,last:data}; startFactors(data)
-  } catch(e) { error.textContent=e.message } finally { busy=false; render() }
+  } catch(e) { if (snapshot?.activity === 'hunt') error.textContent=e.message } finally { busy=false; render() }
 }

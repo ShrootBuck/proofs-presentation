@@ -86,7 +86,7 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
       participants: Object.entries(room.participants).map(([id, p]) => ({ name: p.name, attempts: room.hunt.players[id]?.attempts || 0,
         points: room.scored.reduce((sum, scored, i) => sum + (scored && room.votes[i][id] === gameRounds[i].valid ? 1 : 0), 0),
         voted: typeof room.votes[room.round][id] === 'boolean' })),
-      hunt: { phase: room.hunt.phase, endsAt: room.hunt.endsAt, attempts: room.hunt.attempts, found: room.hunt.found, recent: room.hunt.recent, maxDigits: room.hunt.maxDigits || 0,
+      hunt: { phase: room.hunt.phase, endsAt: room.hunt.endsAt, remainingMs: room.hunt.remainingMs || 0, attempts: room.hunt.attempts, found: room.hunt.found, recent: room.hunt.recent, maxDigits: room.hunt.maxDigits || 0,
         reveal: room.hunt.phase === 'revealed' ? { n: COUNTEREXAMPLE, gcd: SHARED_FACTOR } : null },
       phase: room.phase, round: room.round, totalRounds: gameRounds.length,
       joined: Object.keys(room.participants).length, voted: counts(room).total,
@@ -222,14 +222,14 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
         }
         if (action === 'me' && req.method === 'GET') {
           const id = getVoter(req)
-          return json(res, 200, { joined: Boolean(id && room.participants[id]), myName: room.participants[id]?.name || null, myVote: id ? room.votes[room.round][id] ?? null : null })
+          return json(res, 200, { joined: Boolean(id && room.participants[id]), myName: room.participants[id]?.name || null, round: room.round, myVote: id ? room.votes[room.round][id] ?? null : null })
         }
         if (action === 'guess' && req.method === 'POST') {
           const id = getVoter(req)
           if (!id || !room.participants[id]) fail(401, 'Join this room before guessing.')
           if (room.activity !== 'hunt' || room.hunt.phase !== 'open' || clock() >= room.hunt.endsAt) fail(409, 'The guessing window is closed.')
           const data = await body(req)
-          if (room.hunt.phase !== 'open' || clock() >= room.hunt.endsAt) fail(409, 'The guessing window is closed.')
+          if (room.activity !== 'hunt' || room.hunt.phase !== 'open' || clock() >= room.hunt.endsAt) fail(409, 'The guessing window is closed.')
           const player = room.hunt.players[id] || { attempts: 0, found: false, lastAt: 0, last: null }
           if (clock() - player.lastAt < 500) fail(429, 'Give each guess half a second.')
           if (room.hunt.attempts >= 6000) fail(429, 'This room has reached its guess limit.')
@@ -263,14 +263,37 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
           if (!safeEqual(hash(authorization), room.hostHash)) fail(401, 'Host access required.')
           const data = await body(req)
           if (data.round !== room.round || data.phase !== room.phase) fail(409, 'The round changed. Please try again.')
-          if (data.action === 'hunt-start' && room.activity === 'hunt' && room.hunt.phase === 'lobby') {
-            if (!journal.status().ready) fail(503, 'Archive the full guess log before starting another hunt.')
-            room.hunt.phase = 'open'; room.hunt.endsAt = clock() + HUNT_DURATION
+          if ((data.activity !== undefined && data.activity !== room.activity) || (data.huntPhase !== undefined && data.huntPhase !== room.hunt.phase)) fail(409, 'The activity changed. Please try again.')
+          if (data.action === 'switch-activity' || data.action === 'proof-setup') {
+            const target = data.action === 'proof-setup' ? 'proof' : data.target
+            if (!['hunt', 'proof'].includes(target)) fail(400, 'Choose a valid activity.')
+            if (target === 'proof' && room.hunt.phase === 'open') {
+              room.hunt.remainingMs = Math.max(0, room.hunt.endsAt - clock())
+              room.hunt.phase = room.hunt.remainingMs > 0 ? 'paused' : 'closed'
+              room.hunt.endsAt = null
+            }
+            room.activity = target
           }
-          else if (data.action === 'hunt-reveal' && room.activity === 'hunt' && (room.hunt.phase === 'closed' || (room.hunt.phase === 'open' && clock() >= room.hunt.endsAt))) room.hunt.phase = 'revealed'
-          else if (data.action === 'proof-setup' && room.activity === 'hunt' && room.hunt.phase !== 'open') room.activity = 'proof'
+          else if (['hunt-start', 'hunt-restart', 'hunt-resume'].includes(data.action) && room.activity === 'hunt') {
+            if (data.action === 'hunt-start' && room.hunt.phase !== 'lobby') fail(409, 'The hunt has already started.')
+            if (data.action === 'hunt-resume' && room.hunt.phase !== 'paused') fail(409, 'The hunt is not paused.')
+            if (!journal.status().ready) fail(503, 'Archive the full guess log before starting another hunt.')
+            const duration = data.action === 'hunt-resume' ? room.hunt.remainingMs : HUNT_DURATION
+            room.hunt.phase = 'open'; room.hunt.endsAt = clock() + duration; room.hunt.remainingMs = 0
+          }
+          else if (data.action === 'hunt-pause' && room.activity === 'hunt' && room.hunt.phase === 'open') {
+            room.hunt.remainingMs = Math.max(0, room.hunt.endsAt - clock())
+            room.hunt.phase = room.hunt.remainingMs > 0 ? 'paused' : 'closed'; room.hunt.endsAt = null
+          }
+          else if (data.action === 'hunt-reveal' && room.activity === 'hunt') { room.hunt.phase = 'revealed'; room.hunt.endsAt = null; room.hunt.remainingMs = 0 }
           else if (room.activity !== 'proof') fail(409, 'That action is not available now.')
-          else if (data.action === 'start' && room.phase === 'lobby') room.phase = 'open'
+          else if (data.action === 'select-round') {
+            if (!Number.isInteger(data.targetRound) || data.targetRound < 0 || data.targetRound >= gameRounds.length) fail(400, 'Choose a valid round.')
+            room.round = data.targetRound
+            room.phase = room.scored[room.round] ? 'revealed' : 'locked'
+          }
+          else if (data.action === 'reopen' && room.phase !== 'lobby') { room.scored[room.round] = false; room.phase = 'open' }
+          else if (data.action === 'start'  && room.phase === 'lobby') room.phase = 'open'
           else if (data.action === 'lock' && room.phase === 'open') room.phase = 'locked'
           else if (data.action === 'reveal' && room.phase === 'locked') { room.phase = 'revealed'; room.scored[room.round] = true }
           else if (data.action === 'next' && room.phase === 'revealed' && room.round < gameRounds.length - 1) { room.round++; room.phase = 'open' }
