@@ -93,10 +93,13 @@ function updateHuntStats() {
 setInterval(updateHuntStats, 100)
 function startFactors(result) {
   factorWorker?.terminate(); factors = null; const id = ++factorId
-  factorWorker = new Worker('/voting/factor-worker.js', { type: 'module' })
-  factorWorker.onmessage = ({ data }) => { if (data.id !== factorId) return; factors = data; renderFactorPanels() }
-  factorWorker.onerror = () => { factors = { error: 'Factorization unavailable. The shared-factor test is still exact.' }; renderFactorPanels() }
-  factorWorker.postMessage({ id, a: result.a, b: result.b })
+  const unavailable = () => { factors = { error: 'Factorization unavailable. The shared-factor test is still exact.' }; renderFactorPanels() }
+  try {
+    factorWorker = new Worker('/voting/factor-worker.js', { type: 'module' })
+    factorWorker.onmessage = ({ data }) => { if (data.id !== factorId) return; factors = data; factorWorker.terminate(); renderFactorPanels() }
+    factorWorker.onerror = unavailable
+    factorWorker.postMessage({ id, a: result.a, b: result.b })
+  } catch { unavailable() }
 }
 function integerDetails(label, value) {
   const details = make('details', 'integer-details'), summary = make('summary', '', `${label} = ${compact(value)}`)
@@ -114,7 +117,7 @@ function renderFactorPanels() {
     const short = f.factors.length > 10 ? [...f.factors.slice(0,4), '…', f.factors.at(-1)] : f.factors
     card.append(make('p', 'factor-list', short.length ? short.join(' × ') : 'No prime factors found within the time limit.'))
     if (f.factors.length > 10) { const d = make('details'); d.append(make('summary', '', `Show all ${f.factors.length} prime factors`), make('p','full-integer',f.factors.join(' × '))); card.append(d) }
-    if (!f.complete) { card.append(make('p','factor-label','Unfactored remainder (not claimed prime)'), integerDetails('R',f.remainder), make('p','quiet','The factors shown × R equal the original number exactly.')) }
+    if (!f.complete) { card.append(make('p','factor-label','Unfactored remainder (not claimed prime)'), integerDetails('R',f.remainder), make('p','quiet','The complete factor list × R equals the original number exactly.')) }
     panels.append(card)
   }
 }
@@ -136,7 +139,7 @@ function renderHunt() {
     const label = make('label','','Your input n'); label.htmlFor='guess-input'
     const input = make('input'); input.id='guess-input'; input.type='text'; input.inputMode='numeric'; input.maxLength=100; input.autocomplete='off'; input.value=draft; input.required=true
     const submit = make('button','','Test my input'); submit.type='submit'
-    form.append(label,input,submit); form.addEventListener('submit',submitGuess); game.append(form,make('p','quiet','Enter digits only. Your input is kept exact, even beyond 64 bits.'))
+    form.append(label,input,submit); form.addEventListener('submit',submitGuess); game.append(form,make('p','quiet','Enter digits only. Up to 100 digits, with no rounding.'))
   }
   if (h.phase === 'closed') game.append(make('h2',"","Time's up."),make('p','','Watch the screen for the reveal.'))
   if (myHunt?.last) {
