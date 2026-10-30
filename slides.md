@@ -236,19 +236,19 @@ time: '5:15–6:25'
 
 <!--
 
-Suppose I say, if you ace the test, I'll buy you pizza. P means you aced the test, and Q means you got pizza. Which situation breaks my promise?
+Suppose I say, if you guess my magic number, I'll buy you Wingstop. P means you guessed my magic number, and Q means you got Wingstop. Which situation breaks my promise?
 
-[DO: Start with both TRUE. Toggle Got pizza to FALSE. Ask the room before explaining.]
+[DO: Start with both TRUE. Toggle Got Wingstop to FALSE. Ask the room before explaining.]
 
-You aced the test, but no pizza. That's the one forbidden situation: P is true and Q is false.
+You guessed my magic number, but no Wingstop. That's the one forbidden situation: P is true and Q is false.
 
-[DO: Toggle Aced the test to FALSE, leaving pizza FALSE.]
+[DO: Toggle Guessed my magic number to FALSE, leaving Wingstop FALSE.]
 
-Now you didn't ace it, and there's no pizza. Disappointing, maybe, but the promise never said what happens if you don't ace the test.
+Now you didn't guess it, and there's no Wingstop. Disappointing, maybe, but the promise never said what happens if you don't guess the number.
 
-[DO: Toggle Got pizza to TRUE, with P still FALSE.]
+[DO: Toggle Got Wingstop to TRUE, with P still FALSE.]
 
-And if you didn't ace it but got pizza anyway, the promise still holds. I can buy pizza for other reasons. That's why the bottom two rows are true.
+And if you didn't guess it but got Wingstop anyway, the promise still holds. I can buy Wingstop for other reasons. That's why the bottom two rows are true.
 
 This is the truth table for material implication. It describes a logical condition, not necessarily a cause. To disprove an if-then claim, you need a case where the hypothesis holds and the conclusion fails. That's the exact kind of failure we're hunting.
 

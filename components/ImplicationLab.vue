@@ -10,12 +10,12 @@ const rows = [[true, true], [true, false], [false, true], [false, false]]
   <section class="implication-lab" @click.stop @keydown.stop>
     <div class="switchboard">
       <p class="micro">THE PROMISE</p>
-      <p class="promise">"If you ace the test,<br />I'll buy you pizza."</p>
+      <p class="promise">"If you guess my magic number,<br />I'll buy you Wingstop."</p>
       <div class="logic-toggles">
-        <button :aria-pressed="state.p" @click="state.p = !state.p"><span class="variable">P</span><span>Aced the test</span><b>{{ state.p ? 'TRUE' : 'FALSE' }}</b></button>
-        <button :aria-pressed="state.q" @click="state.q = !state.q"><span class="variable">Q</span><span>Got pizza</span><b>{{ state.q ? 'TRUE' : 'FALSE' }}</b></button>
+        <button :aria-pressed="state.p" @click="state.p = !state.p"><span class="variable">P</span><span>Guessed my magic number</span><b>{{ state.p ? 'TRUE' : 'FALSE' }}</b></button>
+        <button :aria-pressed="state.q" @click="state.q = !state.q"><span class="variable">Q</span><span>Got Wingstop</span><b>{{ state.q ? 'TRUE' : 'FALSE' }}</b></button>
       </div>
-      <div :class="['promise-status', { broken: !holds }]" aria-live="polite"><span>{{ holds ? '✓' : '×' }}</span><div><strong>{{ holds ? 'Promise kept' : 'Promise broken' }}</strong><p>{{ state.p ? (state.q ? 'The condition happened. So did the result.' : 'The condition happened. The result did not.') : 'No ace? The promise made no demand.' }}</p></div></div>
+      <div :class="['promise-status', { broken: !holds }]" aria-live="polite"><span>{{ holds ? '✓' : '×' }}</span><div><strong>{{ holds ? 'Promise kept' : 'Promise broken' }}</strong><p>{{ state.p ? (state.q ? 'The condition happened. So did the result.' : 'The condition happened. The result did not.') : 'No correct guess? The promise made no demand.' }}</p></div></div>
     </div>
     <table class="truth-table">
       <thead><tr><th>P</th><th>Q</th><th><MathTex tex="P\Rightarrow Q" /></th></tr></thead>
