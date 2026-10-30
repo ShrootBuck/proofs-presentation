@@ -51,7 +51,7 @@ function recent() {
 }
 function renderHunt() {
   const h = room.hunt
-  dashboard.append(make('p', 'eyebrow', `ROOM ${room.code} / THE ONE-MINUTE CHALLENGE`), make('h1', '', 'Break the pattern.'))
+  dashboard.append(make('h1', '', 'Break the pattern.'))
   const formulas = make('div', 'host-formulas'); formulas.append(math('A=n^{17}+9'), math('B=(n+1)^{17}+9')); dashboard.append(formulas)
   if (h.phase === 'revealed') {
     const reveal = make('section', 'host-reveal')
