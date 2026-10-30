@@ -27,26 +27,31 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
   const pendingBroadcasts = new Map()
   if (statePath && fs.existsSync(statePath)) {
     for (const room of JSON.parse(fs.readFileSync(statePath, 'utf8'))) {
-      if (room.version === 3 && room.expiresAt > clock()) rooms.set(room.code, room)
+      if (room.version === 3 && room.expiresAt > clock()) {
+        room.revision ||= 0; room.controlRevision ||= 0
+        rooms.set(room.code, room)
+      }
     }
   }
   function persist() {
     clearTimeout(persistTimer); persistTimer = null
     if (!statePath) return
     fs.mkdirSync(path.dirname(statePath), { recursive: true })
-    fs.writeFileSync(`${statePath}.tmp`, JSON.stringify([...rooms.values()]), { mode: 0o600 })
+    const fd = fs.openSync(`${statePath}.tmp`, 'w', 0o600)
+    try { fs.writeFileSync(fd, JSON.stringify([...rooms.values()])); fs.fsyncSync(fd) } finally { fs.closeSync(fd) }
     fs.renameSync(`${statePath}.tmp`, statePath)
   }
   function recordGuess(room, input, result) {
     const player = room.hunt.players[input.player] || { attempts: 0, found: false, lastAt: 0, last: null }
     player.attempts++; player.lastAt = input.receivedAt
-    player.last = { ...result, receipt: input.sequence }
+    player.last = { ...result, receipt: input.sequence, requestId: input.requestId || null }
     if (result.found && !player.found) { player.found = true; room.hunt.found++ }
     room.hunt.players[input.player] = player; room.hunt.attempts++
     room.hunt.maxDigits = Math.max(room.hunt.maxDigits || 0, result.n.length)
     room.hunt.lastSequence = input.sequence
     room.hunt.recent.unshift({ n: result.n, gcd: result.gcd, found: result.found, name: input.name, receipt: input.sequence })
     room.hunt.recent = room.hunt.recent.slice(0, 6)
+    room.revision = (room.revision || 0) + 1
     return player
   }
   const journal = createGuessJournal(statePath ? path.join(path.dirname(statePath), 'guesses.jsonl') : null, {
@@ -62,7 +67,7 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
       persistTimer.unref()
     }
     if (!pendingBroadcasts.has(room.code)) {
-      const timer = setTimeout(() => { pendingBroadcasts.delete(room.code); broadcast(room, false) }, 100)
+      const timer = setTimeout(() => { pendingBroadcasts.delete(room.code); broadcast(room) }, 100)
       timer.unref(); pendingBroadcasts.set(room.code, timer)
     }
   }
@@ -75,13 +80,15 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
     const correct = gameRounds[round].valid ? tally.valid : tally.broken
     return { ...tally, correct, winner: !tally.total ? 'none' : correct > tally.total / 2 ? 'class' : 'traps' }
   }
-  function snapshot(room) {
+  function snapshot(room, voterId) {
     const { title, claim, lines, prose } = gameRounds[room.round]
     const visible = ['locked', 'revealed', 'finished'].includes(room.phase)
     const revealed = ['revealed', 'finished'].includes(room.phase)
     const history = room.scored.map((scored, index) => scored ? result(room, index) : null)
     return {
-      code: room.code, activity: room.activity, serverTime: clock(),
+      code: room.code, activity: room.activity, revision: room.revision || 0, controlRevision: room.controlRevision || 0, serverTime: clock(),
+      joinedAsPlayer: Boolean(voterId && room.participants[voterId]),
+      ...(voterId ? { myName: room.participants[voterId]?.name || null, myVote: room.votes[room.round][voterId] ?? null, myHunt: room.hunt.players[voterId] || null } : {}),
       logging: journal.status(),
       participants: Object.entries(room.participants).map(([id, p]) => ({ name: p.name, attempts: room.hunt.players[id]?.attempts || 0,
         points: room.scored.reduce((sum, scored, i) => sum + (scored && room.votes[i][id] === gameRounds[i].valid ? 1 : 0), 0),
@@ -98,13 +105,32 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
       joinUrl: `${origin}/join/${room.code}`, expiresAt: room.expiresAt,
     }
   }
-  function broadcast(room, save = true) {
-    if (save) persist()
-    const message = `data: ${JSON.stringify(snapshot(room))}\n\n`
+  function broadcast(room) {
     for (const client of streams.get(room.code) || []) {
       if (client.writableLength > 256 * 1024) client.destroy()
-      else client.write(message)
+      else client.write(`data: ${JSON.stringify(snapshot(room, client.voterId))}\n\n`)
     }
+  }
+  // Save before broadcasting success. A failed disk write must not leave an
+  // unacknowledged action active in memory (especially a timer or vote lock).
+  function mutate(room, update, control = false) {
+    const before = structuredClone(room)
+    try {
+      update()
+      room.revision = (room.revision || 0) + 1
+      if (control) room.controlRevision = (room.controlRevision || 0) + 1
+      persist()
+    } catch (error) {
+      for (const key of Object.keys(room)) delete room[key]
+      Object.assign(room, before)
+      if (error.status) throw error
+      console.error('Room save failed:', error.code)
+      fail(503, 'Could not save this action. Try again; the room has not changed.')
+    }
+    broadcast(room)
+  }
+  function checkControl(room, data) {
+    if (data.controlRevision !== undefined && data.controlRevision !== (room.controlRevision || 0)) fail(409, 'The activity changed. Your screen will refresh; try again.')
   }
   function json(res, status, data) {
     res.writeHead(status, { 'Content-Type': 'application/json' })
@@ -182,7 +208,9 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
         const room = { version: 3, code, hostHash: hash(hostToken), activity: 'hunt',
           hunt: { phase: 'lobby', endsAt: null, attempts: 0, found: 0, recent: [], players: {} },
           phase: 'lobby', round: 0, votes: gameRounds.map(() => ({})), participants: {}, scored: gameRounds.map(() => false), expiresAt: clock() + TTL }
-        rooms.set(code, room); persist()
+        room.revision = 0; room.controlRevision = 0
+        rooms.set(code, room)
+        try { persist() } catch { rooms.delete(code); fail(503, 'Could not save the new room. Try again.') }
         return json(res, 201, { ...snapshot(room), hostToken })
       }
       const match = route.match(/^\/api\/rooms\/([A-Z2-9]{6})(?:\/(events|join|vote|guess|host|me|hunt-log|qr\.svg))?$/)
@@ -190,7 +218,7 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
         const [, code, action] = match
         const room = rooms.get(code)
         if (!room || room.expiresAt < clock()) fail(404, 'Room not found or expired. Ask for the current QR code.')
-        if (!action && req.method === 'GET') return json(res, 200, snapshot(room))
+        if (!action && req.method === 'GET') return json(res, 200, snapshot(room, getVoter(req)))
         if (action === 'qr.svg' && req.method === 'GET') {
           const svg = await QRCode.toString(`${origin}/join/${code}`, { type: 'svg', errorCorrectionLevel: 'M', margin: 3, color: { dark: '#18201f', light: '#ffffff' } })
           res.writeHead(200, { 'Content-Type': 'image/svg+xml' }); return res.end(svg)
@@ -200,35 +228,46 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
           const clients = streams.get(code)
           if (clients.size >= 300 || [...streams.values()].reduce((sum, set) => sum + set.size, 0) >= 400) fail(429, 'Room connection limit reached.')
           res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'X-Accel-Buffering': 'no' })
-          res.write(`data: ${JSON.stringify(snapshot(room))}\n\n`)
+          res.voterId = getVoter(req)
+          res.write(`data: ${JSON.stringify(snapshot(room, res.voterId))}\n\n`)
           clients.add(res)
-          const heartbeat = setInterval(() => res.write(': heartbeat\n\n'), 20000)
+          const heartbeat = setInterval(() => {
+            if (res.writableLength > 256 * 1024) res.destroy()
+            else res.write(': heartbeat\n\n')
+          }, 15000)
           heartbeat.unref()
           req.on('close', () => { clearInterval(heartbeat); clients.delete(res) })
           return
         }
         if (action === 'join' && req.method === 'POST') {
-          const id = getVoter(req) || setVoter(res)
           const data = await body(req)
+          const id = getVoter(req) || setVoter(res)
           if (!room.participants[id]) {
             if (Object.keys(room.participants).length >= 250) fail(429, 'This room is full.')
             const name = typeof data.name === 'string' ? data.name.normalize('NFKC').trim().replace(/\s+/g, ' ') : ''
             if (!/^[\p{L}\p{N} ._'’-]{1,24}$/u.test(name)) fail(400, 'Enter a first name or nickname, up to 24 characters.')
             if (Object.values(room.participants).some(p => p.name.toLocaleLowerCase() === name.toLocaleLowerCase())) fail(409, 'That name is already in this room. Add an initial or choose a nickname.')
-            room.participants[id] = { name, joinedAt: clock() }
+            mutate(room, () => { room.participants[id] = { name, joinedAt: clock() } })
           }
-          broadcast(room)
-          return json(res, 200, { ...snapshot(room), myName: room.participants[id].name, myVote: room.votes[room.round][id] ?? null, myHunt: room.hunt.players[id] || null })
+          return json(res, 200, { ...snapshot(room, id), myName: room.participants[id].name, myVote: room.votes[room.round][id] ?? null, myHunt: room.hunt.players[id] || null })
         }
         if (action === 'me' && req.method === 'GET') {
           const id = getVoter(req)
-          return json(res, 200, { joined: Boolean(id && room.participants[id]), myName: room.participants[id]?.name || null, round: room.round, myVote: id ? room.votes[room.round][id] ?? null : null })
+          return json(res, 200, { joined: Boolean(id && room.participants[id]), myName: room.participants[id]?.name || null, round: room.round, revision: room.revision, myVote: id ? room.votes[room.round][id] ?? null : null, myHunt: room.hunt.players[id] || null })
         }
         if (action === 'guess' && req.method === 'POST') {
           const id = getVoter(req)
           if (!id || !room.participants[id]) fail(401, 'Join this room before guessing.')
-          if (room.activity !== 'hunt' || room.hunt.phase !== 'open' || clock() >= room.hunt.endsAt) fail(409, 'The guessing window is closed.')
           const data = await body(req)
+          if (data.requestId !== undefined && (typeof data.requestId !== 'string' || !/^[a-zA-Z0-9_-]{8,80}$/.test(data.requestId))) fail(400, 'Invalid request identifier.')
+          const last = room.hunt.players[id]
+          if (data.requestId && last?.last?.requestId === data.requestId) {
+            let retryInput
+            try { retryInput = normalizeInput(data.n) } catch (error) { fail(400, error.message) }
+            if (typeof data.n !== 'string' || retryInput !== last.last.n) fail(409, 'This request identifier was already used.')
+            return json(res, 200, { ...last.last, attempts: last.attempts })
+          }
+          checkControl(room, data)
           if (room.activity !== 'hunt' || room.hunt.phase !== 'open' || clock() >= room.hunt.endsAt) fail(409, 'The guessing window is closed.')
           const player = room.hunt.players[id] || { attempts: 0, found: false, lastAt: 0, last: null }
           if (clock() - player.lastAt < 500) fail(429, 'Give each guess half a second.')
@@ -236,7 +275,7 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
           if (typeof data.n !== 'string') fail(400, 'Send the integer as text to preserve every digit.')
           let n
           try { n = normalizeInput(data.n) } catch (e) { fail(400, e.message) }
-          const input = journal.begin({ room: code, player: id, name: room.participants[id].name, n, receivedAt: clock() })
+          const input = journal.begin({ room: code, player: id, name: room.participants[id].name, n, requestId: data.requestId || null, receivedAt: clock() })
           const result = evaluateGuess(n)
           journal.finish(input, result)
           const updated = recordGuess(room, input, result)
@@ -253,17 +292,20 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
           const id = getVoter(req)
           if (!id || !room.participants[id]) fail(401, 'Join this room before voting.')
           const data = await body(req)
+          checkControl(room, data)
           if (room.activity !== 'proof' || room.phase !== 'open' || data.round !== room.round) fail(409, 'Voting is closed for this round.')
           if (typeof data.valid !== 'boolean') fail(400, 'Choose valid or broken.')
-          room.votes[room.round][id] = data.valid; broadcast(room)
-          return json(res, 200, { myVote: data.valid })
+          mutate(room, () => { room.votes[room.round][id] = data.valid })
+          return json(res, 200, snapshot(room, id))
         }
         if (action === 'host' && req.method === 'POST') {
           const authorization = req.headers.authorization?.replace(/^Bearer /, '') || ''
           if (!safeEqual(hash(authorization), room.hostHash)) fail(401, 'Host access required.')
           const data = await body(req)
+          checkControl(room, data)
           if (data.round !== room.round || data.phase !== room.phase) fail(409, 'The round changed. Please try again.')
           if ((data.activity !== undefined && data.activity !== room.activity) || (data.huntPhase !== undefined && data.huntPhase !== room.hunt.phase)) fail(409, 'The activity changed. Please try again.')
+          mutate(room, () => {
           if (data.action === 'switch-activity' || data.action === 'proof-setup') {
             const target = data.action === 'proof-setup' ? 'proof' : data.target
             if (!['hunt', 'proof'].includes(target)) fail(400, 'Choose a valid activity.')
@@ -296,10 +338,11 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
           else if (data.action === 'start'  && room.phase === 'lobby') room.phase = 'open'
           else if (data.action === 'lock' && room.phase === 'open') room.phase = 'locked'
           else if (data.action === 'reveal' && room.phase === 'locked') { room.phase = 'revealed'; room.scored[room.round] = true }
-          else if (data.action === 'next' && room.phase === 'revealed' && room.round < gameRounds.length - 1) { room.round++; room.phase = 'open' }
+          else if (data.action === 'next' && room.phase === 'revealed' && room.round < gameRounds.length - 1) { room.round++; room.phase = room.scored[room.round] ? 'revealed' : 'open' }
           else if (data.action === 'finish' && room.phase === 'revealed' && room.round === gameRounds.length - 1) room.phase = 'finished'
           else fail(409, 'That action is not available now.')
-          broadcast(room); return json(res, 200, snapshot(room))
+          }, true)
+          return json(res, 200, snapshot(room))
         }
         fail(405, 'Method not allowed.')
       }
@@ -307,6 +350,7 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
       if (req.method !== 'GET' && req.method !== 'HEAD') fail(405, 'Method not allowed.')
       if (route === '/host') return serve(res, path.join(root, 'voting'), 'host.html')
       if (route === '/join' || /^\/join\/[A-Z2-9]{6}$/.test(route)) return serve(res, path.join(root, 'voting'), 'join.html')
+      if (route === '/qr/artwork.png' || route === '/qr/normal.png') return serve(res, fs.existsSync(path.join(root, 'public/qr')) ? path.join(root, 'public/qr') : path.join(root, 'dist/qr'), path.basename(route))
       if (route.startsWith('/voting/')) return serve(res, path.join(root, 'voting'), decodeURIComponent(route.slice(8)))
       if (route.startsWith('/vendor/')) return serve(res, path.join(root, 'node_modules/katex/dist'), decodeURIComponent(route.slice(8)))
       return serve(res, path.join(root, 'dist'), route === '/' ? 'index.html' : decodeURIComponent(route.slice(1)))
@@ -324,8 +368,7 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
   // Server clock closes the hunt even if the host tab goes to sleep.
   const huntClock = setInterval(() => {
     for (const room of rooms.values()) if (room.hunt.phase === 'open' && clock() >= room.hunt.endsAt) {
-      room.hunt.phase = 'closed'
-      try { broadcast(room) } catch (error) { console.error('Unable to save hunt deadline:', error.code) }
+      try { mutate(room, () => { room.hunt.phase = 'closed'; room.hunt.remainingMs = 0 }, true) } catch (error) { console.error('Unable to save hunt deadline:', error.code) }
     }
   }, 250)
   huntClock.unref()
@@ -339,6 +382,7 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
     if (changed) { try { persist() } catch (error) { console.error('Room cleanup save failed:', error.code) } }
   }, 60000)
   cleanup.unref()
+  server.closeRoomStreams = () => { for (const clients of streams.values()) for (const client of clients) client.end() }
   server.on('close', () => {
     clearInterval(cleanup); clearInterval(huntClock)
     for (const timer of pendingBroadcasts.values()) clearTimeout(timer)
@@ -350,5 +394,14 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const port = Number(process.env.PORT || 3040)
   const server = createProofServer({ hostKey: process.env.HOST_KEY, publicUrl: process.env.PUBLIC_URL || `http://localhost:${port}`, statePath: process.env.STATE_PATH, allowedOrigins: process.env.ALLOWED_ORIGINS?.split(',') || [] })
+  let stopping = false
+  const shutdown = () => {
+    if (stopping) return
+    stopping = true
+    server.closeRoomStreams()
+    server.close(() => process.exit(0))
+    setTimeout(() => process.exit(1), 8000).unref()
+  }
+  process.on('SIGTERM', shutdown); process.on('SIGINT', shutdown)
   server.listen(port, process.env.BIND || '0.0.0.0', () => console.log(`Proof voting listening on port ${port}`))
 }

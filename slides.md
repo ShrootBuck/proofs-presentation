@@ -823,67 +823,16 @@ These are useful starting points, not rigid rules. A good proof often combines s
 -->
 
 ---
-section: THE LAST CHALLENGE
-clicks: 2
-time: '26:35–27:50'
----
-
-
-# If n² is odd, n is odd
-
-<p class="small">Domain: integers. Which move would you try first?</p>
-
-<div class="exit-options"><span><b>A</b>Test 20 odd numbers</span><span><b>B</b>Use the contrapositive</span><span><b>C</b>Assume n is odd</span></div>
-
-<div v-click="1" class="exit-proof"><div class="micro">CONTRAPOSITIVE</div><div class="math-big"><MathTex tex="n\text{ even}\ \Rightarrow\ n^2\text{ even}" /></div></div>
-<div v-click="2"><div class="math-big"><MathTex tex="n=2k\quad\Rightarrow\quad n^2=4k^2=2(2k^2)" /></div><p class="takeaway">The contrapositive holds, so the original claim holds.</p></div>
-
-<!--
-
-Last challenge. For an integer n, if n squared is odd, then n is odd. Which first move actually helps prove this: testing 20 odd numbers, using the contrapositive, or assuming n is odd?
-
-Take a moment. If you choose the contrapositive, try to write it in your head.
-
-[PAUSE. Ask someone for the contrapositive.]
-
-[click] The contrapositive is: if n is even, then n squared is even. That reverses the implication and negates both parts.
-
-[click] Write n as 2 k. Then n squared is 4 k squared, which is twice the integer 2 k squared. So it's even. The contrapositive is true, which proves the original statement.
-
-Testing 20 values leaves the universal claim unfinished. Assuming n is odd starts from the conclusion and proves the converse instead. It might prove something true, but it doesn't establish the implication we were asked for.
-
-The direction of the argument matters just as much as the algebra.
--->
-
----
 class: dark closing
 section: QUESTIONS
 transition: wipe
 time: '27:50–30:00'
 ---
 
-
-<div class="display large-word">What makes<br />the next step<br /><span>unavoidable?</span></div>
-
-<p class="closing-sub">That is where the proof lives.</p>
-
-<div class="q-and-a">QUESTIONS / CHALLENGE A STEP / TRY ANOTHER PROOF</div>
+<div class="display" style="position: absolute; inset: 0; display: grid; place-items: center; font-size: 88px; letter-spacing: -.06em; text-align: center;">Thanks! Questions?</div>
 
 <!--
-
-If you keep one habit from this, make it asking what makes the next step unavoidable.
-
-An example can suggest a pattern. A definition can make it precise. A proof tells us why every required case has to work, or a counterexample tells us why the claim can't survive.
-
-That's the difference between recognizing a pattern and knowing what you can actually rely on.
-
-What part would you challenge, or want to see another example of?
-
-[PAUSE for questions.]
-
-[IF THE ROOM IS QUIET: Ask, "Could we prove the odd-number sum without induction?" Let someone describe the general square-border argument. Or ask, "Can a true statement have an invalid proof?" Refer to slide 13: proving that an even integer has an even square does not, by itself, prove the reverse implication. The reverse is true, but that argument does not establish it.]
-
-[STOP HERE. The next slide is a reference appendix, outside the timed talk.]
+Thanks for listening to my Ted Talk. Any questions?
 -->
 
 ---

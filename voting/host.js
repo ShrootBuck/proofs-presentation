@@ -1,9 +1,15 @@
 import katex from '/vendor/katex.mjs'
 import { createJoinCard } from './join-card.js'
+import { requestJSON, watchRoom, readSaved, writeSaved, isNewerState } from './connection.mjs'
 const dashboard = document.querySelector('#dashboard'), setup = document.querySelector('#setup-panel')
 const error = document.querySelector('#error')
 const form = document.querySelector('#host-form'), setupButton = document.querySelector('#show-setup'), resumeButton = document.querySelector('#resume-room')
-let credentials, room, stream, connected = false, busy = false, offset = 0
+let credentials, room, stream, connected = false, busy = false, offset = 0, connectionState = 'connecting', connecting = false
+const networkStatus = makeStatus()
+function makeStatus() {
+  const el = document.createElement('span'); el.className = 'host-network-status'; el.setAttribute('role', 'status')
+  document.querySelector('.host-nav-actions').prepend(el); return el
+}
 const make = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el }
 const math = (tex, cls = '') => { const el = make('div', cls); katex.render(tex, el, { throwOnError: false }); return el }
 const short = n => n.length > 30 ? `${n.slice(0, 15)}…${n.slice(-8)}` : n
@@ -72,7 +78,7 @@ function renderHunt() {
     grid.append(left, clock, joinCard()); dashboard.append(grid, stats())
   }
   const footer = make('div', 'host-controls host-log-controls')
-  const download = make('button', 'host-text-button', 'Download guess log'); download.disabled = !room.logging.durable; download.addEventListener('click', downloadLog); footer.append(download); dashboard.append(footer)
+  const download = make('button', 'host-text-button', 'Download guess log'); download.disabled = !room.logging.durable || !connected; download.addEventListener('click', downloadLog); footer.append(download); dashboard.append(footer)
   updateClock()
 }
 function renderProof() {
@@ -102,7 +108,7 @@ function renderProof() {
     for (const [label, count] of [['A · Valid', room.counts.valid], ['B · Broken', room.counts.broken]]) {
       const row = make('div', 'tally-row'); row.append(make('span', '', label), make('strong', '', count)); const bar = make('div', 'tally-bar'), fill = make('span'); fill.style.width = `${room.counts.total ? count / room.counts.total * 100 : 0}%`; bar.append(fill); votes.append(row, bar)
     }
-    if (room.phase === 'locked') votes.append(make('p', 'quiet', 'Which step makes or breaks it?'), button('Reveal the answer', 'reveal'))
+    if (room.phase === 'locked') votes.append(button(room.voted ? 'Reopen voting' : 'Open voting', 'reopen', 'secondary'), make('p', 'quiet', 'Which step makes or breaks it?'), button('Reveal the answer', 'reveal'))
     else votes.append(button(room.round === room.totalRounds - 1 ? 'Final score' : 'Next round', room.round === room.totalRounds - 1 ? 'finish' : 'next'))
   }
   grid.append(argument, votes); dashboard.append(grid)
@@ -136,8 +142,10 @@ function activityControls() {
 }
 function render() {
   if (!room) return
+  const toolsOpen = dashboard.querySelector('.host-room-tools')?.open
   dashboard.replaceChildren(); setup.hidden = true; dashboard.hidden = false; setupButton.hidden = false; resumeButton.hidden = false
   dashboard.append(activityControls())
+  dashboard.querySelector('.host-room-tools').open = Boolean(toolsOpen)
   if (room.activity === 'hunt') renderHunt(); else renderProof()
 }
 function updateClock() {
@@ -146,32 +154,61 @@ function updateClock() {
   el.textContent = String(seconds).padStart(2, '0'); el.classList.toggle('urgent', seconds <= 10)
 }
 setInterval(updateClock, 100)
-async function act(action, payload = {}) {
-  if (busy || !connected) return
-  busy = true; error.textContent = ''; render()
-  try {
-    const response = await fetch(`/api/rooms/${room.code}/host`, { method: 'POST', headers: { Authorization: `Bearer ${credentials.hostToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ ...payload, action, phase: room.phase, round: room.round, activity: room.activity, huntPhase: room.hunt.phase }) })
-    const next = await response.json(); if (!response.ok) throw new Error(next.error); room = next; offset = next.serverTime - Date.now()
-  } catch (e) { error.textContent = e.message } finally { busy = false; render() }
-}
-async function connect(saved) {
-  credentials = saved; stream?.close(); connected = false
-  const response = await fetch(`/api/rooms/${saved.code}`), next = await response.json()
-  if (!response.ok) throw new Error(next.error)
-  room = next; offset = next.serverTime - Date.now(); render()
-  stream = new EventSource(`/api/rooms/${saved.code}/events`)
-  stream.onopen = () => { connected = true; render() }
-  stream.onerror = () => { connected = false; render() }
-  stream.onmessage = event => {
-    const next = JSON.parse(event.data), same = room.activity === next.activity && room.phase === next.phase && room.round === next.round && room.hunt.phase === next.hunt.phase
-    room = next; offset = room.serverTime - Date.now()
-    if (!setup.hidden) return
-    if (!same) { render(); return }
+function receive(next) {
+  if (!isNewerState(room, next)) return
+  const same = room && room.activity === next.activity && room.phase === next.phase && room.round === next.round && room.hunt.phase === next.hunt.phase && room.controlRevision === next.controlRevision
+  if (room && room.controlRevision !== next.controlRevision) error.textContent = ''
+  room = next; offset = room.serverTime - Date.now()
+  if (!setup.hidden) return
+  if (!same) render()
+  else {
     for (const [id, create] of [['player-roster', roster], ['host-statistics', stats], ['recent-guesses', recent]]) {
       const old = document.getElementById(id); if (old) old.replaceWith(create())
     }
     const count = document.getElementById('vote-count'); if (count) count.textContent = `${room.voted} / ${room.joined}`
+    updateClock()
   }
+}
+function setConnection(status) {
+  if (status === connectionState) return
+  connectionState = status; connected = status === 'live'
+  networkStatus.textContent = connected ? '' : 'Reconnecting… controls paused'
+  if (setup.hidden) render()
+}
+async function act(action, payload = {}) {
+  if (busy || !connected) return
+  const code = room.code
+  const data = { ...payload, action, phase: room.phase, round: room.round, activity: room.activity, huntPhase: room.hunt.phase, controlRevision: room.controlRevision }
+  busy = true; error.textContent = ''; render()
+  try {
+    const next = await requestJSON(`/api/rooms/${code}/host`, { method: 'POST', headers: { Authorization: `Bearer ${credentials.hostToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+    if (room.code === code) receive(next)
+  } catch (e) { error.textContent = e.message; void stream?.sync() }
+  finally { busy = false; if (setup.hidden) render() }
+}
+async function connect(saved) {
+  if (connecting) return
+  connecting = true
+  stream?.close(); credentials = saved; room = null; connected = false; connectionState = 'connecting'
+  networkStatus.textContent = 'Connecting…'
+  try {
+    const next = await requestJSON(`/api/rooms/${saved.code}`)
+    room = next; offset = room.serverTime - Date.now(); render()
+    stream = watchRoom(saved.code, {
+      onState: receive,
+      onConnection: setConnection,
+      onMissing(message) {
+        connected = false; room = null; credentials = null; writeSaved('proofs-live-room', null); error.textContent = message
+        setup.hidden = false; dashboard.hidden = true; resumeButton.hidden = true
+        networkStatus.textContent = 'Room expired'
+      },
+    })
+  } catch (e) {
+    if (e.status === 404) { credentials = null; writeSaved('proofs-live-room', null) }
+    setup.hidden = false; dashboard.hidden = true; resumeButton.hidden = !credentials
+    networkStatus.textContent = 'Not connected'
+    throw e
+  } finally { connecting = false }
 }
 async function downloadLog() {
   try {
@@ -181,16 +218,29 @@ async function downloadLog() {
   } catch (e) { error.textContent = e.message }
 }
 form.addEventListener('submit', async event => {
-  event.preventDefault(); error.textContent = ''; const submit = form.querySelector('button'); submit.disabled = true
+  event.preventDefault(); if (busy) return
+  busy = true; error.textContent = ''; const submit = form.querySelector('button'); submit.disabled = true
   try {
-    const response = await fetch('/api/rooms', { method: 'POST', headers: { Authorization: `Bearer ${document.querySelector('#host-key').value}` } })
-    const next = await response.json(); if (!response.ok) throw new Error(next.error)
-    const saved = { code: next.code, hostToken: next.hostToken }; localStorage.setItem('proofs-live-room', JSON.stringify(saved)); document.querySelector('#host-key').value = ''; await connect(saved)
-  } catch (e) { error.textContent = e.message } finally { submit.disabled = false }
+    const next = await requestJSON('/api/rooms', { method: 'POST', headers: { Authorization: `Bearer ${document.querySelector('#host-key').value}` } })
+    const saved = { code: next.code, hostToken: next.hostToken }
+    const stored = writeSaved('proofs-live-room', saved)
+    document.querySelector('#host-key').value = ''
+    await connect(saved)
+    if (!stored) error.textContent = 'Browser storage is unavailable. Keep this host tab open to retain control of the room.'
+  } catch (e) { error.textContent = e.message }
+  finally { busy = false; submit.disabled = false; if (setup.hidden) render() }
 })
 setupButton.addEventListener('click', () => { setup.hidden = false; dashboard.hidden = true })
-resumeButton.addEventListener('click', render)
-try {
-  const saved = JSON.parse(localStorage.getItem('proofs-live-room') || 'null')
-  if (saved?.hostToken) connect(saved).catch(e => { error.textContent = e.message; setup.hidden = false; dashboard.hidden = true })
-} catch {}
+async function resumeRoom() {
+  if (!credentials || room || connecting || busy || document.visibilityState === 'hidden') return
+  try { await connect(credentials); error.textContent = '' } catch (e) { error.textContent = e.message }
+}
+resumeButton.addEventListener('click', () => { if (room) render(); else void resumeRoom() })
+window.addEventListener('online', resumeRoom)
+window.addEventListener('pageshow', resumeRoom)
+document.addEventListener('visibilitychange', resumeRoom)
+setInterval(resumeRoom, 5000)
+const saved = readSaved('proofs-live-room')
+if (/^[A-Z2-9]{6}$/.test(saved?.code || '') && saved?.hostToken) {
+  credentials = saved; void resumeRoom()
+}

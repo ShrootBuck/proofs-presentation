@@ -1,11 +1,17 @@
 import katex from '/vendor/katex.mjs'
+import { normalizeInput } from './integers.mjs'
+import { requestJSON, watchRoom, readSaved, writeSaved, isNewerState } from './connection.mjs'
 const game = document.querySelector('#game')
 const join = document.querySelector('#join-panel')
 const error = document.querySelector('#error')
 const connection = document.querySelector('#connection')
-let roomCode = location.pathname.split('/')[2] || ''
+const changeRoom = document.createElement('button')
+changeRoom.type = 'button'; changeRoom.className = 'change-room'; changeRoom.textContent = 'Change room'; changeRoom.hidden = true
+document.querySelector('#player-name').after(changeRoom)
+let roomCode = location.pathname.split('/')[2] || readSaved('proofs-player-room') || ''
 let snapshot, myVote = null, stream, busy = false, myHunt = null, clockOffset = 0, myName = ''
 let factorWorker, factorId = 0, factors = null
+let connected = false, joining = false, huntDraft = '', pendingGuess = null
 const compact = s => s.length > 45 ? `${s.slice(0, 20)}…${s.slice(-12)} (${s.length} digits)` : s
 const make = (tag, className, text) => { const el = document.createElement(tag); if (className) el.className = className; if (text !== undefined) el.textContent = text; return el }
 const math = (tex, className) => { const el = make('div', className); katex.render(tex, el, { throwOnError: false }); return el }
@@ -36,7 +42,7 @@ function renderActivity() {
     const buttons = make('div', 'vote-buttons')
     for (const [valid, letter, label] of [[true, 'A', 'Valid proof'], [false, 'B', 'Broken proof']]) {
       const button = make('button', myVote === valid ? 'selected' : '')
-      button.append(make('span', '', letter), make('strong', '', label)); button.setAttribute('aria-pressed', String(myVote === valid)); button.disabled = busy
+      button.append(make('span', '', letter), make('strong', '', label)); button.setAttribute('aria-pressed', String(myVote === valid)); button.disabled = busy || !connected
       button.addEventListener('click', () => vote(valid)); buttons.append(button)
     }
     game.append(buttons, make('p', 'vote-status', myVote === null ? 'Choose your verdict. Results stay hidden.' : 'Vote saved. You can change it until voting locks.'))
@@ -63,59 +69,119 @@ function render() {
     const panels = make('div'); panels.id = 'factor-panels'; history.append(panels); game.append(history); renderFactorPanels()
   }
 }
+function stopFactors() {
+  factorWorker?.terminate(); factorWorker = null; factorId++; factors = null
+}
+function receive(next) {
+  if (!isNewerState(snapshot, next)) return
+  const previous = snapshot, oldVote = myVote, oldReceipt = myHunt?.last?.receipt
+  const activityChanged = previous?.activity !== next.activity
+  snapshot = next; clockOffset = next.serverTime - Date.now()
+  if (next.joinedAsPlayer === false) {
+    connected = false; stream?.close(); stopFactors()
+    snapshot = null; myVote = null; myHunt = null; pendingGuess = null
+    game.replaceChildren(); game.hidden = true; join.hidden = false
+    changeRoom.hidden = true
+    document.querySelector('#display-name').value = myName
+    error.textContent = 'Your browser session expired. Enter your name to rejoin.'
+    connection.textContent = 'REJOIN'; return
+  }
+  if ('myVote' in next) myVote = next.myVote
+  if ('myHunt' in next && (next.myHunt?.last?.receipt || 0) >= (myHunt?.last?.receipt || 0)) myHunt = next.myHunt
+  if (next.myName) { myName = next.myName; document.querySelector('#player-name').textContent = `Playing as ${myName}` }
+  changeRoom.hidden = false
+  if (activityChanged) {
+    error.textContent = ''
+    if (next.activity !== 'hunt') stopFactors()
+  }
+  const newGuess = oldReceipt !== myHunt?.last?.receipt
+  if (newGuess || oldVote !== myVote) error.textContent = ''
+  if (next.activity === 'hunt' && myHunt?.last && (newGuess || activityChanged)) startFactors(myHunt.last)
+  const changed = !previous || previous.controlRevision !== next.controlRevision || activityChanged || oldVote !== myVote || newGuess
+  if (changed || game.hidden) render()
+  else updateHuntStats()
+}
+function setConnection(status) {
+  if (!snapshot) { connected = false; return }
+  connected = status === 'live'
+  connection.textContent = connected ? 'LIVE' : 'RECONNECTING'
+  // Updating disabled states preserves focus and a partially typed number.
+  for (const button of game.querySelectorAll('.vote-buttons button')) button.disabled = busy || !connected
+  updateHuntStats()
+}
 async function vote(valid) {
-  if (busy) return; busy = true; error.textContent = ''; render()
-  const votedRound = snapshot.round
+  if (busy || !connected || snapshot?.activity !== 'proof' || snapshot.phase !== 'open') return
+  const code = roomCode, votedRound = snapshot.round, controlRevision = snapshot.controlRevision
+  busy = true; error.textContent = ''; render()
   try {
-    const response = await fetch(`/api/rooms/${roomCode}/vote`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ round: votedRound, valid }) })
-    const data = await response.json(); if (!response.ok) throw new Error(data.error)
-    if (snapshot.round === votedRound) myVote = data.myVote
-  } catch (e) { error.textContent = e.message } finally { busy = false; render() }
+    const state = await requestJSON(`/api/rooms/${code}/vote`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ round: votedRound, valid, controlRevision }) })
+    if (roomCode === code) receive(state)
+  } catch (e) {
+    if (roomCode === code && snapshot.activity === 'proof' && snapshot.round === votedRound) error.textContent = e.message
+    void stream?.sync()
+  } finally { busy = false; render() }
 }
 async function connect(code, name) {
-  error.textContent = ''; roomCode = code.toUpperCase().trim()
-  if (!/^[A-Z2-9]{6}$/.test(roomCode)) { error.textContent = 'Use the six-character room code.'; return }
+  if (joining) return
+  const normalized = String(code).toUpperCase().trim()
+  if (!/^[A-Z2-9]{6}$/.test(normalized)) { error.textContent = 'Use the six-character room code.'; return }
+  joining = true; error.textContent = ''; const submit = document.querySelector('#join-form button'); submit.disabled = true
   try {
-    const response = await fetch(`/api/rooms/${roomCode}/join`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) }); const state = await response.json()
-    if (!response.ok) throw new Error(state.error)
-    snapshot = state; myName = state.myName; document.querySelector('#player-name').textContent = `Playing as ${myName}`; myVote = state.myVote; myHunt = state.myHunt; clockOffset = state.serverTime - Date.now(); if (state.activity === 'hunt' && myHunt?.last) startFactors(myHunt.last); render(); history.replaceState(null, '', `/join/${roomCode}`)
-    stream?.close(); stream = new EventSource(`/api/rooms/${roomCode}/events`)
-    stream.onopen = () => { connection.textContent = 'LIVE'; error.textContent = '' }
-    stream.onerror = () => { connection.textContent = 'RECONNECTING'; error.textContent = 'Connection interrupted. Reconnecting automatically.' }
-    stream.onmessage = async event => {
-      const next = JSON.parse(event.data)
-      const roundChanged = snapshot?.round !== next.round
-      if (roundChanged) myVote = null
-      const previous = snapshot; snapshot = next; clockOffset = next.serverTime - Date.now();
-      if (previous?.activity !== next.activity) {
-        error.textContent = ''
-        if (next.activity === 'proof') { factorWorker?.terminate(); factorId++; factors = null }
-        else if (myHunt?.last) startFactors(myHunt.last)
-      }
-      if (roundChanged) {
-        fetch(`/api/rooms/${roomCode}/me`).then(r => r.json()).then(me => {
-          if (snapshot.round === me.round) { myVote = me.myVote; render() }
-        }).catch(() => {})
-      }
-      if (next.activity === 'hunt' && previous?.activity === 'hunt' && next.hunt.phase === previous.hunt.phase) updateHuntStats()
-      else render()
-    }
+    const state = await requestJSON(`/api/rooms/${normalized}/join`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) })
+    stream?.close(); stopFactors(); snapshot = null; myHunt = null; myVote = null
+    roomCode = normalized; huntDraft = ''; pendingGuess = null
+    writeSaved('proofs-player-room', roomCode)
+    history.replaceState(null, '', `/join/${roomCode}`)
+    receive(state); setConnection('connecting')
+    stream = watchRoom(roomCode, {
+      onState: receive, onConnection: setConnection,
+      onMissing(message) {
+        stopFactors(); connected = false; snapshot = null; myHunt = null; myVote = null
+        game.hidden = true; join.hidden = false; connection.textContent = 'ROOM EXPIRED'
+        changeRoom.hidden = true
+        document.querySelector('#player-name').textContent = ''; error.textContent = message
+        writeSaved('proofs-player-room', null)
+      },
+    })
   } catch (e) { error.textContent = e.message; connection.textContent = 'NOT CONNECTED'; join.hidden = false }
+  finally { joining = false; submit.disabled = false }
 }
-document.querySelector('#join-form').addEventListener('submit', event => { event.preventDefault(); connect(document.querySelector('#room-code').value, document.querySelector('#display-name').value) })
+document.querySelector('#join-form').addEventListener('submit', event => { event.preventDefault(); void connect(document.querySelector('#room-code').value, document.querySelector('#display-name').value) })
+changeRoom.addEventListener('click', () => {
+  stream?.close(); stopFactors(); snapshot = null; connected = false; roomCode = ''
+  myVote = null; myHunt = null; pendingGuess = null; huntDraft = ''
+  writeSaved('proofs-player-room', null); history.replaceState(null, '', '/join')
+  game.replaceChildren(); game.hidden = true; join.hidden = false; changeRoom.hidden = true
+  document.querySelector('#player-name').textContent = ''
+  document.querySelector('#room-code').value = ''; document.querySelector('#display-name').value = myName
+  error.textContent = ''; connection.textContent = 'READY TO JOIN'; document.querySelector('#room-code').focus()
+})
 connection.textContent = 'READY TO JOIN'
-if (roomCode) {
+async function resume() {
+  if (!roomCode || snapshot || joining || document.visibilityState === 'hidden') return
   document.querySelector('#room-code').value = roomCode
-  fetch(`/api/rooms/${roomCode}/me`).then(r => r.json()).then(me => { if (me.joined) connect(roomCode) }).catch(() => {})
+  try {
+    const me = await requestJSON(`/api/rooms/${roomCode}/me`)
+    if (me.joined) await connect(roomCode)
+    else connection.textContent = 'READY TO JOIN'
+  } catch (e) {
+    if (e.status === 404) { writeSaved('proofs-player-room', null); error.textContent = e.message; connection.textContent = 'ROOM EXPIRED' }
+    else { connection.textContent = 'RECONNECTING'; error.textContent = 'Waiting for a connection. You can also join using the form.' }
+  }
 }
+void resume()
+window.addEventListener('online', resume)
+window.addEventListener('pageshow', resume)
+document.addEventListener('visibilitychange', resume)
 
 function updateHuntStats() {
+  if (!snapshot) return
   const clock = document.querySelector('#hunt-clock')
   if (clock) clock.textContent = snapshot.hunt.phase === 'lobby' ? '60' : snapshot.hunt.phase === 'paused' ? String(Math.ceil(snapshot.hunt.remainingMs / 1000)).padStart(2, '0') : String(Math.max(0, Math.ceil((snapshot.hunt.endsAt - Date.now() - clockOffset) / 1000))).padStart(2, '0')
   const stats = document.querySelector('#hunt-stats')
   if (stats) stats.textContent = `${snapshot.hunt.attempts} class guesses · ${snapshot.hunt.found} found a shared factor`
   const submit = document.querySelector('#guess-form button')
-  if (submit) submit.disabled = busy || Date.now() + clockOffset >= snapshot.hunt.endsAt
+  if (submit) submit.disabled = busy || !connected || snapshot.hunt.phase !== 'open' || Date.now() + clockOffset >= snapshot.hunt.endsAt
 }
 setInterval(updateHuntStats, 100)
 function startFactors(result) {
@@ -196,7 +262,8 @@ function renderFactorPanels() {
 }
 function renderHunt() {
   const h = snapshot.hunt
-  const draft = document.querySelector('#guess-input')?.value || ''
+  const draft = document.querySelector('#guess-input')?.value ?? huntDraft
+  huntDraft = draft
   game.replaceChildren(); game.hidden = false; join.hidden = true
   game.append(make('p','eyebrow',`ROOM ${snapshot.code} / BREAK THE PATTERN`),make('h1','','One shared factor.'))
   game.append(math('A=n^{17}+9', 'hunt-formula'), math('B=(n+1)^{17}+9', 'hunt-formula'),make('p','','Find a nonnegative integer n such that A and B share a factor greater than 1.'))
@@ -211,6 +278,7 @@ function renderHunt() {
     const form = make('form'); form.id='guess-form'
     const label = make('label','','Your input n'); label.htmlFor='guess-input'
     const input = make('input'); input.id='guess-input'; input.type='text'; input.inputMode='numeric'; input.maxLength=100; input.autocomplete='off'; input.value=draft; input.required=true
+    input.addEventListener('input', () => { huntDraft = input.value })
     const submit = make('button','','Test my input'); submit.type='submit'
     form.append(label,input,submit); form.addEventListener('submit',submitGuess); game.append(form,make('p','quiet','Enter digits only. Up to 100 digits, with no rounding.'))
   }
@@ -224,12 +292,23 @@ function renderHunt() {
   updateHuntStats()
 }
 async function submitGuess(event) {
-  event.preventDefault(); if (busy) return
-  const value=document.querySelector('#guess-input').value
-  busy=true; error.textContent=''; updateHuntStats()
+  event.preventDefault()
+  if (busy || !connected || snapshot?.activity !== 'hunt' || snapshot.hunt.phase !== 'open') return
+  let value
+  try { value = normalizeInput(document.querySelector('#guess-input').value) }
+  catch (e) { error.textContent = e.message; return }
+  const code = roomCode, controlRevision = snapshot.controlRevision
+  if (!pendingGuess || pendingGuess.n !== value || pendingGuess.controlRevision !== controlRevision) pendingGuess = { n: value, controlRevision, requestId: crypto.randomUUID() }
+  busy = true; error.textContent = ''; updateHuntStats()
   try {
-    const response=await fetch(`/api/rooms/${roomCode}/guess`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({n:value})})
-    const data=await response.json(); if(!response.ok) throw new Error(data.error)
-    myHunt={attempts:data.attempts,last:data}; startFactors(data)
-  } catch(e) { if (snapshot?.activity === 'hunt') error.textContent=e.message } finally { busy=false; render() }
+    const data = await requestJSON(`/api/rooms/${code}/guess`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pendingGuess) })
+    pendingGuess = null
+    if (roomCode === code && data.receipt > (myHunt?.last?.receipt || 0)) {
+      myHunt = { attempts: data.attempts, last: data }; startFactors(data)
+    }
+  } catch (e) {
+    if (!e.uncertain) pendingGuess = null
+    if (roomCode === code && snapshot?.activity === 'hunt') error.textContent = e.message
+    void stream?.sync()
+  } finally { busy = false; render() }
 }

@@ -12,15 +12,19 @@ A 30-minute Slidev presentation by Zayd Krunz about mathematical proof: 26 conte
 ## One QR room, two activities
 
 1. Before class, open `/host` privately and enter the `HOST_KEY` from this app's Coolify environment variables. Create a **new room** for each rehearsal or class.
-2. Open the deck and presenter view using the links on that page, in the same browser. Keep the host dashboard in its own tab; the master key disappears after room creation.
+2. Open the deck and presenter view in the same browser. Keep the host dashboard in its own tab; the master key disappears after room creation.
 3. On slide 2, click **Open the activity screen**, then switch the shared screen to that tab. Click **Enlarge** for a large view of the artistic QR image. If it is hard to scan, click **Show normal QR**. Both images open the same join page: students enter the displayed room code and a first name or nickname. Names appear on the projector; no account is required. Click **Back to activity** when everyone has joined.
 4. Click **Start the 60 seconds**. Students enter a nonnegative integer n, trying to make `A = n^17 + 9` and `B = (n+1)^17 + 9` share a factor greater than 1. The server enforces the deadline. When it ends, click **Reveal the counterexample**.
-5. Switch back to slide 3 after the reveal. Students keep the same phone page open. On slide 24, return to the host tab, click **Open Proof or Bluff**, then **Start round 1**.
+5. Switch back to the deck after the reveal. When ready for the second activity, return to the host tab, click **Proof or Bluff**, then **Start round 1**. Students can reopen `/join` in the same browser to resume their player and see the current activity.
 6. For each of the five rounds, students can change their vote until **Lock voting**. Ask someone to defend a step, then **Reveal the answer**. Continue with **Next round** and **Final score**.
 
 The five arguments cover division by zero, consecutive integers, a missing induction base case, a true conclusion with an invalid converse argument, and an existence proof by cases. A correct majority earns the class a point; a tie earns the traps a point. An empty round awards no point. Individual scores appear in the final leaderboard. One vote is stored per browser. Names identify players on screen but do not authenticate their real identity; the room code does not grant host privileges.
 
-Rooms expire after four hours. The deadline, guesses, votes, and host authorization survive a server restart when `/data` is persistent and `HOST_KEY` stays the same. Dropped connections reconnect automatically. For the offline fallback, select **Call-out fallback** on slide 2 or **Show-of-hands fallback** on slide 24. Presenter and audience windows share local demo state when opened in the same browser.
+Rooms expire after four hours. The deadline, guesses, votes, and host authorization survive a server restart when `/data` is persistent and `HOST_KEY` stays the same. Dropped connections reconnect automatically; visible tabs also refresh state every five seconds if the live stream fails. Waking a phone immediately reconnects and restores its current round, saved vote, and last hunt result. Recovery uses this browser's cookie: clearing site data or using a different browser requires joining again. **Change room** returns to the join form if a student reopens an older rehearsal room.
+
+The host can switch between **Number hunt** and **Proof or Bluff** at any point. Leaving a running hunt pauses its timer. **Activity controls** can resume or restart the timer, reveal the hunt, jump to any proof round, or reopen voting. Reopening preserves votes for revision and removes that round's score until it is revealed again. Restarting the hunt timer preserves guesses. The two activities keep separate UI state; factorization is shown only in the hunt.
+
+During a connection outage, controls show a reconnecting state and disable submissions. Requests time out instead of leaving buttons stuck. Late requests cannot change a newer round or restarted timer. A retried guess with the same request ID returns its saved receipt without counting it twice. For an offline fallback, use the call-out or show-of-hands controls in the deck.
 
 The original QR images live in `public/qr/artwork.png` and `public/qr/normal.png`. They are copied into the built presentation unchanged, at their original resolution; nothing loads from Downloads. Replace either file with the original replacement PNG, then rebuild and deploy. Both images must encode `https://proofs.zaydkrunz.com/join`. The host remembers the artwork/normal choice for the browser tab, including across refreshes and activity changes. Clicking either image also opens its large view; Escape closes that view.
 
@@ -28,11 +32,11 @@ The original QR images live in `public/qr/artwork.png` and `public/qr/normal.png
 
 The hunt uses native JavaScript **BigInt** for the input, exponentiation, GCD, and factorization. It never converts those integers to floating-point `Number`. BigInt is arbitrary precision; the form's 100-digit input limit is a workload limit, not a 64-bit arithmetic limit. Inputs and outputs travel as decimal strings so JSON cannot round them.
 
-The shared-factor result is exact. Prime factorization runs continuously in a phone Web Worker, with **no overall timeout**. It stops when both factorizations are complete, a new accepted guess replaces the search, or the tab closes. The worker alternates between A and B and sends live progress without running the search on the page's main thread. It continues across the timer's end and the later proof game, in a collapsible panel. Browsers may throttle background tabs.
+The shared-factor result is exact. Prime factorization runs continuously in a phone Web Worker, with **no overall timeout**. It stops when both factorizations are complete, a new accepted guess replaces the search, the activity switches to Proof or Bluff, or the tab closes. The worker alternates between A and B and sends live progress without running the search on the page's main thread. It continues across the timer's end. Returning to the hunt starts a fresh factor search for the saved last guess. Browsers may throttle or suspend background tabs.
 
 The search uses trial division, perfect-square detection, and repeated Pollard rho attempts. Deterministic Miller–Rabin certifies primes only below its proven `2^64` bound. Larger pieces that pass twelve Miller–Rabin bases are labeled **probable prime, not proven**, and the search continues. This certification bound does not limit the integers the worker can factor. A large prime may keep it searching indefinitely; this is intentional. Each attempt retains only its current state, without accumulating candidate history.
 
-Repeated factors use exponent notation. For more than ten distinct prime terms, the phone shows the first four, an ellipsis, and the last, with a control to expand the full list. The complete decimal values of A, B, and any remainder can also be expanded. The full product of factors found multiplied by the remainder always equals the original number exactly.
+Repeated factors use exponent notation. The phone shows a short product for A and B, plus a remaining piece while the search runs. For more than five distinct prime terms, it shows the first three, an ellipsis, and the last. **Full numbers & details** expands the complete factor lists and exact decimal values. The full product of factors found multiplied by the remainder always equals the original number exactly.
 
 The first nonnegative counterexample is `8424432925592889329288197322308900672459420460792433`. At this input, the exact GCD is `8936582237915716659950962253358945635793453256935559`. See the published source below. The participant API withholds the reveal until the host reveals it; the presentation itself contains the answers, as any ordinary classroom deck does.
 
@@ -87,7 +91,7 @@ npm run check
 npm run build
 ```
 
-The checks verify the 52-digit counterexample, exact factor products beyond 64 bits, a continuously running worker and replacement input, invalid input handling, name and host-access rules, journal recovery and storage limits, deadline and restart behavior, and a 40-participant API session covering both activities and all five rounds.
+The checks verify the 52-digit counterexample, exact factor products beyond 64 bits, a continuously running worker and replacement input, invalid input handling, name and host-access rules, journal recovery and storage limits, deadline and restart behavior, all five rounds, stale submissions, idempotent retries, personal-state recovery, failed disk writes, and 40 live connections making 400 durable 100-digit guesses. Transport tests cover phone wake, polling fallback, expired rooms, and request timeouts.
 
 To create a static backup, use `npm run export`. On this Mac, append `-- --executable-path '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'` if Playwright has no browser installed. Static exports cannot preserve the interactive activities.
 
