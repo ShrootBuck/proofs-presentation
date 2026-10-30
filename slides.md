@@ -69,7 +69,7 @@ time: '0:25–3:00'
 
 <!--
 
-Point your phone camera at this picture. Yes, the picture is the QR code. Enter the room code on screen and your name. Keep that phone page open; we'll use it again later.
+On a computer, open proofs dot zaydkrunz dot com slash join. On a phone, you can scan the picture instead. Yes, the picture is the QR code. Enter the room code on screen and your name. Keep the activity page open; we'll use it again later.
 
 Here's the challenge. Enter any nonnegative whole number. We calculate two numbers: n to the seventeenth plus nine, and n plus one, all to the seventeenth, plus nine. Find an input where those two results share a factor greater than one.
 
