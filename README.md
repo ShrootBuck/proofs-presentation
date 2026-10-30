@@ -7,7 +7,6 @@ A 30-minute Slidev presentation by Zayd Krunz about mathematical proof: 26 conte
 - Local preview: `http://localhost:3030`. Public URL: `https://proofs.zaydkrunz.com`. See [deployment-status.md](deployment-status.md) for verified hosting status.
 - Open `/#/presenter/1` in the same browser for the script, next-slide preview, and 30-minute timer. Put the normal presentation window on the projector and keep presenter view on your laptop.
 - Right Arrow or Space advances an animation. Left Arrow goes back. Use the visible buttons inside the demos and games.
-- The study script is in [presenter-script.md](presenter-script.md). Bracketed cues and timing labels are stage directions, not spoken text.
 - Fonts and math rendering are bundled locally. Phone participation requires the server. Call-out guesses and the show-of-hands game work without it.
 
 ## One QR room, two activities
@@ -84,7 +83,6 @@ The supplied QR images encode the public join URL, including during a local rehe
 - `voting/`: phone and host pages.
 
 ```sh
-npm run notes
 npm run check
 npm run build
 ```

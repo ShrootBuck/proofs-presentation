@@ -7,7 +7,6 @@ The presentation and classroom server are deployed at **https://proofs.zaydkrunz
 - Presentation: https://proofs.zaydkrunz.com
 - Separate host dashboard: https://proofs.zaydkrunz.com/host
 - Student entry: https://proofs.zaydkrunz.com/join
-- Study script: [presenter-script.md](presenter-script.md)
 
 ## Running deployment
 

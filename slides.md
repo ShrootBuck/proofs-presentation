@@ -64,15 +64,15 @@ time: '0:25–3:00'
 <ActivityLauncher kind="hunt" />
 
 <!--
-On a computer, open the link. On a phone, you can scan the picture instead. Yes, the picture is the QR code. Enter the room code on screen and your name. Keep the activity page open; we'll use it again later.
+On a computer, open the link. On a phone, you can scan the QR code instead. Enter the room code on screen and your name. Keep the activity page open; we'll use it again later.
 
-Here's the claim we're testing: for every nonnegative integer n, A and B have no common factor greater than one. A is n to the seventeenth plus nine. B is n plus one, all to the seventeenth, plus nine. Your job is to disprove the claim by finding just one input where they do share a factor greater than one.
+Here's the claim we're testing: for every nonnegative integer n, A and B have no common factor greater than 1. A is n to the 17th plus 9. B is n plus 1, all to the 17th, plus 9. Your job is to disprove the claim by finding just 1 input where they do share a factor greater than 1.
 
-For example, twelve and twenty-five have no shared factor above one. Twelve and eighteen share six. The app checks that for you. GCD means greatest common divisor: a result of one means no shared factor above one.
+For example, 12 and 25 have no shared factor above 1. 12 and 18 share the number 6. The app checks that for you. GCD means greatest common divisor: a result of 1 means no shared factor above 1.
 
-You have exactly one minute. Try small numbers, big numbers, whatever you like. You can enter up to a hundred digits. Ready?
+You have exactly 1 minute. Try small numbers, big numbers, whatever you like. You can enter up to 100 digits. Ready?
 
-This is running on a laptop server under my bed with less than eight gigs of RAM. If one of your inputs crashes the server, I'll buy you a Wingstop chicken sandwich. Your name and input get logged before the calculation, so I can recover the winning guess. Good luck.
+This is running on a laptop server under my bed with less than 8 gigs of RAM. If 1 of your inputs crashes the server, I'll buy you a Wingstop chicken sandwich. Your name and input get logged before the calculation, so I can recover the winning guess. Good luck.
 
 Lots of tests. Still no shared factor. Is that a proof that there's never one?
 -->
@@ -91,11 +91,11 @@ time: '3:00–3:50'
 <div v-click="2" class="takeaway">A long streak of successes is not a universal proof.</div>
 
 <!--
-Every smaller nonnegative integer passes this test. The first counterexample is this fifty-two-digit number.
+Every smaller nonnegative integer passes this test. The first counterexample is this 52-digit number.
 
-[click] At this input, both results share the factor shown here. The app uses exact integer arithmetic, so this is not a rounding error. We can divide both numbers by that factor with zero remainder.
+[click] At this input, both results share the factor shown here. The app uses exact integer arithmetic, so this is not a rounding error. We can divide both numbers by that factor with 0 remainder.
 
-[click] Our claim was that A and B never share a factor greater than one, for any nonnegative integer n. This one input proves that claim false. That's disproof by counterexample: one exception is enough to defeat an all-inputs claim.
+[click] Our claim was that A and B never share a factor greater than 1, for any nonnegative integer n. This 1 input proves that claim false. That's disproof by counterexample: 1 exception is enough to defeat an all-inputs claim.
 -->
 
 ---
@@ -123,13 +123,13 @@ clicks: 5
 <!--
 Here's a famous example: the Collatz conjecture. Pick any positive whole number.
 
-[click] If it's even, divide it by two. If it's odd, multiply it by three and add one. Then repeat.
+[click] If it's even, divide it by 2. If it's odd, multiply it by 3 and add 1. Then repeat.
 
-[click] Starting at six, we get three, ten, five, sixteen, eight, four, two, one.
+[click] Starting at 6, we get 3, 10, 5, 16, 8, 4, 2, 1.
 
-[click] The conjecture says every positive starting number eventually reaches one.
+[click] The conjecture says every positive starting number eventually reaches 1.
 
-[click] This counter is real. Since this presentation loaded, a background worker has been checking starting values in order using exact integer arithmetic. Every positive integer up to that number has been verified. If a sequence reaches a smaller starting value we've already verified, we know the rest of its journey reaches one too. The counter only advances after that check succeeds.
+[click] This counter is real. Since this presentation loaded, a background worker has been checking starting values in order using exact integer arithmetic. Every positive integer up to that number has been verified. If a sequence reaches a smaller starting value we've already verified, we know the rest of its journey reaches 1 too. The counter only advances after that check succeeds.
 
 [click] But no matter how high it gets, there are infinitely many numbers left. A later sequence could, in principle, grow forever or enter a different cycle. More examples don't rule that out. That's the gap a proof has to close.
 -->
@@ -192,15 +192,15 @@ time: '4:30–5:15'
 <p v-click="2" class="logic-note muted">In mathematics, OR includes the possibility that both are true.</p>
 
 <!--
-A proposition is a statement that is true or false. "Seven is prime" is a proposition.
+A proposition is a statement that is true or false. "7 is prime" is a proposition.
 
 We'll call statements P and Q. Not P reverses the truth value.
 
 [click] P and Q requires both statements to be true.
 
-[click] P or Q requires at least one. Mathematical or is inclusive, so both being true is allowed.
+[click] P or Q requires at least 1. Mathematical or is inclusive, so both being true is allowed.
 
-[click] Finally, if P then Q says P guarantees Q. This is the shape of a huge number of theorems, and it has one slightly weird feature worth unpacking.
+[click] Finally, if P then Q says P guarantees Q. This is the shape of a huge number of theorems, and it has 1 slightly weird feature worth unpacking.
 -->
 
 ---
@@ -219,7 +219,7 @@ Suppose I say, if you guess my magic number, I'll buy you Wingstop. P means you 
 
 [DO: Click Q, "Got Wingstop", to change it to FALSE. Leave P TRUE. Ask the room whether the promise is broken before explaining.]
 
-You guessed my magic number, but no Wingstop. That's the one forbidden situation: P is true and Q is false.
+You guessed my magic number, but no Wingstop. That's the 1 forbidden situation: P is true and Q is false.
 
 [DO: Click P, "Guessed my magic number", to change it to FALSE. Leave Q FALSE.]
 
@@ -227,7 +227,7 @@ Now you didn't guess it, and there's no Wingstop. Disappointing, maybe, but the 
 
 [DO: Click Q, "Got Wingstop", to change it back to TRUE. Leave P FALSE.]
 
-And if you didn't guess it but got Wingstop anyway, the promise still holds. I can buy Wingstop for other reasons. That's why the bottom two rows are true.
+And if you didn't guess it but got Wingstop anyway, the promise still holds. I can buy Wingstop for other reasons. That's why the bottom 2 rows are true.
 
 This is the truth table for material implication. It describes a logical condition, not necessarily a cause. To disprove an if-then claim, you need a case where the hypothesis holds and the conclusion fails. That's the exact kind of failure we're hunting.
 -->
@@ -249,13 +249,13 @@ time: '6:25–7:15'
 
 <!--
 
-Here's a true implication over the integers: if a number is divisible by four, it's even.
+Here's a true implication over the integers: if a number is divisible by 4, it's even.
 
-[click] Reverse that and we get: if a number is even, it's divisible by four. That's the converse, and six destroys it. The original implication did not give us permission to run the arrow backward.
+[click] Reverse that and we get: if a number is even, it's divisible by 4. That's the converse, and 6 destroys it. The original implication did not give us permission to run the arrow backward.
 
-[click] But there is a way to turn it around safely. Reverse the arrow and negate both statements. If a number is not even, then it is not divisible by four. That's the contrapositive, and it is logically equivalent to the original.
+[click] But there is a way to turn it around safely. Reverse the arrow and negate both statements. If a number is not even, then it is not divisible by 4. That's the contrapositive, and it is logically equivalent to the original.
 
-Both rule out exactly the same bad case: divisible by four but not even. We'll use this equivalence as an actual proof technique in a few minutes.
+Both rule out exactly the same bad case: divisible by 4 but not even. We'll use this equivalence as an actual proof technique in a few minutes.
 
 [click] Reversing an implication needs its own proof. If a theorem says if and only if, it promises both directions. Both need justification.
 -->
@@ -278,13 +278,13 @@ time: '7:15–8:00'
 
 <!--
 
-These two symbols tell us how much work a claim requires. The upside-down A means for every. For every integer n, n squared is nonnegative. A universal statement ranges over its entire domain.
+These 2 symbols tell us how much work a claim requires. The upside-down A means for every. For every integer n, n squared is nonnegative. A universal statement ranges over its entire domain.
 
-[click] The backward E means there exists. There exists an integer whose square is nine. Here I can give you three, check that three squared is nine, and I'm done. That example is called a witness.
+[click] The backward E means there exists. There exists an integer whose square is 9. Here I can give you 3, check that 3 squared is 9, and I'm done. That example is called a witness.
 
-Notice how one example has completely different power depending on the quantifier. A successful example proves an existence claim. A failing example disproves a universal claim.
+Notice how 1 example has completely different power depending on the quantifier. A successful example proves an existence claim. A failing example disproves a universal claim.
 
-[click] Also, say what the domain is. The equation x squared equals two has a real solution. It has no integer solution. Changing the allowed objects changes the statement, even when the equation looks identical.
+[click] Also, say what the domain is. The equation x squared equals 2 has a real solution. It has no integer solution. Changing the allowed objects changes the statement, even when the equation looks identical.
 -->
 
 ---
@@ -309,13 +309,13 @@ time: '8:00–8:40'
 
 <!--
 
-Quick vote. The statement is: every student solved the puzzle. Is its negation A, no student solved it, or B, at least one student did not solve it?
+Quick vote. The statement is: every student solved the puzzle. Is its negation A, no student solved it, or B, at least 1 student did not solve it?
 
 [PAUSE: Ask for hands for A and B.]
 
-[click] It's B. To make every student solved it false, we only need one student who didn't. A is much stronger than necessary. Imagine twenty people solved it and one didn't. The original claim is false, but A is also false.
+[click] It's B. To make every student solved it false, we only need 1 student who didn't. A is much stronger than necessary. Imagine 20 people solved it and 1 didn't. The original claim is false, but A is also false.
 
-So "not every" means "at least one didn't." It doesn't mean "none." In symbols, negating "for every" gives "there exists," and we negate the statement inside. We'll use this when a proof by contradiction starts by assuming our claim is false.
+So "not every" means "at least 1 didn't." It doesn't mean "none." In symbols, negating "for every" gives "there exists," and we negate the statement inside. We'll use this when a proof by contradiction starts by assuming our claim is false.
 -->
 
 ---
@@ -342,11 +342,11 @@ time: '8:40–9:10'
 
 <!--
 
-Now we have enough language to build proofs. These are six useful approaches, and we'll actually use each one.
+Now we have enough language to build proofs. These are 6 useful approaches, and we'll actually use each one.
 
 Direct proof follows the assumptions forward. Cases split the possibilities. Contrapositive changes the direction safely. Contradiction asks what would happen if the target were false. Induction builds an infinite chain. Construction gives us an object that works.
 
-[click] But before any of those, check whether the claim is true. Try a few small values, zero when it's allowed, and negative numbers when they're allowed. Testing can guide a proof, and a counterexample can end a doomed proof attempt very quickly.
+[click] But before any of those, check whether the claim is true. Try a few small values, 0 when it's allowed, and negative numbers when they're allowed. Testing can guide a proof, and a counterexample can end a doomed proof attempt very quickly.
 -->
 
 ---
@@ -370,15 +370,15 @@ time: '9:10–10:15'
 <p v-click="4" class="takeaway direct-proof-takeaway"><span>Arbitrary inputs make the argument general.</span></p>
 
 <!--
-Let's prove that the sum of two odd integers is even. We choose arbitrary odd integers a and b. Arbitrary means we're not selecting special values that make the argument easy.
+Let's prove that the sum of 2 odd integers is even. We choose arbitrary odd integers a and b. Arbitrary means we're not selecting special values that make the argument easy.
 
-[click] The definition of odd tells us that a equals two r plus one and b equals two s plus one, where r and s are integers.
+[click] The definition of odd tells us that a equals 2 r plus 1 and b equals 2 s plus 1, where r and s are integers.
 
-Why different letters? Because the two odd numbers don't have to be equal. Writing both as two r plus one would quietly restrict our claim.
+Why different letters? Because the 2 odd numbers don't have to be equal. Writing both as 2 r plus 1 would quietly restrict our claim.
 
-[click] Add them and combine the terms. We get two r plus two s plus two.
+[click] Add them and combine the terms. We get 2 r plus 2 s plus 2.
 
-[click] Factor out two. The result is twice r plus s plus one. The quantity inside the parentheses is an integer, so this is even by definition.
+[click] Factor out 2. The result is twice r plus s plus 1. The quantity inside the parentheses is an integer, so this is even by definition.
 
 That last sentence is the actual finish. We haven't just simplified an expression. We've connected it to the definition of the thing we promised to prove.
 
@@ -428,15 +428,15 @@ time: '10:15–11:00'
 
 <!--
 
-Now let's prove that n times n plus one is even for every integer n. These are two consecutive integers.
+Now let's prove that n times n plus 1 is even for every integer n. These are 2 consecutive integers.
 
-[click] Case one: n is even. Then n is two k for some integer k. Our product is two times an integer, so it's even.
+[click] Case 1: n is even. Then n is 2 k for some integer k. Our product is 2 times an integer, so it's even.
 
-[click] Case two: n is odd. Then n is two k plus one, which makes n plus one equal to two k plus two. This time the second factor is even, and the product is still even.
+[click] Case 2: n is odd. Then n is 2 k plus 1, which makes n plus 1 equal to 2 k plus 2. This time the second factor is even, and the product is still even.
 
 [click] The essential sentence is that every integer is either even or odd. We've covered the whole domain. A proof by cases needs every possible case to be covered. They can overlap, but they can't leave a gap.
 
-Checking only positive and negative integers, for example, would miss zero. Tiny omissions are how large claims escape.
+Checking only positive and negative integers, for example, would miss 0. Tiny omissions are how large claims escape.
 -->
 
 ---
@@ -467,9 +467,9 @@ Our next claim is that if an integer's square is even, the integer itself is eve
 
 [click] Instead, use the contrapositive. If n is not even, its square is not even. For integers, that's the same as saying if n is odd, n squared is odd.
 
-[click] Suppose n is odd. Then n is two k plus one for an integer k.
+[click] Suppose n is odd. Then n is 2 k plus 1 for an integer k.
 
-[click] Square it. We get four k squared plus four k plus one. Rewrite that as two times the integer two k squared plus two k, then plus one. That's odd.
+[click] Square it. We get 4 k squared plus 4 k plus 1. Rewrite that as 2 times the integer 2 k squared plus 2 k, then plus 1. That's odd.
 
 [click] We've proved the contrapositive, so we've proved the original implication. An odd integer can't have an even square. Therefore an integer with an even square must be even.
 
@@ -531,13 +531,13 @@ time: '12:45–13:45'
 
 <!--
 
-Let's prove that the square root of two is irrational. Assume the opposite: it equals a over b, with a and b both positive integers. We choose that fraction in lowest terms.
+Let's prove that the square root of 2 is irrational. Assume the opposite: it equals a over b, with a and b both positive integers. We choose that fraction in lowest terms.
 
-[click] Rational means expressible as a ratio of integers. Irrational means no such ratio exists. A long decimal display can't settle this. A rational number can also have an infinite decimal expansion, like one third. So we need an argument about all possible fractions.
+[click] Rational means expressible as a ratio of integers. Irrational means no such ratio exists. A long decimal display can't settle this. A rational number can also have an infinite decimal expansion, like 1/3. So we need an argument about all possible fractions.
 
-[click] Lowest terms means a and b share no integer factor greater than one. We can always reduce a rational fraction, just as six over four reduces to three over two.
+[click] Lowest terms means a and b share no integer factor greater than 1. We can always reduce a rational fraction, just as 6 over 4 reduces to 3 over 2.
 
-That condition is going to matter. We'll show that our supposedly reduced numerator and denominator must both be even. Then two would divide both of them, directly contradicting the way we chose the fraction.
+That condition is going to matter. We'll show that our supposedly reduced numerator and denominator must both be even. Then 2 would divide both of them, directly contradicting the way we chose the fraction.
 
 Remember the result we just proved: an even square has an even integer root.
 -->
@@ -564,23 +564,23 @@ time: '13:45–15:00'
 
 <!--
 
-Start with square root of two equals a over b.
+Start with square root of 2 equals a over b.
 
-[click] Square both sides and multiply by b squared. We get a squared equals two b squared. So a squared is even. Our earlier lemma tells us a itself is even.
+[click] Square both sides and multiply by b squared. We get a squared equals 2 b squared. So a squared is even. Our earlier lemma tells us a itself is even.
 
-[click] Write a as two k. Substitution gives four k squared equals two b squared.
+[click] Write a as 2 k. Substitution gives 4 k squared equals 2 b squared.
 
-[click] Divide by two, and b squared equals two k squared. That makes b squared even, so the same lemma tells us b is even too.
+[click] Divide by 2, and b squared equals 2 k squared. That makes b squared even, so the same lemma tells us b is even too.
 
 Before I reveal the finish, what have we just shown about the fraction?
 
 [PAUSE for a response.]
 
-[click] Both numerator and denominator have a factor of two. But we chose a fraction with no common factor greater than one. Those conditions cannot both hold.
+[click] Both numerator and denominator have a factor of 2. But we chose a fraction with no common factor greater than 1. Those conditions cannot both hold.
 
-[click] So the assumption that square root of two is rational fails. There is no integer fraction representing it.
+[click] So the assumption that square root of 2 is rational fails. There is no integer fraction representing it.
 
-Notice how precise the contradiction is. We didn't say the fraction looks unlikely. We found two incompatible facts about the very same fraction.
+Notice how precise the contradiction is. We didn't say the fraction looks unlikely. We found 2 incompatible facts about the very same fraction.
 -->
 
 ---
@@ -620,13 +620,13 @@ time: '15:00–16:20'
 
 
 <!--
-Induction is a way to prove a claim for every positive integer without checking them one at a time. P of n is just shorthand for the claim at the number n. There are two things we need to prove.
+Induction is a way to prove a claim for every positive integer without checking them one at a time. P of n is just shorthand for the claim at the number n. There are 2 things we need to prove.
 
-[click] First, the base case. Prove P of one directly. That gives us one established fact, but it says nothing yet about two, three, or any other number.
+[click] First, the base case. Prove P of 1 directly. That gives us 1 established fact, but it says nothing yet about 2, 3, or any other number.
 
-[click] Second, the inductive step. Pick an arbitrary integer k at least one. Temporarily assume P of k, and use that assumption to prove P of k plus one. We're proving an if-then statement that works for any k. We're not assuming the whole theorem, and we're not allowed to assume P of k plus one.
+[click] Second, the inductive step. Pick an arbitrary integer k at least 1. Temporarily assume P of k, and use that assumption to prove P of k plus 1. We're proving an if-then statement that works for any k. We're not assuming the whole theorem, and we're not allowed to assume P of k plus 1.
 
-[click] Now combine them. P of one is established. Apply the step with k equal to one, and we get P of two. Apply it with k equal to two, and we get P of three. Pick any positive integer N. Repeating the same justified step N minus one times reaches P of N. N can be a trillion; it is still a finite number of steps. We don't actually have to perform those steps to know the argument reaches it.
+[click] Now combine them. P of 1 is established. Apply the step with k equal to 1, and we get P of 2. Apply it with k equal to 2, and we get P of 3. Pick any positive integer N. Repeating the same justified step N minus 1 times reaches P of N. N can be 1,000,000,000,000; it is still a finite number of steps. We don't actually have to perform those steps to know the argument reaches it.
 
 
 -->
@@ -649,11 +649,11 @@ time: '16:20–17:05'
 
 Here's the claim we'll prove by induction: the first n positive odd integers add up to n squared.
 
-One square, then three more, gives a two-by-two square. Add five, and it's three-by-three.
+1 square, then 3 more, gives a 2-by-2 square. Add 5, and it's 3-by-3.
 
 [DO: Start at n = 3. Click Add a layer twice.]
 
-Each new L-shaped border turns a square into the next larger square. To grow a k-by-k square to a k-plus-one-by-k-plus-one square, the border contains k squares along one side, k along the other, plus the corner. That's two k plus one.
+Each new L-shaped border turns a square into the next larger square. To grow a k-by-k square to a k-plus-1-by-k-plus-1 square, the border contains k squares along 1 side, k along the other, plus the corner. That's 2 k plus 1.
 
 The diagram makes the next odd number feel inevitable. But showing a few sizes is still only showing a few sizes. We can turn the general border argument into a proof, or write the same idea algebraically using induction. Let's do that.
 -->
@@ -684,15 +684,15 @@ time: '17:05–18:15'
 
 Let's write the proof carefully. P of n is the statement that the first n positive odd numbers sum to n squared.
 
-[click] Base case: at n equals one, the sum is one and the right-hand side is one squared. True.
+[click] Base case: at n equals 1, the sum is 1 and the right-hand side is 1 squared. True.
 
-[click] For the inductive step, let k be an arbitrary positive integer and suppose P of k holds. That lets us replace the sum through two k minus one with k squared.
+[click] For the inductive step, let k be an arbitrary positive integer and suppose P of k holds. That lets us replace the sum through 2 k minus 1 with k squared.
 
-[click] The next odd number is two k plus one. Add it to both sides. The new sum is k squared plus two k plus one, which factors as k plus one squared. That's exactly P of k plus one.
+[click] The next odd number is 2 k plus 1. Add it to both sides. The new sum is k squared plus 2 k plus 1, which factors as k plus 1 squared. That's exactly P of k plus 1.
 
 [click] We've proved the starting case and the implication for any positive integer k. By induction, the identity holds for every positive integer n.
 
-This is much stronger than checking the first hundred sums. The step contains no upper limit. The same argument that gets us from five to six also gets us from a trillion to a trillion and one.
+This is much stronger than checking the first 100 sums. The step contains no upper limit. The same argument that gets us from 5 to 6 also gets us from 1,000,000,000,000 to 1,000,000,000,001.
 
 The visual border and the algebra express the same mechanism.
 -->
@@ -716,15 +716,15 @@ time: '18:15–19:00'
 
 <!--
 
-After all those universal claims, here's an existence statement: there exists a prime integer that is the sum of two squares of positive integers.
+After all those universal claims, here's an existence statement: there exists a prime integer that is the sum of 2 squares of positive integers.
 
-[click] I give you five. It's one squared plus two squared.
+[click] I give you 5. It's 1 squared plus 2 squared.
 
-[click] Five is prime, and one and two are positive integers. So this object meets every condition, and the proof is complete.
+[click] 5 is prime, and 1 and 2 are positive integers. So this object meets every condition, and the proof is complete.
 
 This is proof by construction. Produce the object and verify the requirements. We're not claiming every prime has this property, and we don't need to find every example.
 
-This connects back to quantifiers. One example is weak evidence for a universal statement, but it can completely settle an existence statement. The amount of evidence you need depends on the exact thing you're claiming.
+This connects back to quantifiers. 1 example is weak evidence for a universal statement, but it can completely settle an existence statement. The amount of evidence you need depends on the exact thing you're claiming.
 -->
 
 ---
@@ -746,27 +746,27 @@ time: '19:00–19:45'
 
 <!--
 
-Three claims. Don't prove them completely. Just tell me a sensible first move.
+3 claims. Don't prove them completely. Just tell me a sensible first move.
 
 First: every odd integer is prime. What would you try?
 
 [PAUSE.]
 
-[click] A counterexample. Nine is odd and composite. One is also an allowed counterexample, because one isn't prime. Nine avoids that definitional distraction.
+[click] A counterexample. 9 is odd and composite. 1 is also an allowed counterexample, because 1 isn't prime. 9 avoids that definitional distraction.
 
-Second: the sum of two even integers is even.
-
-[PAUSE.]
-
-[click] Direct proof is natural. Write the numbers as two r and two s, add, then factor out two.
-
-Third: the sum from one through n equals n times n plus one over two, for positive integers n.
+Second: the sum of 2 even integers is even.
 
 [PAUSE.]
 
-[click] Induction fits, because moving from n to n plus one adds one new term. A pairing argument also works.
+[click] Direct proof is natural. Write the numbers as 2 r and 2 s, add, then factor out 2.
 
-[click] These methods are tools, and many claims admit more than one good proof.
+Third: the sum from 1 through n equals n times n plus 1 over 2, for positive integers n.
+
+[PAUSE.]
+
+[click] Induction fits, because moving from n to n plus 1 adds 1 new term. A pairing argument also works.
+
+[click] These methods are tools, and many claims admit more than 1 good proof.
 -->
 
 ---
@@ -781,37 +781,37 @@ time: '19:45–25:45'
 <ActivityLauncher kind="proof" />
 
 <!--
-Same phones, new challenge. Five arguments. Vote A for a valid proof, B for a broken proof. The conclusion alone isn't enough: judge the reasoning. You can change your mind until I lock the vote.
+Same phones, new challenge. 5 arguments. Vote A for a valid proof, B for a broken proof. The conclusion alone isn't enough: judge the reasoning. You can change your mind until I lock the vote.
 
 A correct majority earns the class a point. Otherwise, the traps score. A tie goes to the traps; a round with no votes earns neither side a point. After locking, someone has to defend the answer.
 
 ROUND 1 — ABOUT 60 SECONDS
 
-Apparently we're proving one equals two. Start with a equals b equals one. Find the first illegal step.
+Apparently we're proving 1 equals 2. Start with a equals b equals 1. Find the first illegal step.
 
 [PAUSE. Lock voting, ask for a reason, and reveal. Offline: enter the majority's vote and reveal.]
 
-The last line canceled a minus b. But that factor is zero. The preceding equation was just zero equals zero. Dividing by zero cannot turn it into a plus b equals b.
+The last line canceled a minus b. But that factor is 0. The preceding equation was just 0 equals 0. Dividing by 0 cannot turn it into a plus b equals b.
 
 [DO: Next round.]
 
 ROUND 2 — ABOUT 60 SECONDS
 
-Now, n cubed minus n is divisible by three for every integer n. The vertical bar means divides. Does this argument cover every integer?
+Now, n cubed minus n is divisible by 3 for every integer n. The vertical bar means divides. Does this argument cover every integer?
 
 [PAUSE. Lock, ask for justification, and reveal.]
 
-Yes. The factorization gives three consecutive integers. One must be divisible by three, so their product is too. This covers negative integers and zero as well.
+Yes. The factorization gives 3 consecutive integers. 1 must be divisible by 3, so their product is too. This covers negative integers and 0 as well.
 
 [DO: Next round.]
 
 ROUND 3 — ABOUT 60 SECONDS
 
-This argument claims every positive integer equals the next one. It assumes the claim at k, adds one, and obtains the next case. What's your verdict?
+This argument claims every positive integer equals the next one. It assumes the claim at k, adds 1, and obtains the next case. What's your verdict?
 
 [PAUSE. Lock, ask what's missing, and reveal.]
 
-The conditional step is valid, but there is no true base case. At one, the statement is one equals two. An implication doesn't establish its own hypothesis. The chain never starts.
+The conditional step is valid, but there is no true base case. At 1, the statement is 1 equals 2. An implication doesn't establish its own hypothesis. The chain never starts.
 
 [DO: Next round.]
 
@@ -827,13 +827,13 @@ No. This starts by assuming the integer is even, then shows its square is even. 
 
 ROUND 5 — ABOUT 90 SECONDS
 
-Can an irrational number raised to an irrational power be rational? Here's an existence proof. Let x be square root of two raised to square root of two. If x is rational, that expression already gives us the required example. If x is irrational, raise x to square root of two. The result is two.
+Can an irrational number raised to an irrational power be rational? Here's an existence proof. Let x be square root of 2 raised to square root of 2. If x is rational, that expression already gives us the required example. If x is irrational, raise x to square root of 2. The result is 2.
 
 The argument never decides which case we're in. Is that a problem?
 
-[PAUSE. Lock, take one explanation, and reveal.]
+[PAUSE. Lock, take 1 explanation, and reveal.]
 
-It isn't. Either x is rational or it isn't. In each case, we have positive irrational numbers a and b whose power is rational. The two cases cover every possibility. We proved existence without determining which of these constructions supplies the witness.
+It isn't. Either x is rational or it isn't. In each case, we have positive irrational numbers a and b whose power is rational. The 2 cases cover every possibility. We proved existence without determining which of these constructions supplies the witness.
 
 [DO: Final score. Let the class react.]
 
@@ -891,7 +891,7 @@ time: '26:35–27:50'
 
 <!--
 
-Last challenge. For an integer n, if n squared is odd, then n is odd. Which first move actually helps prove this: testing twenty odd numbers, using the contrapositive, or assuming n is odd?
+Last challenge. For an integer n, if n squared is odd, then n is odd. Which first move actually helps prove this: testing 20 odd numbers, using the contrapositive, or assuming n is odd?
 
 Take a moment. If you choose the contrapositive, try to write it in your head.
 
@@ -899,9 +899,9 @@ Take a moment. If you choose the contrapositive, try to write it in your head.
 
 [click] The contrapositive is: if n is even, then n squared is even. That reverses the implication and negates both parts.
 
-[click] Write n as two k. Then n squared is four k squared, which is twice the integer two k squared. So it's even. The contrapositive is true, which proves the original statement.
+[click] Write n as 2 k. Then n squared is 4 k squared, which is twice the integer 2 k squared. So it's even. The contrapositive is true, which proves the original statement.
 
-Testing twenty values leaves the universal claim unfinished. Assuming n is odd starts from the conclusion and proves the converse instead. It might prove something true, but it doesn't establish the implication we were asked for.
+Testing 20 values leaves the universal claim unfinished. Assuming n is odd starts from the conclusion and proves the converse instead. It might prove something true, but it doesn't establish the implication we were asked for.
 
 The direction of the argument matters just as much as the algebra.
 -->
@@ -922,7 +922,7 @@ time: '27:50–30:00'
 
 <!--
 
-If you keep one habit from this, make it asking what makes the next step unavoidable.
+If you keep 1 habit from this, make it asking what makes the next step unavoidable.
 
 An example can suggest a pattern. A definition can make it precise. A proof tells us why every required case has to work, or a counterexample tells us why the claim can't survive.
 

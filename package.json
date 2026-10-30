@@ -7,7 +7,6 @@
     "build": "slidev build",
     "preview": "vite preview --host 127.0.0.1 --port 4173",
     "export": "slidev export --output prove-it.pdf --wait 600",
-    "notes": "node scripts/extract-notes.mjs",
     "check": "node --test tests/*.test.mjs",
     "start": "node server/server.mjs",
     "voting": "node --env-file=.env.local server/server.mjs"
