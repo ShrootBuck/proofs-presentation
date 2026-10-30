@@ -342,7 +342,7 @@ So "not every" means "at least one didn't." It doesn't mean "none." In symbols, 
 -->
 
 ---
-class: acid
+class: dark methods-overview
 section: METHODS
 transition: wipe
 clicks: 1
@@ -352,16 +352,16 @@ time: '8:40–9:10'
 
 # How do we force a conclusion?
 
-<div class="method-list">
-  <div><span class="index">01</span><strong>Direct proof</strong></div>
-  <div><span class="index">02</span><strong>Proof by cases</strong></div>
-  <div><span class="index">03</span><strong>Contrapositive</strong></div>
-  <div><span class="index">04</span><strong>Contradiction</strong></div>
-  <div><span class="index">05</span><strong>Induction</strong></div>
-  <div><span class="index">06</span><strong>Construction</strong></div>
+<div class="method-overview-grid">
+  <div><span>01</span><h2>Direct proof</h2><p>Follow the assumptions forward.</p></div>
+  <div><span>02</span><h2>Proof by cases</h2><p>Cover every possibility.</p></div>
+  <div><span>03</span><h2>Contrapositive</h2><p>Prove “not Q implies not P.”</p></div>
+  <div><span>04</span><h2>Contradiction</h2><p>Assume the claim is false. Find a conflict.</p></div>
+  <div><span>05</span><h2>Induction</h2><p>Start the chain. Prove the next link.</p></div>
+  <div><span>06</span><h2>Construction</h2><p>Build an example that works.</p></div>
 </div>
 
-<p v-click="1" class="aside" style="margin-top: 30px">First ask whether the claim is true. A counterexample can save a lot of algebra.</p>
+<p v-click="1" class="methods-reminder">Before proving it, try to break it. One counterexample is enough.</p>
 
 <!--
 
