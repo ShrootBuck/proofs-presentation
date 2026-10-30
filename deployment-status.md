@@ -18,6 +18,7 @@ The old inline Dockerfile deployment failed before building with `Argument list 
 
 - Automated math, room, deadline, and 40-participant checks pass for the revised implementation.
 - The production Slidev build passes.
+- The dependency audit reports zero known vulnerabilities after updating KaTeX and pinning patched DOMPurify and image-size versions.
 - The earlier 26-slide version was visually checked and exported. The new opening and five-round game still require a fresh visual pass; the old local PDF is not a current deliverable.
 - Browser navigation to `localhost:3030` and `dash.cloudflare.com` still returns a saved-permission denial after the reboot and after clearing site data. No alternate browser or indirect access has been used to bypass that denial.
 - Cloudflare hostname routing and public end-to-end verification remain unfinished.

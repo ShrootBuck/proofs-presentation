@@ -9,7 +9,7 @@ RUN npm run check && npm run build
 FROM node:22-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production PORT=3040 STATE_PATH=/data/rooms.json
-RUN npm install --no-audit --no-fund --ignore-scripts qrcode@1.5.4 katex@0.16.22
+RUN npm install --no-audit --no-fund --ignore-scripts qrcode@1.5.4 katex@0.18.2
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/server ./server
 COPY --from=build /app/lib ./lib
