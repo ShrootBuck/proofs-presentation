@@ -70,10 +70,8 @@ function renderHunt() {
     if (h.phase === 'closed') clock.append(button('Reveal the counterexample', 'hunt-reveal'))
     if (h.phase === 'open') clock.append(make('p', 'quiet', 'The clock runs on the server. No refresh loopholes.'))
     grid.append(left, clock, joinCard()); dashboard.append(grid, stats())
-    dashboard.append(make('p', 'host-bounty', 'One valid input crashes the server = one Wingstop chicken sandwich.'))
   }
   const footer = make('div', 'host-controls host-log-controls')
-  const logStatus = make('span', 'quiet', loggingStatus()); logStatus.id = 'logging-status'; footer.append(logStatus)
   const download = make('button', 'host-text-button', 'Download guess log'); download.disabled = !room.logging.durable; download.addEventListener('click', downloadLog); footer.append(download); dashboard.append(footer)
   updateClock()
 }
@@ -114,7 +112,6 @@ function render() {
   dashboard.replaceChildren(); setup.hidden = true; dashboard.hidden = false; setupButton.hidden = false; resumeButton.hidden = false
   if (room.activity === 'hunt') renderHunt(); else renderProof()
 }
-function loggingStatus() { return room.logging.durable && room.logging.ready ? 'Guesses are logged to disk before calculation.' : 'Disk logging is unavailable. Do not use the crash-recovery claim.' }
 function updateClock() {
   const el = document.querySelector('#countdown'); if (!el || !room) return
   const seconds = room.hunt.phase === 'lobby' ? 60 : Math.max(0, Math.ceil((room.hunt.endsAt - Date.now() - offset) / 1000))
@@ -146,7 +143,6 @@ async function connect(saved) {
       const old = document.getElementById(id); if (old) old.replaceWith(create())
     }
     const count = document.getElementById('vote-count'); if (count) count.textContent = `${room.voted} / ${room.joined}`
-    const logStatus = document.getElementById('logging-status'); if (logStatus) logStatus.textContent = loggingStatus()
   }
 }
 async function downloadLog() {
