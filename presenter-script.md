@@ -210,7 +210,7 @@ Now let's prove that n times n plus one is even for every integer n. These are t
 
 [click] Case two: n is odd. Then n is two k plus one, which makes n plus one equal to two k plus two. This time the second factor is even, and the product is still even.
 
-The essential sentence is that every integer is either even or odd. We've covered the whole domain. A proof by cases needs every possible case to be covered. They can overlap, but they can't leave a gap.
+[click] The essential sentence is that every integer is either even or odd. We've covered the whole domain. A proof by cases needs every possible case to be covered. They can overlap, but they can't leave a gap.
 
 Checking only positive and negative integers, for example, would miss zero. Tiny omissions are how large claims escape.
 

@@ -410,7 +410,7 @@ That last sentence is the actual finish. We haven't just simplified an expressio
 
 ---
 section: PROOF BY CASES
-clicks: 2
+clicks: 3
 time: '10:15–11:00'
 ---
 
@@ -424,7 +424,7 @@ time: '10:15–11:00'
   <div v-click="2" class="case"><div class="case-label">CASE 2</div><h3>n is odd</h3><div class="math-big"><MathTex tex="n+1=2(k+1)" /></div><p>Its neighbor is even, so the product is even.</p></div>
 </div>
 
-<p v-after class="takeaway">Every integer is even or odd. The cases cover the domain.</p>
+<p v-click="3" class="takeaway">Every integer is even or odd. The cases cover the domain.</p>
 
 <!--
 
@@ -434,7 +434,7 @@ Now let's prove that n times n plus one is even for every integer n. These are t
 
 [click] Case two: n is odd. Then n is two k plus one, which makes n plus one equal to two k plus two. This time the second factor is even, and the product is still even.
 
-The essential sentence is that every integer is either even or odd. We've covered the whole domain. A proof by cases needs every possible case to be covered. They can overlap, but they can't leave a gap.
+[click] The essential sentence is that every integer is either even or odd. We've covered the whole domain. A proof by cases needs every possible case to be covered. They can overlap, but they can't leave a gap.
 
 Checking only positive and negative integers, for example, would miss zero. Tiny omissions are how large claims escape.
 -->
