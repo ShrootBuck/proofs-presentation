@@ -197,7 +197,7 @@ Why different letters? Because the two odd numbers don't have to be equal. Writi
 
 That last sentence is the actual finish. We haven't just simplified an expression. We've connected it to the definition of the thing we promised to prove.
 
-Nothing depended on a particular choice of a or b, so the proof covers every pair of odd integers, including negative ones.
+[click] Nothing depended on a particular choice of a or b, so the proof covers every pair of odd integers, including negative ones.
 
 ---
 

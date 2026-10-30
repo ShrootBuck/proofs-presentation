@@ -374,7 +374,7 @@ Direct proof follows the assumptions forward. Cases split the possibilities. Con
 
 ---
 section: DIRECT PROOF
-clicks: 3
+clicks: 4
 time: '9:10–10:15'
 ---
 
@@ -389,7 +389,7 @@ time: '9:10–10:15'
   <div v-click="3" class="proof-row final"><span class="line-number">03</span><div class="math"><MathTex tex="a+b=2(r+s+1)" /></div><div class="reason">Twice an integer is even</div></div>
 </div>
 
-<p v-after class="takeaway">Arbitrary inputs make the argument general.</p>
+<p v-click="4" class="takeaway">Arbitrary inputs make the argument general.</p>
 
 <!--
 
@@ -405,7 +405,7 @@ Why different letters? Because the two odd numbers don't have to be equal. Writi
 
 That last sentence is the actual finish. We haven't just simplified an expression. We've connected it to the definition of the thing we promised to prove.
 
-Nothing depended on a particular choice of a or b, so the proof covers every pair of odd integers, including negative ones.
+[click] Nothing depended on a particular choice of a or b, so the proof covers every pair of odd integers, including negative ones.
 -->
 
 ---
