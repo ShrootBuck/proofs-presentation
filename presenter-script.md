@@ -86,6 +86,8 @@ A proof starts with assumptions, definitions, and results we've already establis
 
 We'll write readable mathematical proofs, rather than translate every sentence into a formal symbolic system. But the logic underneath is the same. Someone should be able to challenge any step and get a real answer.
 
+You can actually make a computer check this. In a proof assistant like Lean, you formalize the statement and its proof, and the system checks that the conclusion follows from the definitions and assumptions. It's checking the reasoning, not just trying a bunch of inputs.
+
 Before we build those arguments, let's get a little more precise about what statements mean.
 
 ---
