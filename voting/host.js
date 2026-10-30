@@ -1,7 +1,7 @@
 import katex from '/vendor/katex.mjs'
 import { createJoinCard } from './join-card.js'
 const dashboard = document.querySelector('#dashboard'), setup = document.querySelector('#setup-panel')
-const error = document.querySelector('#error'), connection = document.querySelector('#connection')
+const error = document.querySelector('#error')
 const form = document.querySelector('#host-form'), setupButton = document.querySelector('#show-setup'), resumeButton = document.querySelector('#resume-room')
 let credentials, room, stream, connected = false, busy = false, offset = 0
 const make = (tag, cls, text) => { const el = document.createElement(tag); if (cls) el.className = cls; if (text !== undefined) el.textContent = text; return el }
@@ -132,8 +132,8 @@ async function connect(saved) {
   if (!response.ok) throw new Error(next.error)
   room = next; offset = next.serverTime - Date.now(); render()
   stream = new EventSource(`/api/rooms/${saved.code}/events`)
-  stream.onopen = () => { connected = true; connection.textContent = '● LIVE HOST'; render() }
-  stream.onerror = () => { connected = false; connection.textContent = 'RECONNECTING'; render() }
+  stream.onopen = () => { connected = true; render() }
+  stream.onerror = () => { connected = false; render() }
   stream.onmessage = event => {
     const next = JSON.parse(event.data), same = room.activity === next.activity && room.phase === next.phase && room.round === next.round && room.hunt.phase === next.hunt.phase
     room = next; offset = room.serverTime - Date.now()
