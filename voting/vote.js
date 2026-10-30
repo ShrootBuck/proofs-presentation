@@ -181,7 +181,7 @@ function renderHunt() {
   const draft = document.querySelector('#guess-input')?.value || ''
   game.replaceChildren(); game.hidden = false; join.hidden = true
   game.append(make('p','eyebrow',`ROOM ${snapshot.code} / BREAK THE PATTERN`),make('h1','','One shared factor.'))
-  game.append(math('A=n^{17}+9', 'hunt-formula'), math('B=(n+1)^{17}+9', 'hunt-formula'),make('p','','Find an input where A and B share a factor greater than 1.'))
+  game.append(math('A=n^{17}+9', 'hunt-formula'), math('B=(n+1)^{17}+9', 'hunt-formula'),make('p','','Find a nonnegative integer n such that A and B share a factor greater than 1.'))
   if (h.phase === 'revealed') {
     game.append(make('h2','','The first counterexample'),make('div','full-integer reveal-number',h.reveal.n),make('p','','Both numbers are divisible by:'),make('div','full-integer',h.reveal.gcd),make('p','quiet','One counterexample defeats the universal claim. Keep this page open for Proof or Bluff later.'))
     return

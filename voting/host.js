@@ -62,7 +62,7 @@ function renderHunt() {
     const controls = make('div', 'host-controls'); controls.append(link('Back to Slidev · slide 3 ↗', '/#/3'), button('Open Proof or Bluff', 'proof-setup', 'secondary')); dashboard.append(controls)
   } else {
     const grid = make('div', 'host-hunt-grid'), left = make('div')
-    left.append(make('p', 'host-task', 'Find an input where A and B share a factor greater than 1.'))
+    left.append(make('p', 'host-task', 'Find a nonnegative integer n such that A and B share a factor greater than 1.'))
     if (h.phase === 'lobby') left.append(make('p', '', 'Any nonnegative whole number. Up to 100 digits.'), roster())
     else left.append(recent())
     const clock = make('div', 'host-clock')

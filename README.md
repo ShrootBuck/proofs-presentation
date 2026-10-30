@@ -4,7 +4,7 @@ A 30-minute Slidev presentation by Zayd Krunz about mathematical proof: 25 timed
 
 ## Presenting
 
-- Local preview: `http://localhost:3030`. Intended public URL: `https://proofs.zaydkrunz.com`. See [deployment-status.md](deployment-status.md) for verified hosting status.
+- Local preview: `http://localhost:3030`. Public URL: `https://proofs.zaydkrunz.com`. See [deployment-status.md](deployment-status.md) for verified hosting status.
 - Open `/#/presenter/1` in the same browser for the script, next-slide preview, and 30-minute timer. Put the normal presentation window on the projector and keep presenter view on your laptop.
 - Right Arrow or Space advances an animation. Left Arrow goes back. Use the visible buttons inside the demos and games.
 - The study script is in [presenter-script.md](presenter-script.md). Bracketed cues and timing labels are stage directions, not spoken text.
@@ -14,14 +14,14 @@ A 30-minute Slidev presentation by Zayd Krunz about mathematical proof: 25 timed
 
 1. Before class, open `/host` privately and enter the `HOST_KEY` from this app's Coolify environment variables. Create a **new room** for each rehearsal or class.
 2. Open the deck and presenter view using the links on that page, in the same browser. Keep the host dashboard in its own tab; the master key disappears after room creation.
-3. On slide 2, click **Open the activity host**, then switch the shared screen to that tab. Students scan the QR code (which fills the room code) and enter a first name or nickname. Names appear on the projector; no account is required.
+3. On slide 2, click **Open the activity screen**, then switch the shared screen to that tab. Students scan the QR code (which fills the room code) and enter a first name or nickname. Names appear on the projector; no account is required.
 4. Click **Start the 60 seconds**. Students enter a nonnegative integer n, trying to make `A = n^17 + 9` and `B = (n+1)^17 + 9` share a factor greater than 1. The server enforces the deadline. When it ends, click **Reveal the counterexample**.
 5. Switch back to slide 3 after the reveal. Students keep the same phone page open. On slide 22, return to the host tab, click **Open Proof or Bluff**, then **Start round 1**.
 6. For each of the five rounds, students can change their vote until **Lock voting**. Ask someone to defend a step, then **Reveal the answer**. Continue with **Next round** and **Final score**.
 
 The five arguments cover division by zero, consecutive integers, a missing induction base case, a true conclusion with an invalid converse argument, and an existence proof by cases. A correct majority earns the class a point; a tie earns the traps a point. An empty round awards no point. Individual scores appear in the final leaderboard. One vote is stored per browser. Names identify players on screen but do not authenticate their real identity; the room code does not grant host privileges.
 
-Rooms expire after four hours. The deadline, guesses, votes, and host authorization survive a server restart when `/data` is persistent and `HOST_KEY` stays the same. Dropped connections reconnect automatically. For the offline fallback, select **Use call-out guesses** on slide 2 or **Use show of hands** on slide 22. Presenter and audience windows share local demo state when opened in the same browser.
+Rooms expire after four hours. The deadline, guesses, votes, and host authorization survive a server restart when `/data` is persistent and `HOST_KEY` stays the same. Dropped connections reconnect automatically. For the offline fallback, select **Call-out fallback** on slide 2 or **Show-of-hands fallback** on slide 22. Presenter and audience windows share local demo state when opened in the same browser.
 
 ## Exact integers and honest factor lists
 

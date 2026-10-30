@@ -296,6 +296,10 @@ button, input { font: inherit; }
 .game-verdict strong span { font: 600 24px 'Space Grotesk Variable', sans-serif; margin-left: 20px; letter-spacing: -.025em; }
 .game-verdict .correct strong { color: var(--acid); }
 .game-verdict p { font-size: 18px; margin-top: 9px; color: #cbd3c3; }
+.game-round-dense .game-claim { margin-bottom: 12px; }
+.game-round-dense .game-line { font-size: 21px; padding: 3px 0; }
+.game-round-dense .game-prose { font-size: 19px; line-height: 1.35; margin-top: 10px !important; }
+.game-round-dense .game-verdict { margin-top: 10px; padding-top: 10px; }
 .game-finish { text-align: center; padding-top: 5px; }
 .final-points { font: 500 132px 'Space Grotesk Variable', sans-serif; letter-spacing: -.07em; color: var(--acid); line-height: 1.1; }
 .final-points span { color: #78866b; font-size: 72px; margin-left: 16px; }

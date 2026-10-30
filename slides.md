@@ -1,6 +1,7 @@
 ---
 theme: default
 title: Prove It
+favicon: /favicon.svg
 titleTemplate: '%s'
 author: Zayd Krunz
 info: |
@@ -91,6 +92,8 @@ You have exactly one minute. Try small numbers, big numbers, whatever you like. 
 This is running on a laptop server under my bed with less than eight gigs of RAM. If one of your inputs crashes the server, I'll buy you a Wingstop chicken sandwich. Your name and input get logged before the calculation, so I can recover the winning guess. Good luck.
 
 [OPTIONAL IF SOMEONE ASKS: The shared-factor answer is exact. The factor list keeps updating on your own device. A piece marked probable prime is not being claimed as proven prime.]
+
+[OPTIONAL IF SOMEONE ASKS ABOUT 2: Any shared factor greater than one counts, prime or composite. Sharing a composite factor also means sharing one of its prime factors. But A and B always have opposite parity: the odd power preserves parity, and adding nine flips it. They can never both be even.]
 
 [WHEN THE TIMER ENDS: If someone found it, acknowledge their result. Otherwise:]
 

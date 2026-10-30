@@ -23,7 +23,7 @@ function reset() { Object.assign(state, { round: 0, answers: gameRounds.map(() =
         <p>A true conclusion can have a bad proof.<br />A valid proof needs every step to hold.</p>
         <button class="primary-button" @click="reset">Play again</button>
       </div>
-      <div v-else :key="state.round" class="game-round">
+      <div v-else :key="state.round" :class="['game-round', { 'game-round-dense': current.prose && current.lines.length >= 4 }]">
         <div class="game-claim"><MathTex :tex="current.claim" /></div>
         <div class="game-work">
           <div class="game-argument"><div v-for="(line, i) in current.lines" :key="i" :class="['game-line', { 'bad-line': revealed && current.badLine === i }]"><span class="line-number">{{ i + 1 }}</span><MathTex :tex="line" /></div><p v-if="current.prose" class="game-prose">{{ current.prose }}</p></div>
