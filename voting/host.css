@@ -4,3 +4,28 @@
 @media(max-width:650px){.host-main{padding:20px}.host-nav-actions{gap:10px;flex-wrap:wrap;justify-content:flex-end}.host-nav-actions a{display:none}.host-formulas{gap:20px;flex-wrap:wrap}.host-hunt-grid,.host-lobby-grid,.host-proof-grid,.host-finish-grid{grid-template-columns:1fr;gap:26px}.host-clock,.host-votes{border-left:0;border-top:1px solid #46513f;padding:20px 0 0}.host-countdown{font-size:100px}.host-hunt-grid .host-join{display:block}.host-hunt-grid .host-join img{width:180px;margin:0 auto}.host-hunt-grid .host-join{text-align:center}.host-stats{grid-template-columns:1fr 1fr}.host-controls{flex-wrap:wrap}.host-recent>div{grid-template-columns:80px 1fr 65px}.host-final-score{font-size:100px}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media(min-width:1001px) and (max-height:800px){.host-main{padding-top:18px;padding-bottom:18px}.host-nav{padding-bottom:12px;margin-bottom:14px}.host-main h1{font-size:45px;margin-bottom:12px}.host-main .eyebrow{margin:8px 0;font-size:11px}.host-formulas{font-size:29px;margin:12px 0 20px}.host-join img{width:160px}.host-join .quiet{font-size:11px}.host-room-code{font-size:26px}.host-task{font-size:23px}.host-names{max-height:120px}.host-countdown{font-size:110px}.host-stats{padding-top:10px;margin-top:16px}.host-stats strong{font-size:32px}.host-stats span{font-size:12px}.host-bounty{font-size:15px;margin-top:12px}.host-controls{margin-top:12px}.host-log-controls{padding-top:8px}.host-recent>div{padding:5px 0}.host-claim{margin:15px 0;font-size:26px}.host-proof-line{padding:5px 0;font-size:22px}.host-proof-grid{min-height:190px}.host-verdict{margin-top:15px;padding-top:14px}.host-verdict h2{font-size:24px}.host-verdict p{font-size:18px}.host-class-score{top:100px}.host-reveal{margin:20px 0}.host-reveal-number{font-size:37px}.host-shared-factor{font-size:24px}}
+
+/* Keep the original PNGs intact; only their display size changes. */
+.host-join .host-qr-preview{display:block;width:min(100%,230px);max-width:none;margin:0 auto 10px;padding:0;border:0;background:none;cursor:zoom-in}
+.host-join .host-join-image{display:block;width:100%;height:auto;margin:0;border-radius:4px}
+.host-join .eyebrow{margin:5px 0 0;font-size:10px}
+.host-join-address{display:block;color:#c9d1c2;text-decoration:none;overflow-wrap:anywhere;font-size:13px}
+.host-join-address:hover{color:#d8fa57}
+.host-qr-controls{display:flex;gap:12px;align-items:center;justify-content:center;margin-top:10px}
+.host-join .host-qr-toggle{width:auto;max-width:none;margin:0;padding:7px 10px;font-size:12px}
+.host-qr-controls .host-text-button{margin:0;font-size:12px;color:#d8fa57}
+.host-lobby-grid .host-qr-preview{width:min(100%,270px)}
+.host-join-dialog{width:min(1200px,94vw);max-width:none;max-height:94dvh;padding:0;border:1px solid #657358;border-radius:12px;background:#18201f;color:#f3f1e9;box-shadow:0 30px 100px #0008}
+.host-join-dialog::backdrop{background:#080d0df0}
+.host-join-stage{display:grid;grid-template-columns:minmax(0,1fr) 280px;align-items:center;gap:32px;padding:24px}
+.host-join-stage>.host-join-image{display:block;width:100%;max-height:calc(94dvh - 50px);aspect-ratio:1;object-fit:contain;border-radius:4px}
+.host-join-dialog h2{font-size:43px;margin:0 0 32px}
+.host-join-dialog .eyebrow{margin:0 0 8px}
+.host-join-dialog .host-room-code{font-size:46px;letter-spacing:.06em;margin-bottom:14px}
+.host-join-dialog .host-join-address{font-size:17px}
+.host-join-dialog .quiet{font-size:16px;margin:12px 0 30px}
+.host-join-dialog button{font-size:15px}
+.host-join-dialog .host-qr-close{background:none;border:0;color:#c9d1c2;padding:10px}
+@media(min-width:1001px) and (max-height:800px){.host-join .host-qr-preview{width:160px}.host-lobby-grid .host-qr-preview{width:250px}.host-join .host-qr-controls{margin-top:8px}.host-join .quiet{margin:4px 0}}
+@media(min-width:651px) and (max-width:1000px){.host-hunt-grid .host-qr-preview{flex:0 0 150px;width:150px;margin:0}.host-hunt-grid .host-join-details{max-width:300px}.host-hunt-grid .host-qr-controls{justify-content:flex-start}}
+@media(max-width:750px){.host-join-stage{grid-template-columns:1fr;padding:18px;gap:20px}.host-join-stage>.host-join-image{width:min(100%,50dvh);margin:auto;max-height:none}.host-join-dialog .host-join-details{text-align:center}.host-join-dialog h2{display:none}.host-join-dialog .host-room-code{font-size:36px;margin-bottom:5px}.host-join-dialog .quiet{margin:8px 0 14px;font-size:14px}.host-join-dialog button{margin:10px 0}.host-join-dialog .host-qr-close{padding:4px}}

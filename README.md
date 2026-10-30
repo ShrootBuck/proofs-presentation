@@ -14,7 +14,7 @@ A 30-minute Slidev presentation by Zayd Krunz about mathematical proof: 25 timed
 
 1. Before class, open `/host` privately and enter the `HOST_KEY` from this app's Coolify environment variables. Create a **new room** for each rehearsal or class.
 2. Open the deck and presenter view using the links on that page, in the same browser. Keep the host dashboard in its own tab; the master key disappears after room creation.
-3. On slide 2, click **Open the activity screen**, then switch the shared screen to that tab. Students scan the QR code (which fills the room code) and enter a first name or nickname. Names appear on the projector; no account is required.
+3. On slide 2, click **Open the activity screen**, then switch the shared screen to that tab. Click **Enlarge** for a large view of the artistic QR image. If it is hard to scan, click **Show normal QR**. Both images open the same join page: students enter the displayed room code and a first name or nickname. Names appear on the projector; no account is required. Click **Back to activity** when everyone has joined.
 4. Click **Start the 60 seconds**. Students enter a nonnegative integer n, trying to make `A = n^17 + 9` and `B = (n+1)^17 + 9` share a factor greater than 1. The server enforces the deadline. When it ends, click **Reveal the counterexample**.
 5. Switch back to slide 3 after the reveal. Students keep the same phone page open. On slide 22, return to the host tab, click **Open Proof or Bluff**, then **Start round 1**.
 6. For each of the five rounds, students can change their vote until **Lock voting**. Ask someone to defend a step, then **Reveal the answer**. Continue with **Next round** and **Final score**.
@@ -22,6 +22,8 @@ A 30-minute Slidev presentation by Zayd Krunz about mathematical proof: 25 timed
 The five arguments cover division by zero, consecutive integers, a missing induction base case, a true conclusion with an invalid converse argument, and an existence proof by cases. A correct majority earns the class a point; a tie earns the traps a point. An empty round awards no point. Individual scores appear in the final leaderboard. One vote is stored per browser. Names identify players on screen but do not authenticate their real identity; the room code does not grant host privileges.
 
 Rooms expire after four hours. The deadline, guesses, votes, and host authorization survive a server restart when `/data` is persistent and `HOST_KEY` stays the same. Dropped connections reconnect automatically. For the offline fallback, select **Call-out fallback** on slide 2 or **Show-of-hands fallback** on slide 22. Presenter and audience windows share local demo state when opened in the same browser.
+
+The original QR images live in `public/qr/artwork.png` and `public/qr/normal.png`. They are copied into the built presentation unchanged, at their original resolution; nothing loads from Downloads. Replace either file with the original replacement PNG, then rebuild and deploy. Both images must encode `https://proofs.zaydkrunz.com/join`. The host remembers the artwork/normal choice for the browser tab, including across refreshes and activity changes. Clicking either image also opens its large view; Escape closes that view.
 
 ## Exact integers and honest factor lists
 
@@ -68,7 +70,7 @@ npm run dev
 
 Copy `.env.example` to `.env.local`, replace `HOST_KEY` with a random secret, then run `npm run voting` in another terminal. Vite forwards the activity routes to port 3040. For a production-like rehearsal, run `npm run build`, then `npm run voting`, and open `http://localhost:3040/host`.
 
-QR codes use `PUBLIC_URL`, which must be reachable from participants' phones.
+The supplied QR images encode the public join URL, including during a local rehearsal. To join a local room, type the local server's `/join` address manually. The dynamic room-specific QR API still uses `PUBLIC_URL`, which must be reachable from participants' phones.
 
 ## Editing and checks
 

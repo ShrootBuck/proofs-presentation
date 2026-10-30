@@ -73,9 +73,9 @@ TIME: 0:25–3:00 (155 seconds; audience cues included)
 
 [BEFORE CLASS: Open /host privately and create a new room. Keep its activity screen in a separate tab. Open the Slidev deck and presenter view in this same browser. Both activities use the same room.]
 
-[DO: Open the activity screen and switch your shared screen to that tab.]
+[DO: Open the activity screen and switch your shared screen to that tab. Click Enlarge to show the join image at projector size. If the artwork is hard to scan, click Show normal QR.]
 
-Scan the QR code and enter your name. Keep that phone page open; we'll use it again later.
+Point your phone camera at this picture. Yes, the picture is the QR code. Enter the room code on screen and your name. Keep that phone page open; we'll use it again later.
 
 Here's the challenge. Enter any nonnegative whole number. We calculate two numbers: n to the seventeenth plus nine, and n plus one, all to the seventeenth, plus nine. Find an input where those two results share a factor greater than one.
 
@@ -85,7 +85,7 @@ For example, twelve and twenty-five have no shared factor above one. Twelve and 
 
 You have exactly one minute. Try small numbers, big numbers, whatever you like. You can enter up to a hundred digits. Ready?
 
-[DO: Click Start the 60 seconds on the host tab. Let the full minute run. If phones fail, return to Slidev, choose Call-out fallback, and enter audience suggestions.]
+[DO: Click Back to activity, then Start the 60 seconds on the host tab. Let the full minute run. If phones fail, return to Slidev, choose Call-out fallback, and enter audience suggestions.]
 
 [SAY THIS WHILE THE TIMER RUNS, rather than adding time before or after it:]
 

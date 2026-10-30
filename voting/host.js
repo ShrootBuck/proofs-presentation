@@ -1,4 +1,5 @@
 import katex from '/vendor/katex.mjs'
+import { createJoinCard } from './join-card.js'
 const dashboard = document.querySelector('#dashboard'), setup = document.querySelector('#setup-panel')
 const error = document.querySelector('#error'), connection = document.querySelector('#connection')
 const form = document.querySelector('#host-form'), setupButton = document.querySelector('#show-setup'), resumeButton = document.querySelector('#resume-room')
@@ -12,10 +13,7 @@ function button(text, action, cls = '') {
 }
 function link(text, href, target = 'proofs-deck') { const el = make('a', 'host-link', text); el.href = href; el.target = target; return el }
 function joinCard() {
-  const card = make('aside', 'host-join')
-  const qr = make('img'); qr.src = `/api/rooms/${room.code}/qr.svg`; qr.alt = 'Scan to join the classroom activities'
-  card.append(qr, make('div', 'host-room-code', room.code), make('p', '', `${new URL(room.joinUrl).host}/join`), make('p', 'quiet', 'Name + room code. Keep the same page open.'))
-  return card
+  return createJoinCard(room)
 }
 function roster() {
   const section = make('section', 'host-roster'); section.id = 'player-roster'
