@@ -21,7 +21,7 @@ transition: wipe
 class: dark title-slide
 hideFooter: true
 duration: 30min
-timer: countdown
+timer: stopwatch
 presenter: true
 drawings:
   enabled: true
