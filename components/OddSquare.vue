@@ -12,7 +12,7 @@ const sum = computed(() => Array.from({ length: state.n }, (_, i) => 2 * i + 1).
     </div>
     <div class="square-explanation">
       <div class="micro">ONE NEW L-SHAPED LAYER</div>
-      <div class="square-total"><span>{{ state.n }}</span><sup>2</sup><span class="equals">=</span><span>{{ state.n * state.n }}</span></div>
+      <div class="square-total"><MathTex :tex="`${state.n}^2 = ${state.n * state.n}`" /></div>
       <p class="square-sum">{{ sum }}</p>
       <p>New layer: <strong>{{ 2 * state.n - 1 }} squares</strong></p>
       <div class="square-controls"><button :disabled="state.n <= 1" aria-label="Remove a layer" @click="state.n--">−</button><button class="primary-button" :disabled="state.n >= 7" @click="state.n++">Add a layer</button><button class="text-button" @click="state.n = 3">Reset</button></div>

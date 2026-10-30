@@ -265,9 +265,7 @@ button, input { font: inherit; }
 .square-cell { opacity: 0; transform: translateY(12px) scale(.7); border: 1px solid #8496e3; background: #7d91df; transition: opacity .45s, transform .45s, background .4s; }
 .square-cell.shown { opacity: 1; transform: translateY(0) scale(1); }
 .square-cell.newest { background: var(--blue); border-color: var(--blue); }
-.square-total { font: 500 76px 'Space Grotesk Variable', sans-serif; letter-spacing: -.06em; margin: 16px 0; }
-.square-total sup { font-size: 37px; top: -.65em; }
-.square-total .equals { margin: 0 18px; color: var(--muted); }
+.square-total { font-size: 64px; line-height: 1.2; margin: 16px 0; }
 .square-sum { color: var(--blue); font-size: 25px; }
 .square-explanation > p { font-size: 22px; }
 .square-controls { display: flex; gap: 12px; margin-top: 25px; }
