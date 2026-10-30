@@ -107,7 +107,7 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
     }
   }
   function json(res, status, data) {
-    res.writeHead(status, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' })
+    res.writeHead(status, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify(data))
   }
   function fail(status, message) { throw Object.assign(new Error(message), { status }) }
@@ -140,14 +140,23 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
     res.setHeader('Set-Cookie', `proofs_voter=${id}.${signature}; HttpOnly; SameSite=Strict; Path=/; Max-Age=14400${origin.startsWith('https:') ? '; Secure' : ''}`)
     return id
   }
-  function serve(res, directory, relative, cache = false) {
+  function serve(res, directory, relative) {
     const base = path.resolve(directory)
     const resolved = path.resolve(base, relative)
     if (!resolved.startsWith(base + path.sep) || !fs.existsSync(resolved) || !fs.statSync(resolved).isFile()) return json(res, 404, { error: 'Not found.' })
-    res.writeHead(200, { 'Content-Type': mime[path.extname(resolved)] || 'application/octet-stream', 'Cache-Control': cache ? 'public, max-age=31536000, immutable' : 'no-cache' })
+    // Clear old HTTP cache entries on this origin without clearing room/login storage.
+    if (path.extname(resolved) === '.html') res.setHeader('Clear-Site-Data', '"cache"')
+    res.writeHead(200, { 'Content-Type': mime[path.extname(resolved)] || 'application/octet-stream' })
     fs.createReadStream(resolved).on('error', () => res.destroy()).pipe(res)
   }
   const server = http.createServer(async (req, res) => {
+    // Apply to every response, including assets, errors, QR images, and SSE.
+    res.setHeader('Cache-Control', 'no-store, no-cache, max-age=0, must-revalidate, no-transform')
+    res.setHeader('CDN-Cache-Control', 'no-store')
+    res.setHeader('Cloudflare-CDN-Cache-Control', 'no-store')
+    res.setHeader('Surrogate-Control', 'no-store')
+    res.setHeader('Pragma', 'no-cache')
+    res.setHeader('Expires', '0')
     res.setHeader('X-Content-Type-Options', 'nosniff')
     res.setHeader('Referrer-Policy', 'same-origin')
     res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'self'; base-uri 'self'; object-src 'none'")
@@ -186,13 +195,13 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
         if (!action && req.method === 'GET') return json(res, 200, snapshot(room))
         if (action === 'qr.svg' && req.method === 'GET') {
           const svg = await QRCode.toString(`${origin}/join/${code}`, { type: 'svg', errorCorrectionLevel: 'M', margin: 3, color: { dark: '#18201f', light: '#ffffff' } })
-          res.writeHead(200, { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'public, max-age=600' }); return res.end(svg)
+          res.writeHead(200, { 'Content-Type': 'image/svg+xml' }); return res.end(svg)
         }
         if (action === 'events' && req.method === 'GET') {
           if (!streams.has(code)) streams.set(code, new Set())
           const clients = streams.get(code)
           if (clients.size >= 300 || [...streams.values()].reduce((sum, set) => sum + set.size, 0) >= 400) fail(429, 'Room connection limit reached.')
-          res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache, no-transform', 'Connection': 'keep-alive', 'X-Accel-Buffering': 'no' })
+          res.writeHead(200, { 'Content-Type': 'text/event-stream', 'Connection': 'keep-alive', 'X-Accel-Buffering': 'no' })
           res.write(`data: ${JSON.stringify(snapshot(room))}\n\n`)
           clients.add(res)
           const heartbeat = setInterval(() => res.write(': heartbeat\n\n'), 20000)
@@ -239,7 +248,7 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
         if (action === 'hunt-log' && req.method === 'GET') {
           const authorization = req.headers.authorization?.replace(/^Bearer /, '') || ''
           if (!safeEqual(hash(authorization), room.hostHash)) fail(401, 'Host access required.')
-          res.writeHead(200, { 'Content-Type': 'application/x-ndjson', 'Cache-Control': 'no-store', 'Content-Disposition': `attachment; filename="guesses-${code}.jsonl"` })
+          res.writeHead(200, { 'Content-Type': 'application/x-ndjson', 'Content-Disposition': `attachment; filename="guesses-${code}.jsonl"` })
           return res.end(journal.readRoom(code))
         }
         if (action === 'vote' && req.method === 'POST') {
@@ -278,8 +287,8 @@ export function createProofServer({ hostKey, publicUrl = 'http://localhost:3040'
       if (route === '/host') return serve(res, path.join(root, 'voting'), 'host.html')
       if (route === '/join' || /^\/join\/[A-Z2-9]{6}$/.test(route)) return serve(res, path.join(root, 'voting'), 'join.html')
       if (route.startsWith('/voting/')) return serve(res, path.join(root, 'voting'), decodeURIComponent(route.slice(8)))
-      if (route.startsWith('/vendor/')) return serve(res, path.join(root, 'node_modules/katex/dist'), decodeURIComponent(route.slice(8)), true)
-      return serve(res, path.join(root, 'dist'), route === '/' ? 'index.html' : decodeURIComponent(route.slice(1)), route.startsWith('/assets/'))
+      if (route.startsWith('/vendor/')) return serve(res, path.join(root, 'node_modules/katex/dist'), decodeURIComponent(route.slice(8)))
+      return serve(res, path.join(root, 'dist'), route === '/' ? 'index.html' : decodeURIComponent(route.slice(1)))
     } catch (error) {
       if (!res.headersSent) json(res, error.status || 500, { error: error.status ? error.message : 'Server error. Please try again.' })
       else res.end()
