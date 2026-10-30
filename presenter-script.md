@@ -203,6 +203,16 @@ That last sentence is the actual finish. We haven't just simplified an expressio
 
 ## Slide 13
 
+That proof is finished, so now we get to use the mathematical mic drop: this little square. You'll see it at the end of proofs, sometimes as an outline instead of a filled square.
+
+You might also see Q.E.D. That's short for the Latin quod erat demonstrandum, meaning which was to be demonstrated. Basically: we proved what we said we would.
+
+[click] I'm calling it an operator as a joke. It doesn't calculate anything, and it doesn't magically fix a bad proof. You have to earn the square by actually finishing the argument.
+
+---
+
+## Slide 14
+
 
 Now let's prove that n times n plus one is even for every integer n. These are two consecutive integers.
 
@@ -216,7 +226,7 @@ Checking only positive and negative integers, for example, would miss zero. Tiny
 
 ---
 
-## Slide 14
+## Slide 15
 
 
 Our next claim is that if an integer's square is even, the integer itself is even. We need a justification. Saying it's obvious because even times even is even would run the implication in the wrong direction.
@@ -233,7 +243,7 @@ Keep this result. In a moment we'll use it twice inside a different proof. This 
 
 ---
 
-## Slide 15
+## Slide 16
 
 
 Proof by contradiction starts by assuming the exact opposite of what we want to prove.
@@ -246,7 +256,7 @@ Proof by contradiction starts by assuming the exact opposite of what we want to 
 
 ---
 
-## Slide 16
+## Slide 17
 
 
 Let's prove that the square root of two is irrational. Assume the opposite: it equals a over b, with a and b integers and b positive. We choose that fraction in lowest terms.
@@ -261,7 +271,7 @@ Remember the result we just proved: an even square has an even integer root.
 
 ---
 
-## Slide 17
+## Slide 18
 
 
 Start with square root of two equals a over b.
@@ -284,7 +294,7 @@ Notice how precise the contradiction is. We didn't say the fraction looks unlike
 
 ---
 
-## Slide 18
+## Slide 19
 
 
 Induction proves a statement for every positive integer using two jobs. First, prove the base case, usually one. Second, prove that for an arbitrary integer k in the domain, if the statement holds at k, it must hold at k plus one.
@@ -309,7 +319,7 @@ And assuming P of k inside the step isn't circular. We're proving a conditional.
 
 ---
 
-## Slide 19
+## Slide 20
 
 
 Here's the claim we'll prove by induction: the first n positive odd integers add up to n squared.
@@ -324,7 +334,7 @@ The diagram makes the next odd number feel inevitable. But showing a few sizes i
 
 ---
 
-## Slide 20
+## Slide 21
 
 
 Let's write the proof carefully. P of n is the statement that the first n positive odd numbers sum to n squared.
@@ -343,7 +353,7 @@ The visual border and the algebra express the same mechanism.
 
 ---
 
-## Slide 21
+## Slide 22
 
 
 After all those universal claims, here's an existence statement: there exists a prime integer that is the sum of two squares of positive integers.
@@ -358,7 +368,7 @@ This connects back to quantifiers. One example is weak evidence for a universal 
 
 ---
 
-## Slide 22
+## Slide 23
 
 
 Three claims. Don't prove them completely. Just tell me a sensible first move.
@@ -385,7 +395,7 @@ Third: the sum from one through n equals n times n plus one over two, for positi
 
 ---
 
-## Slide 23
+## Slide 24
 
 
 [BEFORE STARTING: Switch your shared screen to the activity host tab. Click Open Proof or Bluff, then Start round 1. The same names, room, and phone pages carry over. Late arrivals can scan the QR again. If phones fail, return to Slidev and select Show-of-hands fallback.]
@@ -448,11 +458,11 @@ It isn't. Either x is rational or it isn't. In each case, we have positive irrat
 
 The question behind every round was: what exactly permits the next step?
 
-[DO: Switch your shared screen back to Slidev and advance to slide 24.]
+[DO: Switch your shared screen back to Slidev and advance to slide 25.]
 
 ---
 
-## Slide 24
+## Slide 25
 
 
 Here's the toolkit in one place. Start by reading the exact statement. Identify the domain, the quantifiers, and the assumptions. Then ask what the definitions give you.
@@ -467,7 +477,7 @@ These are useful starting points, not rigid rules. A good proof often combines s
 
 ---
 
-## Slide 25
+## Slide 26
 
 
 Last challenge. For an integer n, if n squared is odd, then n is odd. Which first move actually helps prove this: testing twenty odd numbers, using the contrapositive, or assuming n is odd?
@@ -486,7 +496,7 @@ The direction of the argument matters just as much as the algebra.
 
 ---
 
-## Slide 26
+## Slide 27
 
 
 If you keep one habit from this, make it asking what makes the next step unavoidable.
@@ -505,7 +515,7 @@ What part would you challenge, or want to see another example of?
 
 ---
 
-## Slide 27
+## Slide 28
 
 APPENDIX: Not part of the 30-minute schedule.
 

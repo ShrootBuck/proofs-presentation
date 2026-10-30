@@ -43,6 +43,7 @@ time: '0:00–0:25'
   <h1 v-motion :initial="{ y: 30, opacity: 0 }" :enter="{ y: 0, opacity: 1, transition: { duration: 700 } }">PROVE <span class="title-second">IT.</span></h1>
   <div class="title-subtitle" v-motion :initial="{ y: 15, opacity: 0 }" :enter="{ y: 0, opacity: 1, transition: { delay: 200, duration: 650 } }">The art of being certain</div>
 </div>
+<div class="title-qed" aria-label="End of proof">∎</div>
 <div class="title-credits">
   <div class="title-author">Zayd Krunz</div>
   <div class="title-course">Capstone: Differential Equations</div>
@@ -406,6 +407,27 @@ Why different letters? Because the two odd numbers don't have to be equal. Writi
 That last sentence is the actual finish. We haven't just simplified an expression. We've connected it to the definition of the thing we promised to prove.
 
 [click] Nothing depended on a particular choice of a or b, so the proof covers every pair of odd integers, including negative ones.
+-->
+
+---
+class: dark qed-slide
+clicks: 1
+---
+
+# The mic drop operator.
+
+<div class="qed-explainer">
+  <div class="qed-symbol">∎</div>
+  <div><h2>Proof complete.</h2><p>The square marks the end of a proof.</p><p><strong>Q.E.D.</strong> means “which was to be demonstrated.”</p></div>
+</div>
+<p v-click="1" class="takeaway">You earn the square by finishing the argument.</p>
+
+<!--
+That proof is finished, so now we get to use the mathematical mic drop: this little square. You'll see it at the end of proofs, sometimes as an outline instead of a filled square.
+
+You might also see Q.E.D. That's short for the Latin quod erat demonstrandum, meaning which was to be demonstrated. Basically: we proved what we said we would.
+
+[click] I'm calling it an operator as a joke. It doesn't calculate anything, and it doesn't magically fix a bad proof. You have to earn the square by actually finishing the argument.
 -->
 
 ---
@@ -818,7 +840,7 @@ It isn't. Either x is rational or it isn't. In each case, we have positive irrat
 
 The question behind every round was: what exactly permits the next step?
 
-[DO: Switch your shared screen back to Slidev and advance to slide 24.]
+[DO: Switch your shared screen back to Slidev and advance to slide 25.]
 -->
 
 ---

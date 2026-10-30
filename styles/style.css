@@ -362,3 +362,11 @@ button, input { font: inherit; }
 .method-overview-grid h2{font-size:29px;margin:12px 0 9px;letter-spacing:-.035em}
 .method-overview-grid p{font-size:18px;line-height:1.4;color:#b9c5b1;margin:0;max-width:290px}
 .methods-reminder{font-size:21px!important;color:var(--acid);margin-top:42px!important}
+
+.title-qed { position: absolute; right: 70px; bottom: 57px; color: var(--lime, #d8fa57); font-size: 90px; line-height: 1; }
+.qed-explainer { display: flex; align-items: center; gap: 60px; margin: 52px 0 40px; }
+.qed-symbol { color: #d8fa57; font-size: 180px; line-height: 1; }
+.qed-explainer h2 { font-size: 42px; margin: 0 0 18px; }
+.qed-explainer p { font-size: 23px; margin: 12px 0; }
+.title-qed { font-size: 0; width: 48px; height: 48px; background: #d8fa57; }
+.qed-symbol { font-size: 0; width: 90px; height: 90px; flex: 0 0 90px; background: #d8fa57; }

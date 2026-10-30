@@ -85,7 +85,7 @@ function renderProof() {
   const scores = make('div', 'host-class-score'); scores.append(make('span', '', `CLASS ${room.score.class}`), make('span', '', `TRAPS ${room.score.traps}`)); dashboard.append(scores)
   if (room.phase === 'finished') {
     const grid = make('div', 'host-finish-grid'), result = make('div')
-    result.append(make('div', 'host-final-score', `${room.score.class} / ${room.totalRounds}`), make('h2', '', room.score.class === room.totalRounds ? 'The class has trust issues. Good.' : 'Every trap has a lesson.'), link('Back to Slidev · slide 24 ↗', '/#/24'))
+    result.append(make('div', 'host-final-score', `${room.score.class} / ${room.totalRounds}`), make('h2', '', room.score.class === room.totalRounds ? 'The class has trust issues. Good.' : 'Every trap has a lesson.'), link('Back to Slidev · slide 25 ↗', '/#/25'))
     grid.append(result, leaderboard()); dashboard.append(grid); return
   }
   dashboard.append(math(room.question.claim, 'host-claim'))
