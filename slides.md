@@ -328,7 +328,7 @@ time: '8:00–8:40'
   <div class="negation-option"><div class="option-letter">B</div>At least one student did not solve the puzzle.</div>
 </div>
 
-<div v-click="1" class="negation-answer"><strong>B.</strong> A negation needs just enough to make the claim false.<div style="margin-top: 15px"><MathTex tex="\neg(\forall x,\ P(x))\ \equiv\ \exists x,\ \neg P(x)" /></div></div>
+<div v-click="1" class="negation-answer"><strong>B. "Not every" means "at least one didn't."</strong><div style="margin-top: 15px; font-size: 24px">20 students solved it. 1 didn't. So "every student solved it" is false.</div><div style="margin-top: 12px; font-size: 24px">One exception is enough. It doesn't mean nobody solved it.</div></div>
 
 <!--
 
@@ -338,7 +338,7 @@ Quick vote. The statement is: every student solved the puzzle. Is its negation A
 
 [click] It's B. To make every student solved it false, we only need one student who didn't. A is much stronger than necessary. Imagine twenty people solved it and one didn't. The original claim is false, but A is also false.
 
-Negating for every gives us there exists, with the inside statement negated. Negating there exists works the other way: for every, not. This matters because proof by contradiction begins by assuming the exact negation of our target.
+So "not every" means "at least one didn't." It doesn't mean "none." In symbols, negating "for every" gives "there exists," and we negate the statement inside. We'll use this when a proof by contradiction starts by assuming our claim is false.
 -->
 
 ---

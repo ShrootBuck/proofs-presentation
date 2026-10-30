@@ -167,7 +167,7 @@ Quick vote. The statement is: every student solved the puzzle. Is its negation A
 
 [click] It's B. To make every student solved it false, we only need one student who didn't. A is much stronger than necessary. Imagine twenty people solved it and one didn't. The original claim is false, but A is also false.
 
-Negating for every gives us there exists, with the inside statement negated. Negating there exists works the other way: for every, not. This matters because proof by contradiction begins by assuming the exact negation of our target.
+So "not every" means "at least one didn't." It doesn't mean "none." In symbols, negating "for every" gives "there exists," and we negate the statement inside. We'll use this when a proof by contradiction starts by assuming our claim is false.
 
 ---
 
